@@ -1,0 +1,86 @@
+import 'package:colloborator_v3/features/customers/domain/entities/phone_number.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/workpalce_info.dart';
+import 'package:equatable/equatable.dart';
+
+final class CustomerInfo extends Equatable{
+
+  const CustomerInfo({
+    required this.id,
+    required this.fullName,
+    required this.inps,
+    required this.passportNumber,
+    required this.birthDay,
+    required this.mainAdress,
+    required this.phones,
+    required this.passportGiven,
+    required this.passportExpire,
+    required this.workplace,
+    required this.province,
+    required this.region,
+    required this.village,
+    required this.houseNumber,
+    required this.street,
+    required this.passportType,
+  });
+
+  final int id;
+  final String fullName;
+  final String inps;
+  final String passportNumber;
+  final String birthDay;
+  final String mainAdress;
+  final List<PhoneNumber> phones;
+  final String passportGiven;
+  final String passportExpire;
+  final WorkplaceInfo workplace;
+  final Province province;
+  final Region region;
+  final Village village;
+  final String houseNumber;
+  final String street;
+  final bool passportType;
+
+  PhoneNumber? get mainPhone {
+  for (final phone in phones) {
+    if (phone.isMain) return phone;
+  }
+  return null;
+}
+
+  @override
+  List<Object?> get props => [id,fullName,inps,passportNumber,birthDay,mainAdress,phones,passportGiven,passportExpire,workplace,province,region,village,houseNumber,street,passportType];
+
+}
+
+final class Province extends Equatable{
+
+  const Province({required this.id, required this.title});
+
+  final int id;
+  final String title;
+
+  @override
+  List<Object?> get props => [id,title];
+}
+
+final class Region extends Equatable{
+
+  const Region({required this.id, required this.title});
+
+  final int id;
+  final String title;
+
+  @override
+  List<Object?> get props => [id,title];
+}
+
+final class Village extends Equatable{
+
+  const Village({required this.id, required this.title});
+
+  final int id;
+  final String title;
+
+  @override
+  List<Object?> get props => [id,title];
+}

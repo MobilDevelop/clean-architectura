@@ -1,0 +1,296 @@
+{
+  "project_info": {
+    "project_number": "730334955316",
+    "firebase_url": "https://consultant-21fe8-default-rtdb.firebaseio.com",
+    "project_id": "consultant-21fe8",
+    "storage_bucket": "consultant-21fe8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:f4ac2d0bd29b85eda00761",
+        "android_client_info": {
+          "package_name": "com.example.app_setting"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:89ce7aab0a2b3c2ea00761",
+        "android_client_info": {
+          "package_name": "com.example.cashier_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:4c455df23560af89a00761",
+        "android_client_info": {
+          "package_name": "com.example.collaborator"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:0c023213994a0ae6a00761",
+        "android_client_info": {
+          "package_name": "com.example.colloborator_flex"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:222ab1256285c15ca00761",
+        "android_client_info": {
+          "package_name": "com.example.e_katalog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:419522346f30def3a00761",
+        "android_client_info": {
+          "package_name": "com.example.geo_partner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:4f9bf732e9425637a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonch_SMS_APP"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:f51cd05930dc5952a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonch_geo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:e9c884a4b308f452a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonch_ombor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:06ae5ebbeba4f8b5a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonch_setapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:4344dac1cfeb8645a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonch_tv_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:0a02fb8cb358e0f7a00761",
+        "android_client_info": {
+          "package_name": "com.example.ishonchpaymobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:5595dac69c7ae7dfa00761",
+        "android_client_info": {
+          "package_name": "com.example.kuryer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:6a86d9ae9f9c3c47a00761",
+        "android_client_info": {
+          "package_name": "com.example.resale_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730334955316:android:86627ea4baf72f1ba00761",
+        "android_client_info": {
+          "package_name": "com.ishonch.consultant_new"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAs1w369gQnpv_wYs9vFDjWcynIIr8go1I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

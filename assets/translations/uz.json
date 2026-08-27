@@ -1,0 +1,20 @@
+{
+    "main":{
+        "title": "IshonchPay Mobile"
+    },
+    "splash": {
+        "app_name": "IshonchPay",
+        "mobile": "Mobile",
+        "tagline": "Xavfsiz va tez to'lovlar",
+        "loading": "Yuklanmoqda...",
+        "version": "Version"
+    },
+    "login": {
+        "title": "TIZIMGA KIRISH",
+        "login_label": "Login",
+        "login_hint": "Loginni kiriting",
+        "password_label": "Parol",
+        "password_hint": "Parolni kiriting",
+        "login_button": "Kirish"
+    }
+}
