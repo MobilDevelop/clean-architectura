@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 
 enum ToastType { success, error, info }
 
-class CustomAnimatedToast {
+final class CustomAnimatedToast {
   static OverlayEntry? _overlayEntry;
   static bool _isShowing = false;
   static String? _lastMessage;
@@ -38,21 +38,22 @@ class CustomAnimatedToast {
       overlayState = Overlay.of(ctx);
     } catch (e) {
       debugPrint('CustomAnimatedToast: Overlay topilmadi - $e');
-      final navigatorState = navigatorKey.currentState;
-      if (navigatorState != null && navigatorState.overlay != null) {
-        overlayState = navigatorState.overlay!;
-      } else {
+      final fallback = navigatorKey.currentState?.overlay;
+      if (fallback == null) {
         _onDialogClosed();
         return;
       }
+
+      overlayState = fallback;
     }
 
     final key = GlobalKey<_CustomAnimatedToastWidgetState>();
-    _overlayEntry = OverlayEntry(
+    final entry = OverlayEntry(
       builder: (c) => _CustomAnimatedToastWidget(key: key,type: type,message: message,duration: duration),
     );
 
-    overlayState.insert(_overlayEntry!);
+    _overlayEntry = entry;
+    overlayState.insert(entry);
   }
 
   static Future<void> showFromRoutes({required ToastType type,required String message,Duration duration = const Duration(seconds: 2)}) async {
@@ -80,7 +81,7 @@ class CustomAnimatedToast {
   }
 }
 
-class _CustomAnimatedToastWidget extends StatefulWidget {
+final class _CustomAnimatedToastWidget extends StatefulWidget {
   final ToastType type;
   final String message;
   final Duration duration;
@@ -91,7 +92,7 @@ class _CustomAnimatedToastWidget extends StatefulWidget {
   State<_CustomAnimatedToastWidget> createState() => _CustomAnimatedToastWidgetState();
 }
 
-class _CustomAnimatedToastWidgetState extends State<_CustomAnimatedToastWidget>
+final class _CustomAnimatedToastWidgetState extends State<_CustomAnimatedToastWidget>
     with TickerProviderStateMixin {
   late AnimationController _slideController;
   late AnimationController _expandController;

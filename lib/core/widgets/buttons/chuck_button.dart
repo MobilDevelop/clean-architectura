@@ -5,14 +5,14 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_alice/alice.dart';
 
-class ChuckButton extends StatefulWidget {
+final class ChuckButton extends StatefulWidget {
   const ChuckButton({super.key});
 
   @override
   State<ChuckButton> createState() => _ChuckButtonState();
 }
 
-class _ChuckButtonState
+final class _ChuckButtonState
     extends State<ChuckButton> {
   late double _top;
   double _right = 20;

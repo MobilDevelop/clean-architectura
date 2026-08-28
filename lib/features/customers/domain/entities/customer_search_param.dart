@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 /// Qidiruv matni qaysi turdagi ma'lumot ekani.
-enum CustomerSearchKind { passport, inps, fullName }
+enum CustomerSearchKind { passport, inps, fullName}
+enum CustomerSearchIssue { none, shortName, invalidName, incompleteInps, incompletePassport}
 
 abstract final class CustomerSearchShape {
   static const int passportLetters = 2;
@@ -22,6 +23,15 @@ final class CustomerSearchParams extends Equatable {
 
   final String query;
   final CustomerSearchKind kind;
+
+  CustomerSearchIssue get issue => switch (kind) {
+    CustomerSearchKind.inps => isComplete ? CustomerSearchIssue.none : CustomerSearchIssue.incompleteInps,
+    CustomerSearchKind.passport => isComplete ? CustomerSearchIssue.none : CustomerSearchIssue.incompletePassport,
+    CustomerSearchKind.fullName => switch (query.length < CustomerSearchShape.fullNameMinLength) {
+      true => CustomerSearchIssue.shortName,
+      false => _fullName.hasMatch(query) ? CustomerSearchIssue.none : CustomerSearchIssue.invalidName,
+    },
+  };
 
   bool get isComplete => switch (kind) {
         CustomerSearchKind.passport => query.length == CustomerSearchShape.passportLetters + CustomerSearchShape.passportDigits,

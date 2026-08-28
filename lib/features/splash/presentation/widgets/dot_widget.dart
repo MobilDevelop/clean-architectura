@@ -1,7 +1,7 @@
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class DotWidget extends StatelessWidget {
+final class DotWidget extends StatelessWidget {
   const DotWidget({super.key});
 
   @override

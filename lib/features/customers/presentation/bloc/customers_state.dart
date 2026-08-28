@@ -1,15 +1,17 @@
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
 import 'package:equatable/equatable.dart';
 
 final class CustomersState extends Equatable {
-  const CustomersState({required this.isLoading, required this.showSearch,required this.customers,required this.failure, required this.query});
+  const CustomersState({required this.isLoading, required this.showSearch,required this.customers,required this.failure, required this.query, required this.searchIssue});
 
   const CustomersState.initial(): 
   isLoading = false,
   showSearch = false,
 
   customers = const [],
+  searchIssue = CustomerSearchIssue.none,
 
   query = '',
   failure = null;
@@ -22,16 +24,18 @@ final class CustomersState extends Equatable {
   final Failure? failure;
   
   final List<CustomerInfo> customers;
+  final CustomerSearchIssue searchIssue;
 
-  CustomersState copyWith({bool? isLoading,bool? showSearch,List<CustomerInfo>? customers,Failure? failure,String? query,bool clearFailure = false})=>CustomersState(
+  CustomersState copyWith({bool? isLoading,bool? showSearch,List<CustomerInfo>? customers,Failure? failure,String? query,CustomerSearchIssue? searchIssue,bool clearFailure = false})=>CustomersState(
     isLoading: isLoading ?? this.isLoading, 
     showSearch: showSearch ?? this.showSearch,
     customers: customers ?? this.customers,
     query: query ?? this.query,
+    searchIssue: searchIssue ?? this.searchIssue,
     failure: clearFailure ? null : failure ?? this.failure
   );
   
   @override
-  List<Object> get props => [isLoading,showSearch,customers,query,?failure];
+  List<Object> get props => [isLoading,showSearch,customers,query,searchIssue,?failure];
 }
 

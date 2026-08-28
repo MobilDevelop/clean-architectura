@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class OutputsPage extends StatelessWidget {
+final class OutputsPage extends StatelessWidget {
   const OutputsPage({super.key});
 
   @override

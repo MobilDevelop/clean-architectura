@@ -3,7 +3,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class EnterError extends StatelessWidget {
+final class EnterError extends StatelessWidget {
   const EnterError({super.key,required this.deviceId,required this.title});
 
   final String deviceId;
@@ -40,7 +40,7 @@ class EnterError extends StatelessWidget {
             border: Border.all(color: AppTheme.colors.grey,width: ScreenSize.h1),
             borderRadius: BorderRadius.circular(ScreenSize.r12)
           ),
-          child: Text(deviceId,textAlign: TextAlign.center ,style: AppTheme.data.textTheme.displayLarge!.copyWith(color: AppTheme.colors.black))),
+          child: Text(deviceId,textAlign: TextAlign.center ,style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.black))),
        ],
      ),
      );

@@ -17,7 +17,7 @@ final class CustomersHeader extends StatelessWidget {
     super.key,
     required this.topInset,
     required this.showSearch,
-    required this.searchError,
+    required this.errorText,
     required this.controller,
     required this.drawerPress,
     required this.searchPress,
@@ -28,8 +28,8 @@ final class CustomersHeader extends StatelessWidget {
   final double topInset;
   final bool showSearch;
 
-  /// Kiritish xatosi. Bo'sh bo'lsa maydon tagida hech nima chiqmaydi.
-  final String searchError;
+  /// Kiritish xatosi. `null` — maydon tagida hech nima chiqmaydi.
+  final String? errorText;
 
   final TextEditingController controller;
   final VoidCallback drawerPress;
@@ -88,7 +88,7 @@ final class CustomersHeader extends StatelessWidget {
                         autoFocus: true,
                         backColor: AppTheme.colors.white,
                         // Kiritish xatosi shu yerda — server xatosi esa toastda (7.5).
-                        errorText: searchError.isEmpty ? null : searchError,
+                        errorText: errorText,
                         formatters: <TextInputFormatter>[CustomerSearchFormatter(), LengthLimitingTextInputFormatter(60)],
                         onChanged: onChanged,
                         onSubmitted: onSubmitted,

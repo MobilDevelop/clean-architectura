@@ -1,5 +1,4 @@
 
-// ignore_for_file: deprecated_member_use
 
 import 'package:bounce/bounce.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
@@ -9,7 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
 
-class BorderButton extends StatelessWidget {
+final class BorderButton extends StatelessWidget {
   const BorderButton({
     super.key,
     required this.onPressed,
@@ -25,16 +24,22 @@ class BorderButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String? iconPath = icon;
+
     Widget current = Text(text,
       maxLines: 1,overflow: TextOverflow.ellipsis,
       style: AppTheme.data.textTheme.headlineLarge?.copyWith(color: color ?? AppTheme.colors.blue),
     );
-    if (icon != null) {
+    if (iconPath != null) {
       current = Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Gap(ScreenSize.h7),
-          SvgPicture.asset(icon!,color: color ?? AppTheme.colors.blue,height: ScreenSize.h20),
+          SvgPicture.asset(
+            iconPath,
+            height: ScreenSize.h20,
+            colorFilter: ColorFilter.mode(color ?? AppTheme.colors.blue, BlendMode.srcIn),
+          ),
 
           Gap(ScreenSize.h5),
           Expanded(child: current),

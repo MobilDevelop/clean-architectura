@@ -1,12 +1,11 @@
-typedef Rule = String? Function(String value);
+typedef Rule<T> = T? Function(String value);
 
-Rule notEmpty(String message) => (value) => value.trim().isEmpty ? message : null;
-Rule minLength(int length, String message) => (value) => value.trim().length < length ? message : null;
+Rule<T> notEmpty<T>(T issue) => (value) => value.trim().isEmpty ? issue : null;
 
-String? firstError(String value, List<Rule> rules) {
+T? firstError<T>(String value, List<Rule<T>> rules) {
   for (final rule in rules) {
-    final error = rule(value);
-    if (error != null) return error;
+    final issue = rule(value);
+    if (issue != null) return issue;
   }
   return null;
 }

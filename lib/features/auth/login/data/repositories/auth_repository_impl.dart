@@ -13,6 +13,7 @@ final class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this._remote);
 
   final AuthRemoteDataSource _remote;
+  static const String _wrongCredentials = "Login yoki parol noto'g'ri";
 
   @override
   Future<Result<AuthSession>> login(LoginParams params) async {
@@ -23,7 +24,11 @@ final class AuthRepositoryImpl implements AuthRepository {
 
       return Ok(dto.toEntity());
     } on DioException catch (e) {
-      return Err(ErrorMapper.fromDio(e));
+      final failure = ErrorMapper.fromDio(e);
+
+      if (failure is UnauthorizedFailure) return const Err(ClientFailure(_wrongCredentials, statusCode: 401));
+      return Err(failure);
+
     } on TypeError catch (_) {
       return const Err(ParseFailure('Server javobi kutilgan shaklda emas'));
     } catch (_) {

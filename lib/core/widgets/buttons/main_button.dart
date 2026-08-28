@@ -7,7 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:lottie/lottie.dart';
 
-class MainButton extends StatelessWidget {
+final class MainButton extends StatelessWidget {
   const MainButton({
     super.key,
     required this.text,
@@ -38,13 +38,17 @@ class MainButton extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget current;
 
+    // Ochiq maydon `null` tekshiruvidan keyin ko'tarilmaydi — mahalliy nusxa
+    // `!` operatorisiz ishlashga imkon beradi (12-bo'lim).
+    final String? icon = leftIcon;
+
     if (showLoading) {
       current = Lottie.asset(AppIcons.loading,height: ScreenSize.h45,delegates: LottieDelegates(values: [ValueDelegate.colorFilter(const ['**'],value: ColorFilter.mode(textColor ?? AppTheme.colors.white,BlendMode.srcIn))]));
-    } else if (leftIcon != null) {
+    } else if (icon != null) {
       current = Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(leftIcon!,colorFilter: ColorFilter.mode(textColor ?? AppTheme.colors.white, BlendMode.srcIn)),
+          SvgPicture.asset(icon,colorFilter: ColorFilter.mode(textColor ?? AppTheme.colors.white, BlendMode.srcIn)),
           
           Gap(ScreenSize.w10),
           Text(text,style: style ?? AppTheme.data.textTheme.titleLarge?.copyWith(color: textColor?? AppTheme.colors.white))

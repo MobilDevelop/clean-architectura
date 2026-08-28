@@ -6,6 +6,7 @@ import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
+import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/data/datasources/auth_remote_datasource.dart';
@@ -59,16 +60,8 @@ void _registerPlatform() {
   getIt
     ..registerLazySingleton(() => FirebaseService())
     ..registerLazySingleton(() => FirebaseMessaging.instance)
-    ..registerLazySingleton(
-      () => SecureTokenStorage(
-        const FlutterSecureStorage(
-          aOptions: AndroidOptions(),
-          // Nega first_unlock_this_device: token qurilma bir marta ochilgandan keyin
-          // fon rejimida ham o'qiladi, lekin zaxiradan boshqa qurilmaga ko'chmaydi.
-          iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
-        ),
-      ),
-    )
+    ..registerLazySingleton(() => PushTokenService(getIt()))
+    ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
     ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')))
     ..registerLazySingleton(() => Alice(navigatorKey: CustomAnimatedToast.navigatorKey));
 }
@@ -96,7 +89,7 @@ void _registerApp() {
 /// features/auth/login — data → domain → presentation
 void _registerLogin() {
   getIt
-    ..registerLazySingleton(() => AuthRemoteDataSource(dio: getIt(), deviceInfo: getIt(), messaging: getIt()))
+    ..registerLazySingleton(() => AuthRemoteDataSource(dio: getIt(), deviceInfo: getIt(),push: getIt()))
     ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt()))
     ..registerLazySingleton(() => LoginUseCase(getIt()))
     ..registerFactory(() => LoginBloc(loginUseCase: getIt(), auth: getIt(), deviceInfo: getIt()));
@@ -105,7 +98,7 @@ void _registerLogin() {
 /// features/auth/registration — data → domain → presentation
 void _registerRegistration() {
   getIt
-    ..registerLazySingleton(() => RegistrationRemoteDatasource(dio: getIt(), messaging: getIt(), deviceInfo: getIt()))
+    ..registerLazySingleton(() => RegistrationRemoteDatasource(dio: getIt(), push: getIt(), deviceInfo: getIt()))
     ..registerLazySingleton<RegistrationRepository>(() => RegistrationRepositoryImpl(remote: getIt()))
     ..registerLazySingleton(() => PartnersUsecase(getIt()))
     ..registerLazySingleton(() => RegistrationUsecase(getIt()))

@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
+import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/auth/login/data/models/auth_response_dto.dart';
 import 'package:colloborator_v3/features/auth/login/domain/entities/login_param.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 /// Auth uchun tarmoq chaqiruvlari.
 /// Bu yerda xato tutilmaydi — `DioException` repository'ga chiqadi
@@ -15,12 +15,12 @@ final class AuthRemoteDataSource {
   const AuthRemoteDataSource({
     required this._dio,
     required this._deviceInfo,
-    required this._messaging,
+    required this._push,
   });
 
   final Dio _dio;
   final DeviceInfoService _deviceInfo;
-  final FirebaseMessaging _messaging;
+  final PushTokenService _push;
 
   Future<AuthResponseDto?> login(LoginParams params) async {
     final device = await _deviceInfo.get();
@@ -38,7 +38,7 @@ final class AuthRemoteDataSource {
         'device_model': device.brand,
         'platform': Platform.isAndroid ? 'android' : 'ios',
         'os_version': device.osVersion,
-        'fcm_token': await _fcmToken(),
+        'fcm_token': await _push.get(),
       },
     );
 
@@ -47,11 +47,4 @@ final class AuthRemoteDataSource {
 
   Future<void> logout() => _dio.post<void>(Endpoints.logOut);
 
-  Future<String> _fcmToken() async {
-    try {
-      return await _messaging.getToken() ?? '';
-    } catch (_) {
-      return '';
-    }
-  }
 }

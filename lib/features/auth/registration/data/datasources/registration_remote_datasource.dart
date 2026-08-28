@@ -1,18 +1,18 @@
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
+import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/auth/registration/data/models/partner_dto.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/entities/registration_param.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 final class RegistrationRemoteDatasource {
 
-  const RegistrationRemoteDatasource({required this._dio, required this._messaging, required this._deviceInfo});
+  const RegistrationRemoteDatasource({required this._dio, required this._deviceInfo, required this._push});
 
   final Dio _dio;
-  final FirebaseMessaging _messaging;
   final DeviceInfoService _deviceInfo;
+  final PushTokenService _push;
 
    
   Future<List<PartnerDto>> getPartners(String search)async{
@@ -34,18 +34,10 @@ final class RegistrationRemoteDatasource {
       'organization_id':param.organizationId,
       'rule_id':2, // hamkor id 2 ekan
       'phone_number':"+${param.phone.replaceAll(RegExp(r'[^0-9]'), '')}",
-      'fcm_token':await _fcmToken(),
+      'fcm_token':await _push.get(),
       'device_id':device.uniqueId, 
     });
 
     return  response.data?['message'] as String;
-  }
-
-  Future<String> _fcmToken() async {
-    try {
-      return await _messaging.getToken() ?? '';
-    } catch (_) {
-      return '';
-    }
   }
 }

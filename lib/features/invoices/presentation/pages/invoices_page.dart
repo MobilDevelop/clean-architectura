@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class InvoicesPage extends StatelessWidget {
+final class InvoicesPage extends StatelessWidget {
   const InvoicesPage({super.key});
 
   @override

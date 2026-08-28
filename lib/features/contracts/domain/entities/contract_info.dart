@@ -3,36 +3,6 @@ import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_inf
 import 'package:equatable/equatable.dart';
 
 final class ContractInfo extends Equatable{
-  final int id;
-  final int clientId;
-
-  final String clientFio;
-  final String passport;
-  final String birthDay;
-  final String clientSignUrl;
-  final String engine;
-  final String createdAt;
-  final String sentUserFullname;
-  final String sentPartnerFullname;
-
-  final bool isFormal;
-  final bool isReturned;
-  final bool isCard;
-  final bool flex;
-  final bool isClientFace;
-  final bool higherPositionConfirmationRequired;
-  final bool canUserAllowConfirmation;
-  final bool isSentForApproval;
-  final bool showButtonKATM;
-  final bool hasBenefit;
-
-  final List<GuarantorInfo> guarantors;
-  final ContractStatus status;
-  final DateTime? directorConfirmedAt;
-  final DateTime? scoringTime;
-  final DateTime? sentAt;
-
-
 
   const ContractInfo({
     required this.id,
@@ -62,9 +32,40 @@ final class ContractInfo extends Equatable{
     this.sentAt
   });
 
+  final int id;
+  final int clientId;
+
+  final String clientFio;
+  final String passport;
+  final String birthDay;
+  final String clientSignUrl;
+  final String engine;
+  final String createdAt;
+  final String sentUserFullname;
+  final String sentPartnerFullname;
+
+  final bool isFormal;
+  final bool isReturned;
+  final bool isCard;
+  final bool flex;
+  final bool isClientFace;
+  final bool higherPositionConfirmationRequired;
+  final bool canUserAllowConfirmation;
+  final bool isSentForApproval;
+  final bool showButtonKATM;
+  final bool hasBenefit;
+
+  final List<GuarantorInfo> guarantors;
+  final ContractStatus status;
+  final DateTime? directorConfirmedAt;
+  final DateTime? scoringTime;
+  final DateTime? sentAt;
+
+  bool get needsApproval => status == ContractStatus.allowed && (higherPositionConfirmationRequired || canUserAllowConfirmation);
+
   @override
   List<Object?> get props => [id,clientId,clientFio,createdAt,birthDay,passport,isFormal,
-  isReturned,isCard,flex,guarantors,clientSignUrl,isClientFace,higherPositionConfirmationRequired,isSentForApproval,status,
-  canUserAllowConfirmation,sentPartnerFullname,sentUserFullname,showButtonKATM,hasBenefit,engine,directorConfirmedAt,scoringTime,sentAt
-];
+    isReturned,isCard,flex,guarantors,clientSignUrl,isClientFace,higherPositionConfirmationRequired,isSentForApproval,status,
+    canUserAllowConfirmation,sentPartnerFullname,sentUserFullname,showButtonKATM,hasBenefit,engine,directorConfirmedAt,scoringTime,sentAt
+  ];
 }

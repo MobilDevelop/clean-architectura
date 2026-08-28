@@ -6,7 +6,6 @@ import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_status.dart';
 import 'package:colloborator_v3/features/contracts/presentation/styles/contract_status_style.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_approval_note.dart';
 import 'package:flutter/material.dart';
@@ -29,10 +28,6 @@ final class ContractCard extends StatelessWidget {
     if (contract.hasBenefit) return AppTheme.colors.primary;
     return null;
   }
-
-  bool get _showApprovalNote =>
-    contract.status == ContractStatus.allowed &&
-    (contract.higherPositionConfirmationRequired || contract.canUserAllowConfirmation);
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +103,7 @@ final class ContractCard extends StatelessWidget {
               ],
             ),
 
-            if (_showApprovalNote) ContractApprovalNote(contract: contract),
+            if (contract.needsApproval) ContractApprovalNote(contract: contract),
           ],
         ),
       ),

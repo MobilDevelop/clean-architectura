@@ -29,3 +29,7 @@ final class PasswordOnChanged extends LoginEvent {
 
   final String value;
 }
+
+final class FailureHandled extends LoginEvent {
+  const FailureHandled();
+}

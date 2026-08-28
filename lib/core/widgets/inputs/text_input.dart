@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
-class TextInputWidget extends StatelessWidget {
+final class TextInputWidget extends StatelessWidget {
   const TextInputWidget({
     super.key,  
     required this.hint,
@@ -58,15 +57,37 @@ class TextInputWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Nega mahalliy nusxalar: `icon` va `title` — ochiq maydonlar, Dart ularni
+    // `null` tekshiruvidan keyin ham ko'tarmaydi. Nusxa `!` operatorisiz
+    // ishlashga imkon beradi (12-bo'lim).
+    final String? iconPath = icon;
+    final String? titleText = title;
+    final bool hasError = errorText?.isNotEmpty ?? false;
+    final String? suffix = suffixIcon;
+    final Color? suffixColor = suffixIconColor;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         Row(
           children: [
-            icon !=null?SvgPicture.asset(icon!, height: iconHeight ?? ScreenSize.h10, color: AppTheme.colors.primary):SizedBox.shrink(),
+            if (iconPath != null)
+              SvgPicture.asset(
+                iconPath,
+                height: iconHeight ?? ScreenSize.h10,
+                colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn),
+              ),
+
             Gap(ScreenSize.w5),
-            title !=null?Text(title!, style: AppTheme.data.textTheme.titleMedium!.copyWith(color: errorText?.isNotEmpty ?? false ? AppTheme.colors.red : titleColor ?? AppTheme.colors.blackSoft,fontWeight: FontWeight.bold)):SizedBox.shrink(),
+            if (titleText != null)
+              Text(
+                titleText,
+                style: AppTheme.data.textTheme.titleMedium?.copyWith(
+                  color: hasError ? AppTheme.colors.red : titleColor ?? AppTheme.colors.blackSoft,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
           ],
         ),
         Gap(ScreenSize.h5),
@@ -77,7 +98,7 @@ class TextInputWidget extends StatelessWidget {
           initialValue: initial,
           keyboardType: keyboardType ?? TextInputType.text,
           autofocus: autoFocus ?? false,
-          style: AppTheme.data.textTheme.titleSmall!.copyWith(color: AppTheme.colors.blackSoft),
+          style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.blackSoft),
           obscureText: isPassword ?? false,
           obscuringCharacter: "●",
           textAlign: TextAlign.left,
@@ -98,14 +119,20 @@ class TextInputWidget extends StatelessWidget {
             hintText: hint,
             fillColor: backColor ?? AppTheme.colors.backcolor,
             errorText: errorText,
-            errorStyle: AppTheme.data.textTheme.bodySmall!.copyWith(color: AppTheme.colors.red),
-            hintStyle: AppTheme.data.textTheme.titleSmall!.copyWith(color: AppTheme.colors.grey,fontWeight: FontWeight.w400),
+            errorStyle: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.red),
+            hintStyle: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.grey,fontWeight: FontWeight.w400),
             floatingLabelBehavior: FloatingLabelBehavior.always,
-            prefix: prefix != null ? Text("$prefix ",style: AppTheme.data.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w400)) : null,
-            suffixIcon: suffixIcon!=null?IconButton(
-              icon: SvgPicture.asset(suffixIcon!, height: ScreenSize.h20, color: suffixIconColor),
-              onPressed: suffixPress,
-            ):null,
+            prefix: prefix != null ? Text("$prefix ",style: AppTheme.data.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w400)) : null,
+            suffixIcon: suffix == null
+              ? null
+              : IconButton(
+                  icon: SvgPicture.asset(
+                    suffix,
+                    height: ScreenSize.h20,
+                    colorFilter: suffixColor == null ? null : ColorFilter.mode(suffixColor, BlendMode.srcIn),
+                  ),
+                  onPressed: suffixPress,
+                ),
             contentPadding: EdgeInsets.symmetric(horizontal: ScreenSize.h10),
 
             border: OutlineInputBorder(

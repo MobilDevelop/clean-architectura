@@ -16,6 +16,7 @@ LoginBloc extends Bloc<LoginEvent, LoginState> {
     on<LoginSubmitted>(_onSubmitted);
     on<LoginOnChanged>(_onLoginChanged);
     on<PasswordOnChanged>(_onPasswordChanged);
+    on<FailureHandled>(_failureHandler);
   }
 
   final LoginUseCase _loginUseCase;
@@ -28,40 +29,33 @@ LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(state.copyWith(deviceId: info.uniqueId));
   }
 
-  void _onVisibilityToggled(LoginPasswordVisibilityToggled event, Emitter<LoginState> emit) {
-    emit(state.copyWith(showPassword: !state.showPassword));
-  }
-
-  void _onLoginChanged(LoginOnChanged event, Emitter<LoginState> emit) {
-    emit(state.copyWith(loginError: event.value.isNotEmpty ? '' : null));
-  }
-
-  void _onPasswordChanged(PasswordOnChanged event, Emitter<LoginState> emit) {
-    emit(state.copyWith(passwordError: event.value.isNotEmpty ? '' : null));
-  }
+  void _onVisibilityToggled(LoginPasswordVisibilityToggled event, Emitter<LoginState> emit)=>emit(state.copyWith(showPassword: !state.showPassword));
+  void _failureHandler(FailureHandled event, Emitter<LoginState> emit) => emit(state.copyWith(clearFailure: true));
+  void _onLoginChanged(LoginOnChanged event, Emitter<LoginState> emit) => emit(state.copyWith(loginIssue: LoginFieldIssue.none));
+  void _onPasswordChanged(PasswordOnChanged event, Emitter<LoginState> emit) => emit(state.copyWith(passwordIssue: LoginFieldIssue.none));
 
   Future<void> _onSubmitted(LoginSubmitted event, Emitter<LoginState> emit) async {
-    final usernameError = firstError(event.username, [notEmpty('Login kiritilmadi')]);
-    final passwordError = firstError(event.password, [notEmpty('Parol kiritilmadi')]);
+    final loginIssue = firstError(event.username, [notEmpty(LoginFieldIssue.empty)]) ?? LoginFieldIssue.none;
+    final passwordIssue = firstError(event.password, [notEmpty(LoginFieldIssue.empty)]) ?? LoginFieldIssue.none;
 
-    if (usernameError != null || passwordError != null) {
-      emit(state.copyWith(loginError: usernameError ?? '',passwordError: passwordError ?? '',errorMessage: ''));
+    if (loginIssue != LoginFieldIssue.none || passwordIssue != LoginFieldIssue.none) {
+      emit(state.copyWith(loginIssue: loginIssue, passwordIssue: passwordIssue));
       return;
     }
     
-    emit(state.copyWith(isLoading: true, errorMessage: ''));
+    emit(state.copyWith(isLoading: true));
     final result = await _loginUseCase(LoginParams(username: event.username, password: event.password));
 
     switch (result) {
       case Ok(:final value):
-        try {
-          await _auth.signIn(value.token);
-          emit(state.copyWith(isLoading: false));
-        } catch (_) {
-          emit(state.copyWith(isLoading: false,errorMessage: "Kirish ma'lumotini saqlab bo'lmadi. Qayta urinib ko'ring."));
+        final saved = await _auth.signIn(value.token);
+
+        switch (saved) {
+          case Ok(): emit(state.copyWith(isLoading: false));
+          case Err(:final failure): emit(state.copyWith(isLoading: false, failure: failure));
         }
 
-      case Err(:final failure): emit(state.copyWith(isLoading: false, errorMessage: failure.message));
+      case Err(:final failure): emit(state.copyWith(isLoading: false, failure: failure));
     }
   }
 }

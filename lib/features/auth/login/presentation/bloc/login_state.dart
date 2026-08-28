@@ -1,43 +1,47 @@
+import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:equatable/equatable.dart';
+
+enum LoginFieldIssue { none, empty }
 
 final class LoginState extends Equatable {
   const LoginState({
     required this.showPassword,
     required this.isLoading,
-    required this.errorMessage,
-    required this.loginError,
-    required this.passwordError,
+    required this.loginIssue,
+    required this.passwordIssue,
     required this.deviceId,
+    this.failure
   });
 
   const LoginState.initial()
       : showPassword = false,
         isLoading = false,
-        errorMessage = '',
-        passwordError = '',
-        loginError = '',
+        loginIssue = LoginFieldIssue.none,
+        passwordIssue = LoginFieldIssue.none,
+        failure = null,
         deviceId = '';
 
   final bool showPassword;
   final bool isLoading;
 
-  final String errorMessage;
-  final String loginError;
-  final String passwordError;
+  final LoginFieldIssue loginIssue;
+  final LoginFieldIssue passwordIssue;
+
+  final Failure? failure;
 
   /// Kirish rad etilganda ekranda ko'rsatiladi — qo'llab-quvvatlash xizmati
   /// qurilmani shu ID bo'yicha ro'yxatga oladi
   final String deviceId;
 
-  LoginState copyWith({bool? showPassword, bool? isLoading, String? errorMessage, String? deviceId,String? loginError,String? passwordError}) => LoginState(
+  LoginState copyWith({bool? showPassword, bool? isLoading, String? deviceId,LoginFieldIssue? loginIssue,LoginFieldIssue? passwordIssue,Failure? failure,bool clearFailure = false}) => LoginState(
         showPassword: showPassword ?? this.showPassword,
         isLoading: isLoading ?? this.isLoading,
-        errorMessage: errorMessage ?? this.errorMessage,
-        loginError: loginError ?? this.loginError,
-        passwordError: passwordError ?? this.passwordError,
+        loginIssue: loginIssue ?? this.loginIssue,
+        passwordIssue: passwordIssue ?? this.passwordIssue,
         deviceId: deviceId ?? this.deviceId,
+        failure: clearFailure ? null : failure ?? this.failure
       );
 
   @override
-  List<Object?> get props => [showPassword, isLoading, errorMessage, deviceId,loginError,passwordError];
+  List<Object?> get props => [showPassword, isLoading, deviceId,loginIssue,passwordIssue,failure];
 }

@@ -16,6 +16,7 @@ import 'package:colloborator_v3/features/outputs/presentation/pages/outputs_page
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
+import 'package:colloborator_v3/core/widgets/states/route_error_view.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/pages/login_page.dart';
 import 'package:colloborator_v3/features/main/presentation/pages/main_page.dart';
@@ -101,7 +102,7 @@ class AppRouter {
       GoRoute(
         name: Routes.login.name,
         path: Routes.login.path,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition1<void>(
+        pageBuilder: (context, state) => buildScaleTransitionPage<void>(
           context: context,
           state: state,
           child: BlocProvider(
@@ -114,7 +115,7 @@ class AppRouter {
       GoRoute( 
         name: Routes.registration.name,
         path: Routes.registration.path,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition1<void>(
+        pageBuilder: (context, state) => buildScaleTransitionPage<void>(
           context: context,
           state: state,
           child: BlocProvider(
@@ -125,11 +126,14 @@ class AppRouter {
       ),
 
     ],
-    errorBuilder: (context, state) => const SizedBox(),
+    errorBuilder: (context, state) => RouteErrorView(
+      location: state.uri.toString(),
+      onBack: () => context.go(Routes.customer.path),
+    ),
   );
 }
 
-CustomTransitionPage<T> buildPageWithDefaultTransition1<T>({
+CustomTransitionPage<T> buildScaleTransitionPage<T>({
   required BuildContext context,
   required GoRouterState state,
   required Widget child,
@@ -138,54 +142,4 @@ CustomTransitionPage<T> buildPageWithDefaultTransition1<T>({
     key: state.pageKey,
     child: child,
     transitionsBuilder: (context, animation, secondaryAnimation, child) => ScaleTransition(scale: animation, child: child));
-}
-
-CustomTransitionPage<T> buildPageWithDefaultTransition2<T>({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
-    },
-  );
-}
-
-CustomTransitionPage<T> buildPageWithDefaultTransition3<T>({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final Offset begin = Offset(0.0, 1.0);
-      final Offset end = Offset.zero;
-      final Tween<Offset> offsetTween = Tween(begin: begin, end: end);
-      final Animation<Offset> offsetAnimation = animation.drive(offsetTween);
-      return SlideTransition(position: offsetAnimation, child: child);
-    },
-  );
-}
-
-CustomTransitionPage<T> buildPageWithDefaultTransition<T>({
-  required BuildContext context,
-  required GoRouterState state,
-  required Widget child,
-}) {
-  return CustomTransitionPage<T>(
-    key: state.pageKey,
-    child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      final Offset begin = Offset(1.0, 0.0);
-      final Offset end = Offset.zero;
-      final Tween<Offset> offsetTween = Tween(begin: begin, end: end);
-      final Animation<Offset> offsetAnimation = animation.drive(offsetTween);
-      return SlideTransition(position: offsetAnimation, child: child);
-    },
-  );
 }

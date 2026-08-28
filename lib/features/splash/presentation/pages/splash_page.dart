@@ -12,7 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
-class SplashPage extends StatelessWidget {
+final class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 
   @override

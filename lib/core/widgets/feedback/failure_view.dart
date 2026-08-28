@@ -7,16 +7,10 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/dialogs/app_dialog.dart';
 import 'package:colloborator_v3/core/widgets/feedback/connection_banner.dart';
+import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-/// Ichki nosozlikda foydalanuvchiga ko'rsatiladigan matn.
-///
-/// Nega `failure.message` emas: bu guruhdagi xatolarni foydalanuvchi tuzata
-/// olmaydi va texnik matn ("Server javobi kutilgan shaklda emas") unga hech
-/// nima bermaydi. Tafsilot botga ketadi (5.7).
-const String _internalMessage = "Xatolik yuz berdi. Birozdan keyin qayta urinib ko'ring";
 
 /// Xatoni guruhiga qarab ko'rsatadi (5.6).
 ///
@@ -74,11 +68,11 @@ final class _FailureViewState extends State<FailureView> {
         unawaited(_showSessionExpired());
 
       case FailureGroup.input:
-        unawaited(CustomAnimatedToast.showInfo(failure.message));
+        unawaited(CustomAnimatedToast.showInfo(FailureText.of(failure)));
         widget.onHandled();
 
       case FailureGroup.internal:
-        unawaited(CustomAnimatedToast.showInfo(_internalMessage));
+        unawaited(CustomAnimatedToast.showInfo(FailureText.of(failure)));
         widget.onHandled();
     }
   }
@@ -123,7 +117,7 @@ final class _FailureViewState extends State<FailureView> {
             right: ScreenSize.h12,
             bottom: (widget.bottomInset ?? 0) + ScreenSize.h12,
             child: ConnectionBanner(
-              message: failure.message,
+              message: FailureText.of(failure),
               onRetry: widget.onRetry,
               onClose: widget.onHandled,
             ),

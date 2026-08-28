@@ -20,7 +20,7 @@ final class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
 
   Future<void> _onQueryChanged(SearchQueryChanged event, Emitter<CustomersState> emit) async {
   final params = CustomerSearchParams(event.query);
-  emit(state.copyWith(query: params.query));
+  emit(state.copyWith(query: params.query,searchIssue: CustomerSearchIssue.none));
 
   // to'liq yozilgan bo'lsa — kutmasdan qidiramiz
   if (params.isComplete) await _search(params, emit);
@@ -30,9 +30,11 @@ Future<void> _onSubmitted(SearchSubmitted event, Emitter<CustomersState> emit) a
   final params = CustomerSearchParams(state.query);
 
   if (!params.isSearchable) {
+    emit(state.copyWith(searchIssue: params.issue));
     return;
   }
 
+  emit(state.copyWith(searchIssue: CustomerSearchIssue.none));
   await _search(params, emit);
 }
 

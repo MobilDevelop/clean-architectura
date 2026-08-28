@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
-class SelectPartner extends StatelessWidget {
+final class SelectPartner extends StatelessWidget {
   const SelectPartner({super.key, required this.title, required this.hint, required this.onChange});
 
   final String title;
@@ -22,7 +22,7 @@ class SelectPartner extends StatelessWidget {
           children: [
             SvgPicture.asset(AppIcons.star, height: ScreenSize.h10,colorFilter: ColorFilter.mode(AppTheme.colors.primary, BlendMode.srcIn)),
             Gap(ScreenSize.w5), 
-            Text(title, style: AppTheme.data.textTheme.headlineLarge!.copyWith(color: AppTheme.colors.black)),
+            Text(title, style: AppTheme.data.textTheme.headlineLarge?.copyWith(color: AppTheme.colors.black)),
           ],
         ),
                               
@@ -42,7 +42,7 @@ class SelectPartner extends StatelessWidget {
               Gap(ScreenSize.h5),
               Expanded(child: Text(hint,
               maxLines: 1,overflow: TextOverflow.ellipsis,
-              style: AppTheme.data.textTheme.titleMedium!.copyWith(color: AppTheme.colors.black))),
+              style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.black))),
 
               Gap(ScreenSize.h5),
               Bounce(
@@ -57,7 +57,7 @@ class SelectPartner extends StatelessWidget {
                     color: AppTheme.colors.blue,
                     borderRadius: BorderRadius.circular(ScreenSize.r30)
                   ),
-                  child: Text("Tanlash",style: AppTheme.data.textTheme.headlineMedium!.copyWith(color: AppTheme.colors.white)),
+                  child: Text("Tanlash",style: AppTheme.data.textTheme.headlineMedium?.copyWith(color: AppTheme.colors.white)),
                 ),
               )
             ],

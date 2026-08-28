@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
-import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
@@ -14,14 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 
-class RegistrationPage extends StatefulWidget {
+final class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
 
   @override
   State<RegistrationPage> createState() => _RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
+final class _RegistrationPageState extends State<RegistrationPage> {
   late TextEditingController _fullNameController;
   late TextEditingController _phoneController;
   late TextEditingController _loginController;
@@ -150,7 +149,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         builder: (context, isLoading) => MainButton(
                           text: "Tasdiqlash",
                           showLoading: isLoading,
-                          onPressed: ()=>getIt<RegistrationBloc>().add(RegistrationSendData(
+                          // Nega `context.read`: bloc `registerFactory` bilan
+                          // ro'yxatda, ya'ni `getIt` har chaqiruvda YANGI nusxa
+                          // beradi — event ekrandagi bloc'ga umuman yetib bormaydi.
+                          onPressed: ()=>context.read<RegistrationBloc>().add(RegistrationSendData(
                             fullname: _fullNameController.text,
                             login: _loginController.text,
                             password: _passwordController.text,

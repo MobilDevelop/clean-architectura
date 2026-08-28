@@ -1,6 +1,9 @@
 import 'package:bounce/bounce.dart';
 import 'package:colloborator_v3/core/constants/app_constants.dart';
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/features/auth/login/presentation/styles/login_field_issue_text.dart';
+import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
@@ -17,7 +20,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gap/gap.dart';
 
-class LoginPage extends StatefulWidget {
+/// Maydon nomlari sarlavhada ham, xato matnida ham ishlatiladi — bitta joyda.
+const String _loginLabel = "Login";
+const String _passwordLabel = "Parol";
+
+final class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
@@ -25,7 +32,7 @@ class LoginPage extends StatefulWidget {
 
 }
 
-class _LoginPageState extends State<LoginPage> {
+final class _LoginPageState extends State<LoginPage> {
 
   late TextEditingController _loginController;
   late TextEditingController _passwordController;
@@ -55,13 +62,15 @@ class _LoginPageState extends State<LoginPage> {
           decoration: BoxDecoration(image: DecorationImage(image: AssetImage(AppIcons.loginBack),fit: BoxFit.cover)),
           child: ListView(
             children: [
-              BlocSelector<LoginBloc, LoginState, String>(
-                selector: (state)=> state.errorMessage,
-                builder: (context, message)=>Column(
+              // Xato ko'ringanda logotip atrofidagi bo'shliq qisqaradi —
+              // shunda xato kartasi ekranga sig'adi.
+              BlocSelector<LoginBloc, LoginState, bool>(
+                selector: (LoginState state)=> state.failure != null,
+                builder: (BuildContext context, bool hasFailure)=>Column(
                   children: [
-                    Gap(message.isNotEmpty ? ScreenSize.h20 : ScreenSize.h40),
+                    Gap(hasFailure ? ScreenSize.h20 : ScreenSize.h40),
                     SvgPicture.asset(AppIcons.logo,height: ScreenSize.h55),
-                    Gap(message.isNotEmpty ? ScreenSize.h20 : ScreenSize.h80),
+                    Gap(hasFailure ? ScreenSize.h20 : ScreenSize.h80),
                   ],
                 ),
               ),
@@ -83,36 +92,41 @@ class _LoginPageState extends State<LoginPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("Tizimga kirish",style: AppTheme.data.textTheme.displayLarge!.copyWith(color: AppTheme.colors.blackSoft)),
+                      Text("Tizimga kirish",style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft)),
                           
-                      BlocSelector<LoginBloc, LoginState, ({String message, String deviceId})>(
-                        selector: (state)=>(message: state.errorMessage, deviceId: state.deviceId),
-                        builder: (context, state)=> Visibility(
-                          visible: state.message.isNotEmpty,
-                          child: EnterError(deviceId: state.deviceId, title: state.message)
-                        ),
+                      // Nega toast emas: login ekranida xato uchun maxsus joy
+                      // bor va u qurilma ID sini ham ko'rsatadi — foydalanuvchi
+                      // uni qo'llab-quvvatlash xizmatiga aytadi.
+                      BlocSelector<LoginBloc, LoginState, ({Failure? failure, String deviceId})>(
+                        selector: (LoginState state)=>(failure: state.failure, deviceId: state.deviceId),
+                        builder: (BuildContext context, ({Failure? failure, String deviceId}) data) {
+                          final Failure? failure = data.failure;
+                          if (failure == null) return const SizedBox.shrink();
+
+                          return EnterError(deviceId: data.deviceId, title: FailureText.of(failure));
+                        },
                       ),
                     
                       Gap(ScreenSize.h20),
-                      BlocSelector<LoginBloc, LoginState, String>(
-                        selector: (state)=>state.loginError,
-                        builder: (context, error)=>TextInputWidget(
+                      BlocSelector<LoginBloc, LoginState, LoginFieldIssue>(
+                        selector: (LoginState state)=>state.loginIssue,
+                        builder: (BuildContext context, LoginFieldIssue issue)=>TextInputWidget(
                           controller: _loginController,
-                          title: "Login", 
+                          title: _loginLabel,
                           hint: "Loginni kiriting",
                           onChanged: (value) => _bloc.add(LoginOnChanged(value: value)),
-                          errorText: error.isNotEmpty ? error : null,
+                          errorText: LoginFieldIssueText.of(issue, fieldName: _loginLabel),
                         ),
                       ),
                     
                       Gap(ScreenSize.h20),
-                      BlocSelector<LoginBloc, LoginState, ({bool showPassword,String error})>(
-                        selector: (state)=> (showPassword: state.showPassword,error: state.passwordError),
-                        builder: (context, state)=>TextInputWidget(
+                      BlocSelector<LoginBloc, LoginState, ({bool showPassword, LoginFieldIssue issue})>(
+                        selector: (LoginState state)=> (showPassword: state.showPassword, issue: state.passwordIssue),
+                        builder: (BuildContext context, ({bool showPassword, LoginFieldIssue issue}) state)=>TextInputWidget(
                           controller: _passwordController,
-                          title: "Parol", 
+                          title: _passwordLabel,
                           hint: "Parolni kiriting",
-                          errorText: state.error.isNotEmpty ? state.error : null,
+                          errorText: LoginFieldIssueText.of(state.issue, fieldName: _passwordLabel),
                           isPassword: !state.showPassword,
                           suffixIcon: state.showPassword?AppIcons.eyeClose:AppIcons.eyeOpen,
                           onChanged: (value) => _bloc.add(PasswordOnChanged(value: value)),
@@ -140,7 +154,7 @@ class _LoginPageState extends State<LoginPage> {
                 duration: Duration(milliseconds: AppConstants.duration),
                 onTap: () => context.push(Routes.registration.path),
                 child: Text("Ro'yxatdan o'tish",
-                style: AppTheme.data.textTheme.headlineMedium!.copyWith(color: AppTheme.colors.blue),
+                style: AppTheme.data.textTheme.headlineMedium?.copyWith(color: AppTheme.colors.blue),
                 textAlign: TextAlign.center),
               ),
               
