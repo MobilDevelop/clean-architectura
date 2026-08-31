@@ -9,7 +9,7 @@ Dio createDio({required List<Interceptor> interceptors}) {
       baseUrl: dotenv.env['mainURL'] ?? '',
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(minutes: 3),
       headers: const {
         'Content-Type': 'application/json; charset=UTF-8',
         'Accept': 'application/json; charset=UTF-8',

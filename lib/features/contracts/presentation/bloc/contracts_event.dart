@@ -18,8 +18,8 @@ final class DateSelected extends ContractsEvent{
   final DateTime date;
 }
 
-final class ErrorShown extends ContractsEvent {
-  const ErrorShown();
+final class FailureHandled extends ContractsEvent {
+  const FailureHandled();
 }
 
 final class DateCleared extends ContractsEvent {

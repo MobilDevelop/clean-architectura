@@ -39,7 +39,7 @@ Future<void> _onSubmitted(SearchSubmitted event, Emitter<CustomersState> emit) a
 }
 
 Future<void> _search(CustomerSearchParams params, Emitter<CustomersState> emit) async {
-  emit(state.copyWith(isLoading: true));
+  emit(state.copyWith(isLoading: true,clearFailure: true));
     
     final result = await _customerUsecase(params);
 

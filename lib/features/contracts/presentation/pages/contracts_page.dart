@@ -6,7 +6,8 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/states/results_header.dart';
-import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
+import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
@@ -42,45 +43,38 @@ final class _ContractsPageState extends State<ContractsPage> {
   Widget build(BuildContext context) {
     final double topInset = MediaQuery.paddingOf(context).top;
 
-    return BlocListener<ContractsBloc, ContractsState>(
-      listenWhen: (ContractsState previous, ContractsState current) => current.errorMessage.isNotEmpty,
-      listener: (BuildContext context, ContractsState state) {
-        unawaited(CustomAnimatedToast.showInfo(state.errorMessage));
-        _bloc.add(const ErrorShown());
-      },
-      child: Scaffold(
-        backgroundColor: AppTheme.colors.backcolor,
-        body: Stack(
-          children: <Widget>[
-            const BackgroundWash(),
+    return Scaffold(
+      backgroundColor: AppTheme.colors.backcolor,
+      body: BlocSelector<ContractsBloc, ContractsState, Failure?>(
+        selector: (ContractsState state) => state.failure,
+        builder: (BuildContext context, Failure? failure) => FailureView(
+          failure: failure,
+          onHandled: () => _bloc.add(const FailureHandled()),
+          onRetry: () => _bloc.add(const ContractsGet()),
+          child: Stack(
+            children: <Widget>[
+              const BackgroundWash(),
 
-            // Ro'yxat sarlavha ostidan suzib o'tadi.
-            Positioned.fill(
-              child: BlocSelector<ContractsBloc, ContractsState, ({bool isLoading, List<ContractInfo> contracts, DateTime? date})>(
-                selector: (ContractsState state) => (isLoading: state.isLoading,contracts: state.contracts,date: state.filter.date),
-                builder: (BuildContext context, ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data) => _content(
-                  data: data,
-                  topPadding: topInset + ScreenSize.h56,
+              // Ro'yxat sarlavha ostidan suzib o'tadi.
+              Positioned.fill(
+                child: BlocSelector<ContractsBloc, ContractsState, ({bool isLoading, List<ContractInfo> contracts, DateTime? date})>(
+                  selector: (ContractsState state) => (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
+                  builder: (BuildContext context, ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data) => _content(data: data, topPadding: topInset + ScreenSize.h56),
                 ),
               ),
-            ),
 
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: BlocSelector<ContractsBloc, ContractsState, DateTime?>(
-                selector: (ContractsState state) => state.filter.date,
-                builder: (BuildContext context, DateTime? date) => ContractsHeader(
-                  topInset: topInset,
-                  date: date,
-                  drawerPress: () {},
-                  filterPress: () => unawaited(_openFilter(date)),
-                  clearDate: () => _bloc.add(const DateCleared()),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: BlocSelector<ContractsBloc, ContractsState, DateTime?>(
+                  selector: (ContractsState state) => state.filter.date,
+                  builder: (BuildContext context, DateTime? date) =>
+                      ContractsHeader(topInset: topInset, date: date, drawerPress: () {}, filterPress: () => unawaited(_openFilter(date)), clearDate: () => _bloc.add(const DateCleared())),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -98,10 +92,7 @@ final class _ContractsPageState extends State<ContractsPage> {
     clearDate: () => _bloc.add(const DateCleared()),
   );
 
-  Widget _content({
-    required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,
-    required double topPadding,
-  }) {
+  Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data, required double topPadding}) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);
 
     if (data.isLoading) {
@@ -132,16 +123,7 @@ final class _ContractsPageState extends State<ContractsPage> {
         return ContractCard(
           key: ValueKey<int>(contract.id),
           contract: contract,
-          pressActions: () => unawaited(
-            showContractActions(
-              context: context,
-              contract: contract,
-              pressApprove: () {},
-              pressEdit: () {},
-              pressDetails: () {},
-              pressCancel: () {},
-            ),
-          ),
+          pressActions: () => unawaited(showContractActions(context: context, contract: contract, pressApprove: () {}, pressEdit: () {}, pressDetails: () {}, pressCancel: () {})),
         );
       },
     );

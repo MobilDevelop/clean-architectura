@@ -1,5 +1,7 @@
 import 'package:colloborator_v3/core/constants/app_constants.dart';
 import 'package:colloborator_v3/core/di/injection.dart';
+import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
@@ -21,13 +23,19 @@ final class SplashPage extends StatelessWidget {
         builder: (context, state) {
       switch (state) {
       case AppManagerLoading(): return _buildLoadingWidget();
-      case AppManagerError(:final error): return _buildErrorWidget(error);
+      case AppManagerError(:final failure): return _buildErrorWidget(failure);
       case AppManagerInitial(:final version): return _buildInitialWidget(context, version);
       }
     });
   }
 
-   Widget _buildErrorWidget(String error) => MaterialApp(
+  /// Startup yiqilgandagi ekran.
+  ///
+  /// Nega bu yerda `AppTheme` ishlatilmaydi: tema `AppStartup.prepare()` ning
+  /// birinchi qadamida quriladi. Aynan o'sha yerda yiqilsa, `AppTheme.colors`
+  /// hali tayinlanmagan bo'ladi va unga murojaat qilish yana bir istisno
+  /// beradi — foydalanuvchi esa bo'sh ekran ko'radi.
+  Widget _buildErrorWidget(Failure failure) => MaterialApp(
     debugShowCheckedModeBanner: false,
     home: Scaffold(
       backgroundColor: Colors.white,
@@ -44,7 +52,7 @@ final class SplashPage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                error,
+                FailureText.of(failure),
                 textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 12, color: Colors.black45),
               ),

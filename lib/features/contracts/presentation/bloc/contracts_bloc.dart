@@ -10,19 +10,19 @@ final class ContractsBloc extends Bloc<ContractsEvent, ContractsState> {
     on<ContractsGet>(_getContracts,transformer: restartable());
     on<DateCleared>(_dateCleared);
     on<DateSelected>(_dateSelected);
-    on<ErrorShown>(_errorShown);
+    on<FailureHandled>(_failureHandler);
   }
 
   final ContractsUsecase _contractsUsecase;
 
   Future<void> _getContracts(ContractsGet event, Emitter<ContractsState> emit) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true,clearFailure: true));
     
     final result = await _contractsUsecase(state.filter);
 
     switch (result) {
       case Ok(: final value):emit(state.copyWith(isLoading: false,contracts: value));
-      case Err(: final failure): emit(state.copyWith(isLoading: false,errorMessage: failure.message));
+      case Err(: final failure): emit(state.copyWith(isLoading: false,failure: failure));
     }
   }
 
@@ -36,6 +36,6 @@ final class ContractsBloc extends Bloc<ContractsEvent, ContractsState> {
     add(const ContractsGet());
   }
 
-  void _errorShown(ErrorShown event, Emitter<ContractsState> emit) => emit(state.copyWith(errorMessage: ''));
+  void _failureHandler(FailureHandled event, Emitter<ContractsState> emit) => emit(state.copyWith(clearFailure: true));
 
 }

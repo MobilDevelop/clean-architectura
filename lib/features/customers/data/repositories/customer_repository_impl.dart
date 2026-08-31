@@ -10,13 +10,13 @@ import 'package:dio/dio.dart';
 final class CustomerRepositoryImpl implements CustomerRepository{
   const CustomerRepositoryImpl({required this._remote});
 
-  final CustomerRemoteDatasource  _remote;
+  final CustomerRemoteDatasource _remote;
 
   @override
   Future<Result<List<CustomerInfo>>> getCustomers(CustomerSearchParams param)async{
     try {
-       final dto = await _remote.getCustomers(param);
-    return Ok(dto.map((customer) => customer.toEntity()).toList());
+      final dto = await _remote.getCustomers(param);
+     return Ok(dto.map((customer) => customer.toEntity()).toList());
     } on DioException catch (e) {
       return Err(ErrorMapper.fromDio(e));
     } on TypeError catch (_) {

@@ -4,11 +4,10 @@ final class RegistrationState extends Equatable {
   const RegistrationState({
     required this.isLoading,
     required this.partners,
-    required this.errorMessage,
     required this.isRegistered,
     required this.successMessage,
     this.selectedPartner,
-    this.selectedOrganization, 
+    this.selectedOrganization, this.failure, 
      
   });
 
@@ -18,16 +17,16 @@ final class RegistrationState extends Equatable {
         partners = const [],
         selectedPartner = null,
         selectedOrganization = null,
-        errorMessage = '',
+        failure = null,
         successMessage = '';
 
   final bool isLoading;
   final bool isRegistered;
   final Partner? selectedPartner;
-  final String errorMessage;
   final String successMessage;
   final Organization? selectedOrganization;
   final List<Partner> partners;
+  final Failure? failure;
 
   /// Ta'minotchi tanlanmaguncha filial ro'yxati ochilmaydi
   bool get canSelectOrganization => selectedPartner != null;
@@ -42,18 +41,19 @@ final class RegistrationState extends Equatable {
     Organization? selectedOrganization,
     bool clearOrganization = false,
     bool? isRegistered,
-    String? errorMessage,
-    String? successMessage
+    Failure? failure,
+    String? successMessage,
+    bool clearFailure = false
   }) => RegistrationState(
       isLoading: isLoading ?? this.isLoading,
       partners: partners ?? this.partners,
       isRegistered: isRegistered ?? this.isRegistered,
-      errorMessage: errorMessage ?? this.errorMessage,
       successMessage: successMessage ?? this.successMessage,
       selectedPartner: selectedPartner ?? this.selectedPartner,
+      failure: clearFailure ? null : failure ?? this.failure,
       selectedOrganization: clearOrganization ? null : (selectedOrganization ?? this.selectedOrganization),
     );
 
   @override
-  List<Object?> get props => [isLoading, selectedPartner, selectedOrganization,partners,errorMessage,successMessage,isRegistered];
+  List<Object?> get props => [isLoading, selectedPartner, selectedOrganization,partners,successMessage,isRegistered,?failure];
 }

@@ -95,7 +95,7 @@ class AppTheme {
     );
 
     data = ThemeData(
-      fontFamily: 'NotoSans',
+      fontFamily: 'BetaniaPatmos-Regular',
       textTheme: textTheme,
       scaffoldBackgroundColor: colors.background,
       brightness: themeMode == ThemeMode.light ? Brightness.light : Brightness.dark,

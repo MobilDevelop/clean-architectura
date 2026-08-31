@@ -6,13 +6,13 @@ sealed class AppManagerState {
 
 final class AppManagerInitial extends AppManagerState {
   final String version;
-  AppManagerInitial({required this.version});
+  const AppManagerInitial({required this.version});
 }
 
 final class AppManagerLoading extends AppManagerState {}
 
 final class AppManagerError extends AppManagerState {
-  AppManagerError(this.error);
+  const AppManagerError(this.failure);
 
-  final String error;
+  final Failure failure;
 }

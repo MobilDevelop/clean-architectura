@@ -59,6 +59,7 @@ flutter:
     - assets/translations/
     - assets/images/
     - assets/loading/
+    - assets/fonts/
     - .env
 
   fonts:

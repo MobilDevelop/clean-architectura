@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/entities/organization.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/entities/partner.dart';
@@ -10,32 +11,32 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'registration_event.dart';
 part 'registration_state.dart';
 
-class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
+final class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   RegistrationBloc({required this._partnerUsecase, required this._registrationUsecase}) : super(RegistrationState.initial()) {
-    on<SearchPartnersChanged>(_onStarted);
+    on<SearchPartnersChanged>(_searchPartners);
     on<SelectedPartnerChanged>(_selectPartner);
     on<SelectedOrganizationChanged>(_selectOrganization);
     on<RegistrationSendData>(_sendData);
-    on<ErrorShown>(_errorShown);
+    on<FailureHandled>(_failureHandled);
     on<SuccessShown>(_successShown);
   }
 
   final PartnersUsecase _partnerUsecase;
   final RegistrationUsecase _registrationUsecase;
 
-  Future<void> _onStarted(SearchPartnersChanged event, Emitter<RegistrationState> emit) async {
-     emit(state.copyWith(isLoading: true));
+  Future<void> _searchPartners(SearchPartnersChanged event, Emitter<RegistrationState> emit) async {
+     emit(state.copyWith(isLoading: true,clearFailure: true));
 
      final result = await _partnerUsecase(event.search);
 
      switch (result) {
       case Ok(:final value): emit(state.copyWith(isLoading: false,partners: value));
-      case Err(:final failure): emit(state.copyWith(isLoading: false,errorMessage: failure.message));
+      case Err(:final failure): emit(state.copyWith(isLoading: false,failure: failure));
     }
   }
 
   Future<void> _sendData(RegistrationSendData event, Emitter<RegistrationState> emit) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true,clearFailure: true));
 
     final result = await _registrationUsecase(
       RegistrationParam(
@@ -50,7 +51,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
 
     switch (result) {
       case Ok(:final value): emit(state.copyWith(isLoading: false,isRegistered: true,successMessage: value));
-      case Err(:final failure): emit(state.copyWith(isLoading: false,errorMessage: failure.message));
+      case Err(:final failure): emit(state.copyWith(isLoading: false,failure: failure));
     }
   }
 
@@ -62,7 +63,7 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
     emit(state.copyWith(selectedPartner: event.partner, clearOrganization: true));
   }
 
-  void _errorShown(ErrorShown event, Emitter<RegistrationState> emit)=>emit(state.copyWith(errorMessage: ''));
+  void _failureHandled(FailureHandled event, Emitter<RegistrationState> emit)=>emit(state.copyWith(clearFailure: true));
 
   void _successShown(SuccessShown event, Emitter<RegistrationState> emit)=>emit(state.copyWith(successMessage: '',isRegistered: false));
 }

@@ -22,8 +22,8 @@ final class SelectedOrganizationChanged extends RegistrationEvent {
   final Organization organization;
 }
 
-final class ErrorShown extends RegistrationEvent {
-  const ErrorShown();
+final class FailureHandled extends RegistrationEvent {
+  const FailureHandled();
 }
 
 final class SuccessShown extends RegistrationEvent {
