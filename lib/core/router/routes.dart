@@ -61,6 +61,11 @@ class Routes implements Coordinate {
     path: '/face-id',
   );
 
+  static const faceCamera = Routes._(
+    name: 'face_camera_page',
+    path: '/face-camera',
+  );
+
   static const addCustomer = Routes._(
     name: 'add_customer_page',
     path: '/add_customer',

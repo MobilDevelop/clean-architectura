@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/router/routes.dart';
+import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
@@ -19,6 +21,7 @@ import 'package:colloborator_v3/core/widgets/states/results_header.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customers_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 /// Ro'yxatning birinchi o'rni sarlavhaga ketadi.
 const int _headerSlot = 1;
@@ -108,7 +111,7 @@ final class _CustomerPageState extends State<CustomerPage> {
       floatingActionButton: BlocSelector<CustomersBloc, CustomersState, bool>(
         selector: (CustomersState state) => state.customers.length < 2,
         builder: (BuildContext context, bool isFullSize) => FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () => unawaited(_openFaceId()),
           isExtended: isFullSize,
           backgroundColor: AppTheme.colors.primary,
           elevation: 3,
@@ -122,6 +125,15 @@ final class _CustomerPageState extends State<CustomerPage> {
         ),
       ),
     );
+  }
+
+  /// Topilgan mijoz bilan nima qilinishi keyingi ekran yozilgach hal bo'ladi —
+  /// hozircha natija ko'rinadigan qilib aytiladi (5.8).
+  Future<void> _openFaceId() async {
+    final CustomerInfo? customer = await context.push<CustomerInfo>(Routes.faceId.path);
+    if (customer == null || !mounted) return;
+
+    await CustomAnimatedToast.showSuccess("${customer.fullName} tasdiqlandi");
   }
 
   Widget _content({required ({bool isLoading, List<CustomerInfo> customers}) data, required double topPadding}) {

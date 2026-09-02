@@ -36,8 +36,9 @@ final class CustomAnimatedToast {
     try {
       // ignore: use_build_context_synchronously
       overlayState = Overlay.of(ctx);
-    } catch (e) {
-      debugPrint('CustomAnimatedToast: Overlay topilmadi - $e');
+    } catch (_) {
+      // Nega jim: kontekstda overlay topilmasligi kutilgan holat (masalan
+      // dialog yopilayotgan payt). Zaxira yo'l pastda — navigator overlay'i.
       final fallback = navigatorKey.currentState?.overlay;
       if (fallback == null) {
         _onDialogClosed();

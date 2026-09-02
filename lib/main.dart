@@ -11,16 +11,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
  
-Future<void> main() async { 
+Future<void> main() async {
+  // Nega `runZonedGuarded`: `async` kodda ushlanmagan istisnolar shu yerda
+  // to'planadi. `FlutterError.onError` esa widget qurishdagi xatolarni oladi —
+  // u `initializeApp()` ichida o'rnatiladi.
   await runZonedGuarded<Future<void>>(() async {
-  await initializeApp();
-    FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    debugPrint('Flutter error: ${details.exception}');
-    debugPrint('Stack: ${details.stack}');
-  };
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-    
+    await initializeApp();
+
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
     // Dasturni ishga tushirish
     runApp(
       EasyLocalization(
@@ -32,11 +31,8 @@ Future<void> main() async {
         child: const MyApp(),
       ),
     );
-  }, (error, stack) {
-    debugPrint('Unhandled error: $error');
-    debugPrint('Stack trace: $stack');
-  });
-} 
+  }, reportZoneError);
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

@@ -2,12 +2,16 @@ import 'package:colloborator_v3/core/constants/app_constants.dart';
 import 'package:colloborator_v3/core/di/app_startup.dart';
 import 'package:colloborator_v3/core/network/dio_client.dart';
 import 'package:colloborator_v3/core/network/interceptors/auth_interceptor.dart';
+import 'package:colloborator_v3/core/network/interceptors/error_report_interceptor.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
+import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
 import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
+import 'package:colloborator_v3/core/services/telegram_error_reporter.dart';
+import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/data/datasources/auth_remote_datasource.dart';
 import 'package:colloborator_v3/features/auth/login/data/repositories/auth_repository_impl.dart';
@@ -28,8 +32,10 @@ import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_b
 import 'package:colloborator_v3/features/customers/data/datasources/customer_remote_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/repositories/customer_repository_impl.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/check_client_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
 import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs_bloc.dart';
 import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
@@ -37,6 +43,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_alice/alice.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 
@@ -53,15 +60,19 @@ void setupDependencies() {
   _registerContracts();
   _registerOutputs();
   _registerInvoices();
+
+  // Parse nosozliklari ham shu kanaldan ketadi.
+  JsonParser.reporter = (issue) => getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
 }
 
 /// Platformaga va tashqi xizmatlarga ulanish nuqtalari
 void _registerPlatform() {
   getIt
-    ..registerLazySingleton(() => FirebaseService())
+    ..registerLazySingleton(() => FirebaseService(getIt()))
     ..registerLazySingleton(() => FirebaseMessaging.instance)
     ..registerLazySingleton(() => PushTokenService(getIt()))
     ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
+    ..registerLazySingleton<ErrorReporter>(() => TelegramErrorReporter(dio: Dio(),token: dotenv.env['BOT_TOKEN'] ?? '',chatId: dotenv.env['BOT_CHAT_ID'] ?? '',environment: AppConstants.isStaging ? 'staging' : 'production', now: DateTime.now))
     ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')))
     ..registerLazySingleton(() => Alice(navigatorKey: CustomAnimatedToast.navigatorKey));
 }
@@ -73,6 +84,9 @@ void _registerNetwork() {
       interceptors: [
         AuthInterceptor(getIt()),
         if (AppConstants.isStaging) getIt<Alice>().getDioInterceptor(),
+
+        // Oxirida: undan oldingilar hal qilgan xatolarni ko'rmasin.
+        ErrorReportInterceptor(getIt()),
       ],
     ),
   );
@@ -110,7 +124,9 @@ void _registerCustomer() {
     ..registerLazySingleton(() => CustomerRemoteDatasource(dio: getIt()))
     ..registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(remote: getIt()))
     ..registerLazySingleton(() => CustomerUsecase(getIt()))
-    ..registerFactory(() => CustomersBloc(customerUsecase: getIt()));
+    ..registerLazySingleton(() => CheckClientUsecase(getIt()))
+    ..registerFactory(() => CustomersBloc(customerUsecase: getIt()))
+    ..registerFactory(() => FaceIdBloc(checkClientUsecase: getIt(),now: DateTime.now));
 }
 
 /// features/splash

@@ -66,6 +66,8 @@ abstract final class JsonParser {
     final report = reporter;
     if (report == null) return;
 
+    
+
     report(issue);
   }
 }

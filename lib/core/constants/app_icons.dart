@@ -61,6 +61,10 @@ class AppIcons {
   static const String drawerBack = 'assets/images/drawer_back.png';
   static const String splashBack = 'assets/images/splash_back.png';
 
+  // Hujjatlar
+  static const String offerUz = 'assets/offer/offerUZ.html';
+  static const String offerRu = 'assets/offer/offerRU.html';
+
   // Loading
   static const String loading = 'assets/loading/loading.json';
 

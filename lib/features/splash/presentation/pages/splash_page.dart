@@ -83,7 +83,7 @@ final class SplashPage extends StatelessWidget {
         builder: (context, child) => Overlay(
           initialEntries: [
             OverlayEntry(builder: (context) => child ?? const SizedBox()),
-            OverlayEntry(builder: (context) => AppVersionWatermark(version: version)),
+            //OverlayEntry(builder: (context) => AppVersionWatermark(version: version)),
             if (AppConstants.isStaging) OverlayEntry(builder: (context) => const ChuckButton()),
             //OverlayEntry(builder: (context) => const DotWidget()),
           ], 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_bloc.dart';
@@ -7,7 +9,11 @@ import 'package:colloborator_v3/features/auth/registration/presentation/pages/re
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/face_camera_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
 import 'package:colloborator_v3/features/invoices/presentation/pages/invoices_page.dart';
@@ -121,6 +127,29 @@ class AppRouter {
           child: BlocProvider(
             create: (context) => getIt<RegistrationBloc>(),
             child: const RegistrationPage(),
+          ),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.faceCamera.name,
+        path: Routes.faceCamera.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<File>(
+          context: context,
+          state: state,
+          child: const FaceCameraPage(),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.faceId.name,
+        path: Routes.faceId.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<CustomerInfo>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<FaceIdBloc>(),
+            child: const FaceIdPage(),
           ),
         ),
       ),

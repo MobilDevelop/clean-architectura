@@ -1,5 +1,5 @@
 import 'package:colloborator_v3/features/customers/domain/entities/phone_number.dart';
-import 'package:colloborator_v3/features/customers/domain/entities/workpalce_info.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/workplace_info.dart';
 import 'package:equatable/equatable.dart';
 
 final class CustomerInfo extends Equatable{
@@ -10,7 +10,7 @@ final class CustomerInfo extends Equatable{
     required this.inps,
     required this.passportNumber,
     required this.birthDay,
-    required this.mainAdress,
+    required this.mainAddress,
     required this.phones,
     required this.passportGiven,
     required this.passportExpire,
@@ -28,7 +28,7 @@ final class CustomerInfo extends Equatable{
   final String inps;
   final String passportNumber;
   final String birthDay;
-  final String mainAdress;
+  final String mainAddress;
   final List<PhoneNumber> phones;
   final String passportGiven;
   final String passportExpire;
@@ -48,7 +48,7 @@ final class CustomerInfo extends Equatable{
 }
 
   @override
-  List<Object?> get props => [id,fullName,inps,passportNumber,birthDay,mainAdress,phones,passportGiven,passportExpire,workplace,province,region,village,houseNumber,street,passportType];
+  List<Object?> get props => [id,fullName,inps,passportNumber,birthDay,mainAddress,phones,passportGiven,passportExpire,workplace,province,region,village,houseNumber,street,passportType];
 
 }
 

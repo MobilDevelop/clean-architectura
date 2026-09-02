@@ -14,14 +14,17 @@ import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_e
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_state.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_action_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_card.dart';
-import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_filter_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_header.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_skeleton.dart';
+import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Ro'yxatning birinchi o'rni sarlavhaga ketadi.
 const int _headerSlot = 1;
+
+/// Taqvimda nechta yil orqaga qarash mumkin.
+const int _yearSpan = 1;
 
 final class ContractsPage extends StatefulWidget {
   const ContractsPage({super.key});
@@ -84,13 +87,20 @@ final class _ContractsPageState extends State<ContractsPage> {
   ///
   /// Bugungi kun shu yerda o'qiladi va oynaga parametr bo'lib kiradi —
   /// oynaning o'zi vaqtni bilmaydi, shuning uchun uni test qilish mumkin (9.4).
-  Future<void> _openFilter(DateTime? current) => showContractsFilter(
-    context: context,
-    date: current,
-    today: DateTime.now(),
-    applyDate: (DateTime date) => _bloc.add(DateSelected(date: date)),
-    clearDate: () => _bloc.add(const DateCleared()),
-  );
+  Future<void> _openFilter(DateTime? current) {
+    final DateTime today = DateTime.now();
+
+    return showDateSheet(
+      context: context,
+      title: "Sana bo'yicha filtr",
+      subtitle: "Kunni tanlang",
+      date: current,
+      firstDate: DateTime(today.year - _yearSpan, today.month, today.day),
+      lastDate: today,
+      onPicked: (DateTime date) => _bloc.add(DateSelected(date: date)),
+      onClear: () => _bloc.add(const DateCleared()),
+    );
+  }
 
   Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data, required double topPadding}) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);

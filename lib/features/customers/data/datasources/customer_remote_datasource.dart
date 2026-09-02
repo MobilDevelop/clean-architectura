@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
+
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/customers/data/models/customer_info_dto.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/face_check_params.dart';
 import 'package:dio/dio.dart';
 
 
@@ -21,4 +26,18 @@ final class CustomerRemoteDatasource {
   
     return JsonParser.list(result.data?['data'], fromJson: CustomerInfoDto.fromJson);
   }
+
+  Future<CustomerInfoDto?> checkClient(FaceCheckParams params)async{
+      final result = await _dio.post<Map<String, dynamic>>(Endpoints.checkClient,data: {
+        "passport_series_number": params.passport,
+        "birth_date": params.birthday,
+        "front": "data:image/png;base64,${await _encodedImage(params.image.path)}"
+      });
+
+    return JsonParser.object(result.data?['client'], fromJson: CustomerInfoDto.fromJson);
+  }
 }
+
+/// Rasmni o'qish va base64 ga o'girish alohida izolyatda bajariladi — asosiy
+/// oqimda bir necha yuz kilobayt kodlash UI ni sekundga qotirib qo'yadi.
+Future<String> _encodedImage(String path) => Isolate.run(() => base64Encode(File(path).readAsBytesSync()));

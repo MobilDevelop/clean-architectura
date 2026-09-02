@@ -319,62 +319,77 @@ flutter test
 
 ## 15. Hozirgi holat
 
-**Ish uslubi:** kodni loyiha egasi o'zi yozadi. Men tahlil qilaman, qoidaga zidligini ko'rsataman va tekshiraman — so'ralmagan holda kod yozmayman va tahrirlamayman.
+*Yangilangan: 2026-09-01*
+
+**Ish uslubi:** UI (`presentation/`, `core/widgets/`, `core/theme/`) — Claude yozadi. `bloc/`, `data/`, `domain/` va `core/` ning qolgani — loyiha egasi yozadi, Claude tekshiradi va birma-bir kamchilik ko'rsatadi.
 
 **Nazorat majburiy va so'rashsiz bajariladi.** Har safar kod ko'rsatilganda yoki tegib o'tilganda quyidagilar tekshiriladi va topilgani **so'ralmasa ham** aytiladi:
 
 1. Faqat berilgan savolga javob berish yetarli emas — yondosh fayllarda ko'ringan qoida buzilishi ham o'sha javobda aytiladi.
 2. "Ishlayapti" degani "to'g'ri" degani emas. Jimgina yiqiladigan har bir yo'l ko'rsatiladi: zaxira qiymat, bo'sh `catch`, ulanmagan mexanizm, ko'rsatilmaydigan state maydoni.
 3. Tekshiruv ro'yxati (12-bo'lim taqiqlari + quyidagilar): majburiy maydonga `?? ''`/`?? 0`/`?? {}`/`?? []`; `!` operatori; `print`/`debugPrint`; klass ichida `getIt<>`; datasource'da `try/catch`; repositorydan yuqorida `try/catch`; repository metodida oxirgi `catch (_)` yo'qligi; bloc'da matn to'qish; nomi ishiga zid metod; o'lik kod va hech qayerdan chaqirilmaydigan mexanizm; state'ga yozilib ekranga chiqmaydigan maydon; o'tgan zamonda bo'lmagan event nomi.
-4. **Flex odatlari alohida nazoratda** (13.4). Ko'chirilgan har bir bo'lakda qidiriladi: `Map<String,dynamic>` parametr, `static` servis, o'z `Dio` nusxasi, bo'sh xabarli `Failure`, sehrli satr/raqam (`'psr'`, `type: 1`), widget ichida qaror (`hint == "..."` bo'yicha shart), bitta klassda bir nechta mas'uliyat.
-5. Tekshiruv natijasi yumshatilmaydi. Xato bo'lsa — xato deyiladi, sababi va oqibati bilan. Maqtov faqat tekshirilgan narsaga beriladi.
+4. **Flex odatlari alohida nazoratda** (13.4): `Map<String,dynamic>` parametr, `static` servis, o'z `Dio` nusxasi, bo'sh xabarli `Failure`, sehrli satr/raqam, widget ichida qaror, bitta klassda bir nechta mas'uliyat.
+5. Tekshiruv natijasi yumshatilmaydi. Xato bo'lsa — xato deyiladi, sababi va oqibati bilan.
 
-**Ochiq ishlar ro'yxati** (2026-08-22 holatiga, tekshirilgan):
+---
 
-*A — hozir sinib turgan yoki sindirishi mumkin*
+### Tugallangan tizimlar
 
-1. `PermissionsDto` (`user_dto.dart:78-81`) — `?? false` olib tashlangan. Ruxsat guruhi kelmagan foydalanuvchi umuman login qila olmaydi. Bu maydonlar haqiqatan ixtiyoriy, zaxira qiymat qaytarilishi kerak.
-2. `auth_remote_datasource.dart:36` — `device_id` qo'lda yozilgan (`"aa2ad6bb11fcdefd"`), haqiqiysi izohga olingan.
-3. `registration_page.dart:151` — `getIt<RegistrationBloc>()` `onPressed` ichida. Bloc `registerFactory`, ya'ni har bosishda yangi nusxa: UI javob ko'rmaydi, so'rov esa ketadi.
+**Xatolar (5.x) — to'liq.** `FailureGroup` va `Failure.group` / `Failure.isReportable` getterlari `core/error` da. Barcha bloclar `Failure?` saqlaydi, birortasi matn to'qimaydi. `FailureView` guruhga qarab yo'naltiradi: `session` → dialog + chiqish, `connection` → banner + "Qayta urinish", `input` → maydon tagida, `internal` → umumiy matn. Foydalanuvchiga ko'rinadigan matn `FailureText` da — yagona manba. To'rtala ekran ham ulangan: mijozlar, shartnomalar, login, registratsiya.
 
-*B — `JsonParser` (1-bosqich)*
+**Telegram bot (5.7) — ishlayapti.** `TelegramErrorReporter` + `ErrorReportInterceptor`, `injection.dart` da ulangan. `JsonParser.reporter` ham shu kanalga ulandi — u loyiha boshidan beri o'lik turgan edi. Token va chat id `.env` da (git'da kuzatilmaydi). Takrorlar 10 daqiqalik oynada filtrlanadi.
 
-4. `object` da `reason: e.runtimeType.toString()` → `e.toString()`. Hozir login xatolari `_TypeError` bo'lib keladi va `fromJson` bitta ifoda bo'lgani uchun trace ham ikkala holatda bir xil qatorni ko'rsatadi.
-5. `_report` himoyalanmagan — `reporter` otsa parse yiqiladi (sinovda tasdiqlangan).
-6. Ikki qaror: `raw == null` bo'lganda xabar beriladimi; barcha elementlar buzuq bo'lganda repository buni qanday biladi (`({List<T> items, int failed})` taklif qilingan).
+**Kiritish validatsiyasi (7.x).** Qoida domainda (`CustomerSearchIssue`) yoki presentationda (`LoginFieldIssue`), holat bloc'da, matn sahifada. Bloc'da birorta foydalanuvchi matni qolmagan.
 
-*C — DTO va backend savollari*
+**Featurelar.** Login, registratsiya, mijozlar, shartnomalar — to'liq zanjir bilan. Shartnomalarda `ContractStatus` enum, `ContractsFilter`, sana filtri va amal oynasi bor.
 
-7. **Backend bilan aniqlanadi:** `user.company` / `company_id` va `organization` / `organization_id` `null` kelishi mumkin. Ular juft-juft bitta nullable qiymat obyektiga yig'iladi (`Company?`, `Organization?`). Login domaini registratsiyaning `Organization` ini import qilmaydi (1.3) — o'z tipini yozadi.
-8. `UserDto` ning qolgan maydonlari ham shu ko'z bilan ko'rib chiqiladi: `User` hozir hech qayerda o'qilmaydi, ya'ni har bir qattiq cast ishlatilmaydigan ma'lumot uchun loginni to'sishi mumkin.
-9. `CustomerInfoDto` da `workplace`, `province`, `region`, `village` majburiy qilingan. Ishsiz yoki manzili to'liq bo'lmagan mijoz bo'lsa, u qidiruvdan jimgina tushib qoladi. Alice orqali haqiqiy javobda tekshiriladi.
+**face_id (mijozlar ichida) — to'liq.** Forma (`FaceCheckForm`: seriya, raqam, sana; 16 yosh qoidasi) → oferta tasdig'i → kamera → avtomatik surat → `checkClient`. Kamera qismi uchga bo'lingan: `FacePlacementRule` va `FaceHold` domainda va kamerasiz testlanadi, `FaceScanner` aylantirish va ko'zguni hisoblaydi, `FaceCameraController` kamera hayotini boshqaradi. Flex'ning platformaga bog'liq chegaralari, bir martalik barqarorlik taymeri va bo'sh `catch` lari takrorlanmagan. Rasm har doim 720px ga siqiladi, base64 `Isolate.run` da kodlanadi.
 
-*D — bot va xatolar (2-bosqich)*
+**UI.** Mijozlar va shartnomalar ekranlari qurilgan; umumiy komponentlar `core/widgets/` da (`sheets/`, `states/`, `feedback/`, `dialogs/`, `backgrounds/`). `!` operatori UI'da **nol**, eskirgan API va `ignore_for_file` yo'q, barcha UI klasslari `final`.
 
-10. `JsonParser.reporter` hech qayerda ulanmagan — butun mexanizm o'lik. Manzil: flex'dagi `domain/common/bot_service.dart`.
-11. `Failure` guruhlari (5.6) bajarilmagan; `'Server javobi kutilgan shaklda emas'` hozir toastda foydalanuvchiga ko'rinadi.
-12. `AppRouter.errorBuilder` → `const SizedBox()`, marshrut xatosida oq ekran.
+---
 
-*E — qatlam qoidalari*
+### Ochiq ishlar
 
-13. `try/catch` datasource ichida: `auth_remote_datasource._fcmToken()`, `registration_remote_datasource` (4.3).
-14. `LoginBloc` `_auth.signIn` ni o'zi chaqiradi, `try/catch` bilan o'raydi va xato matnini o'zi yozadi (4.8, 6.3).
-15. `app_manager_cubit` dagi `try/catch` — startup xatolari `Result` tizimidan tashqarida (6.4).
+*A — kod sifati (loyiha egasida)*
 
-*F — mijozlar ekrani (state bo'shliqlari, UI chizmasini kutmaydi)*
+1. `core/services/cache_data.dart` — 9 ta `!` operatori.
+2. `debugPrint` — 6 joy (`main.dart` da 4, `notification_service.dart` da 1, `custom_animated_toast.dart` da 1). Endi bot bor, ularni hisobotga o'tkazish mumkin.
+3. `workpalce` / `mainAdress` imlosi — 9 joy (mijozlar featurei).
+4. `FirebaseService` — yashirin singleton: private konstruktor, `factory`, ichida `FirebaseMessaging.instance`. DI ga berilsa ham testda almashtirib bo'lmaydi.
 
-16. `searchError` va `isLoading` state'da bor, ekranga chiqmaydi; "hali qidirilmagan" va "topilmadi" holatlari farq qilmaydi.
-17. `ShowSearch` nomi o'tgan zamonda emas; tez yozganda eski javob yangisining ustiga tushishi; `page: 1, per_page: 30` qattiq yozilgan.
+*B — qaror kutayotganlar*
 
-*G — mayda*
+5. **Lokalizatsiya — ongli ravishda kechiktirilgan.** Uch til rejalashtirilgan: lotin o'zbek, kiril o'zbek va rus tili. `easy_localization` shuning uchun qoladi, lekin `tr()` ga o'tish **featurelar tugagandan keyin**, bitta o'tishda qilinadi — hozir har yangi ekran kalitlarni ikki marta yozishga majbur qiladi.
 
-18. `!` operatori 29 joyda; ildizi bitta — `AppTheme.data.textTheme.X!`.
-19. `debugPrint` 4 faylda.
-20. `chuck_button` ichida `getIt<Alice>()`.
-21. `workpalce_info*.dart` va `mainAdress` imlosi (10 joy).
-22. `registration_page`: ochiq controller maydonlari, `super.initState()` oxirida.
-23. `ParseFailure` izohi ikki o'lchovni aralashtiradi: shakl va ayb (11.5).
+   O'sha ishni boshlaganda:
+   - `main.dart` dagi `useOnlyLangCode: true` → **`false`** bo'lishi shart. U faqat til kodiga qaraydi, lotin va kiril o'zbek esa ikkalasi ham `uz` — bitta faylga tushib, bir-birini bosib ketadi.
+   - Qo'lda ikkita fayl yoziladi (lotin o'zbek, rus). Kiril o'zbek — **transliteratsiya**, u skript bilan lotindan yaratiladi.
 
-**Bajarilgan (shu sessiyada tekshirilgan):** iOS'da ishga tushirildi; login validatsiyasi to'liq zanjir bo'lib ulandi (`core/utils/validator/rules.dart` → event → state → `errorText`); mijoz qidiruvi turga qarab sozlanadi (`CustomerSearchParams` + datasource'da `switch`); `PassportFormatter` sof formatterga aylanib feature ichiga ko'chdi; DTO'lardagi zaxira qiymatlar 45 tadan 5 taga tushdi; `JsonParser` da `model` parametri `T` bilan almashtirildi va chaqiruv joylaridagi `?? []` olib tashlandi.
+   Shu qaror tufayli UI'da hozirdan amal qiladigan qoida: matn qat'iy kenglikka bog'lanmaydi (`Flexible`/`Expanded`, bir qatorlida `maxLines: 1` + `ellipsis`), va foydalanuvchi matnlari har feature uchun bitta faylga yig'iladi. Kiril va rus matnlari lotindan 15–30% uzunroq.
+   - **Ommaviy oferta ham tilga qarab tanlanadi.** `assets/offer/` da `offerUZ.html` va `offerRU.html` bor, `AppIcons.offerUz` / `AppIcons.offerRu` sifatida yozilgan. Hozir `OfferSheet` faqat o'zbekchasini ochadi — `offerRu` shu ishgacha chaqirilmaydi. Kiril o'zbek uchun uchinchi fayl kerak bo'ladi (transliteratsiya HTML ustida ishlamaydi — teglarni ham o'zgartirib yuboradi).
+6. Contracts DTO'sida 25 + 8 zaxira qiymat — backend qaysi maydonlar `null` bo'lishi mumkinligini aytgach hal qilinadi.
+7. Registratsiyadagi `successMessage` backenddan keladi va ekranga chiqadi. Backend har xil holatda har xil matn yuborsa, matn emas `code` kerak bo'ladi.
 
-**Testlar:** `test/core/error/error_mapper_test.dart` (11 test) o'tadi. Usecase, repository va bloc testlari hali yozilmagan.
+*C — ataylab qoldirilgan*
+
+8. `auth_remote_datasource.dart` dagi qattiq yozilgan `device_id` — turli qurilmalarda sinov uchun. **Eslatilmaydi.** Relizdan oldin `AppConstants.isStaging` bilan ajratish tavsiya etilgan.
+
+*D — hali boshlanmagan*
+
+9. `invoices` va `outputs` — sahifalari `Center(Text(...))`, bloclari bo'sh shablon (`// TODO: implement event handler`).
+10. **Testlar — ongli ravishda loyiha oxiriga qoldirilgan.** Hozircha 64 ta: `error_mapper`, `face_check_form`, `face_placement`, formatterlar. Ular qoida yozilganda birga yozilgan, alohida ish sifatida emas. Qolgan qamrov featurelar tugagandan keyin. **Eslatilmaydi.**
+
+---
+
+### Tekshirish buyruqlari
+
+```bash
+flutter analyze                                   # toza bo'lishi shart
+grep -rn "import.*data/\|package:dio\|package:flutter/" lib/features/*/domain lib/features/*/*/domain
+grep -rn "getIt<" lib/features                    # faqat BlocProvider.create da
+flutter test                                      # 64 ta test
+dart run tool/bot_test.dart                       # bot ulanishini tekshirish
+```
+
+`tool/` dagi skriptlar faqat sof Dart bo'ladi. Flutterga tegadigan tekshiruv (formatter, widget) `test/` ga yoziladi — `dart run` Flutter kutubxonalarini ko'tara olmaydi.

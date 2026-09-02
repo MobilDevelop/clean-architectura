@@ -6,45 +6,52 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:vibration/vibration.dart';
 
+/// Push xabarlarga obuna bo'ladi va ular kelganda bildirishnoma ko'rsatadi.
+///
+/// Nega singleton emas: obyekt DI da bir marta yaratiladi va shu yerda
+/// saqlanadi. Klass ichida yashirin nusxa bo'lsa, testda uni almashtirib
+/// bo'lmaydi — `FirebaseMessaging` ham shuning uchun konstruktordan kiradi (8.1).
+final class FirebaseService {
+  FirebaseService(this._messaging);
 
-class FirebaseService {
-  static final FirebaseService _instance = FirebaseService._();
+  final FirebaseMessaging _messaging;
 
-  factory FirebaseService() => _instance;
-
-  FirebaseService._();
-
-  late StreamSubscription<RemoteMessage> _fsmMessagesub;
-  late StreamSubscription<RemoteMessage> _openedAppSubscription;
+  StreamSubscription<RemoteMessage>? _messages;
 
   Future<void> initialize() async {
     // Ruxsat ikkala platformada ham shu chaqiruv orqali so'raladi:
     // iOS'da tizim dialogi, Android 13+ da POST_NOTIFICATIONS.
-    await FirebaseMessaging.instance.requestPermission();
+    await _messaging.requestPermission();
 
-    _fsmMessagesub = FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    _messages = FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       await Vibration.vibrate(duration: 300);
-      await LocalNotificationService.show(title: message.data['message'] as String? ?? '', subtitle: '');
+      await LocalNotificationService.show(
+        title: message.data['message'] as String? ?? '',
+        subtitle: '',
+      );
     });
-
-    _openedAppSubscription = FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // Tap qilinganda app ochilishi tizim tomonidan boshqariladi.
-    });
-
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {}
   }
 
-  void dispose() {
-    _fsmMessagesub.cancel();
-    _openedAppSubscription.cancel();
+  Future<void> dispose() async {
+    await _messages?.cancel();
+    _messages = null;
   }
 }
 
- @pragma('vm:entry-point')
-  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-    if (message.notification != null) return;
-    await LocalNotificationService.instance.init(); 
-    await LocalNotificationService.show(title: message.data['message'] as String? ?? '', subtitle: '');
-  }
+/// Ilova fonda yoki yopiq bo'lganda kelgan xabar.
+///
+/// Nega alohida yuqori darajadagi funksiya: Firebase uni alohida izolyatda
+/// chaqiradi, shuning uchun u klass a'zosi bo'la olmaydi va DI ni ko'rmaydi.
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Tizim o'zi ko'rsatadigan bildirishnoma bo'lsa, ikkinchisini chizmaymiz.
+  if (message.notification != null) return;
+
+  await LocalNotificationService.instance.init();
+  await LocalNotificationService.show(
+    title: message.data['message'] as String? ?? '',
+    subtitle: '',
+  );
+}

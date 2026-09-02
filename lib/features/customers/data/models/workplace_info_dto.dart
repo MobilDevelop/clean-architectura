@@ -1,5 +1,5 @@
 
-import 'package:colloborator_v3/features/customers/domain/entities/workpalce_info.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/workplace_info.dart';
 
 final class WorkplaceInfoDto{
 

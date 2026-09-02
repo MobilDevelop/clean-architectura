@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -59,8 +58,10 @@ class LocalNotificationService {
       try {
         final uri = Uri.parse('file:///storage/emulated/0/Download');
         await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } catch (e) {
-        debugPrint('Failed to open downloads folder: $e');
+      } catch (_) {
+        // Nega jim: papkani ochish — qo'shimcha qulaylik. Ikkala urinish ham
+        // muvaffaqiyatsiz bo'lsa, fayl baribir yuklab olingan va foydalanuvchi
+        // uni o'zi topa oladi. Bu oqimni to'xtatmaydi.
       }
     }
   }

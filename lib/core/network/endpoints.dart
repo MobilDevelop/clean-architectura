@@ -12,6 +12,7 @@ abstract final class Endpoints {
 
   // customer_page all url
   static const String getCustomer = "${_prefix}client-search";
+  static const String checkClient = "${_prefix}check_client_by_myid";
 
   // contracts page all ulrs
   static const String getContracts = "${_prefix}contracts";

@@ -11,7 +11,7 @@ final class CustomerInfoDto{
     required this.inps,
     required this.passportNumber,
     required this.birthDay,
-    required this.mainAdress,
+    required this.mainAddress,
     required this.phones,
     required this.passportGiven,
     required this.passportExpire,
@@ -29,7 +29,7 @@ final class CustomerInfoDto{
   final String inps;
   final String passportNumber;
   final String birthDay;
-  final String mainAdress;
+  final String mainAddress;
   final List<PhoneNumberDto> phones;
   final String passportGiven;
   final String passportExpire;
@@ -48,7 +48,7 @@ final class CustomerInfoDto{
     inps: user['inps'] as String, 
     passportNumber: user['passport_series_number'] as String, 
     birthDay: user['birth_date'] as String, 
-    mainAdress: user['main_address'] as String, 
+    mainAddress: user['main_address'] as String, 
     phones: JsonParser.list(user['phone_numbers'], fromJson: PhoneNumberDto.fromJson), 
     passportGiven: user['passport_issue_date'] as String, 
     passportExpire: user['passport_expiry_date'] as String, 
@@ -67,7 +67,7 @@ final class CustomerInfoDto{
     inps: inps, 
     passportNumber: passportNumber, 
     birthDay: birthDay, 
-    mainAdress: mainAdress, 
+    mainAddress: mainAddress, 
     phones: phones.map((phone) => phone.toEntity()).toList(), 
     passportGiven: passportGiven, 
     passportExpire: passportExpire, 

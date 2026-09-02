@@ -10,46 +10,72 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
-/// Taqvimda nechta yil orqaga qarash mumkin.
-const int _yearSpan = 1;
-
-/// Sana filtri oynasini ochadi.
-Future<void> showContractsFilter({
+/// Sana tanlash oynasini ochadi.
+///
+/// Nega `core/` da: sanani ikki joyda tanlaymiz — shartnomalar filtri va
+/// tug'ilgan sana. Taqvim ko'rinishi ikkalasida bir xil bo'lishi kerak.
+Future<void> showDateSheet({
   required BuildContext context,
+  required String title,
+  required String subtitle,
   required DateTime? date,
-  required DateTime today,
-  required ValueChanged<DateTime> applyDate,
-  required VoidCallback clearDate,
+  required DateTime firstDate,
+  required DateTime lastDate,
+  required ValueChanged<DateTime> onPicked,
+  CalendarDatePicker2Mode viewMode = CalendarDatePicker2Mode.day,
+  String confirmText = "Qo'llash",
+  VoidCallback? onClear,
 }) => showAppSheet(
   context: context,
-  child: ContractsFilterSheet(date: date, today: today, applyDate: applyDate, clearDate: clearDate),
+  child: DateSheet(
+    title: title,
+    subtitle: subtitle,
+    date: date,
+    firstDate: firstDate,
+    lastDate: lastDate,
+    onPicked: onPicked,
+    viewMode: viewMode,
+    confirmText: confirmText,
+    onClear: onClear,
+  ),
 );
 
-/// Sana bo'yicha filtr.
-///
-/// Tanlangan kun darhol qo'llanmaydi — foydalanuvchi "Qo'llash" ni bosmaguncha
-/// oyna ichida turadi, ya'ni har bosishda so'rov ketmaydi.
-final class ContractsFilterSheet extends StatefulWidget {
-  const ContractsFilterSheet({
+/// Tanlangan kun darhol qo'llanmaydi — foydalanuvchi tasdiqlamaguncha oyna
+/// ichida turadi.
+final class DateSheet extends StatefulWidget {
+  const DateSheet({
     super.key,
+    required this.title,
+    required this.subtitle,
     required this.date,
-    required this.today,
-    required this.applyDate,
-    required this.clearDate,
+    required this.firstDate,
+    required this.lastDate,
+    required this.onPicked,
+    required this.viewMode,
+    required this.confirmText,
+    this.onClear,
   });
 
+  final String title;
+  final String subtitle;
   final DateTime? date;
+  final DateTime firstDate;
+  final DateTime lastDate;
+  final ValueChanged<DateTime> onPicked;
 
-  /// Bugungi kun tashqaridan beriladi — taqvimning yuqori chegarasi (9.4).
-  final DateTime today;
-  final ValueChanged<DateTime> applyDate;
-  final VoidCallback clearDate;
+  /// Uzoq sanalar uchun taqvim yildan boshlanadi.
+  final CalendarDatePicker2Mode viewMode;
+
+  final String confirmText;
+
+  /// `null` — "Tozalash" tugmasi chiqmaydi.
+  final VoidCallback? onClear;
 
   @override
-  State<ContractsFilterSheet> createState() => _ContractsFilterSheetState();
+  State<DateSheet> createState() => _DateSheetState();
 }
 
-final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
+final class _DateSheetState extends State<DateSheet> {
   late List<DateTime?> _selected;
 
   @override
@@ -62,6 +88,8 @@ final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final VoidCallback? clear = widget.onClear;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: ScreenSize.h16),
       child: Column(
@@ -92,12 +120,14 @@ final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      "Sana bo'yicha filtr",
+                      widget.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.blackSoft),
                     ),
 
                     Gap(ScreenSize.h2),
-                    Text("Kunni tanlang", style: AppTheme.data.textTheme.bodyMedium),
+                    Text(widget.subtitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTheme.data.textTheme.bodyMedium),
                   ],
                 ),
               ),
@@ -118,8 +148,9 @@ final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
                 onValueChanged: (List<DateTime> dates) => setState(() => _selected = <DateTime?>[...dates]),
                 config: CalendarDatePicker2Config(
                   calendarType: CalendarDatePicker2Type.single,
-                  firstDate: DateTime(widget.today.year - _yearSpan, widget.today.month, widget.today.day),
-                  lastDate: widget.today,
+                  calendarViewMode: widget.viewMode,
+                  firstDate: widget.firstDate,
+                  lastDate: widget.lastDate,
                   centerAlignModePicker: true,
                   controlsHeight: ScreenSize.h50,
                   dayBorderRadius: BorderRadius.circular(ScreenSize.r12),
@@ -127,6 +158,8 @@ final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
                   daySplashColor: AppTheme.colors.primary.withValues(alpha: .2),
                   dayTextStyle: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft),
                   selectedDayTextStyle: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.white),
+                  yearTextStyle: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft),
+                  selectedYearTextStyle: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.white),
                   weekdayLabelTextStyle: AppTheme.data.textTheme.labelMedium?.copyWith(
                     color: AppTheme.colors.primary,
                     fontWeight: FontWeight.w600,
@@ -140,25 +173,28 @@ final class _ContractsFilterSheetState extends State<ContractsFilterSheet> {
           Gap(ScreenSize.h14),
           Row(
             children: <Widget>[
-              Expanded(
-                child: BorderButton(
-                  text: "Tozalash",
-                  color: AppTheme.colors.grey,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    widget.clearDate();
-                  },
+              if (clear != null) ...<Widget>[
+                Expanded(
+                  child: BorderButton(
+                    text: "Tozalash",
+                    color: AppTheme.colors.grey,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      clear();
+                    },
+                  ),
                 ),
-              ),
 
-              Gap(ScreenSize.w10),
+                Gap(ScreenSize.w10),
+              ],
+
               Expanded(
                 child: MainButton(
-                  text: "Qo'llash",
+                  text: widget.confirmText,
                   onPressed: () {
                     final DateTime? value = _picked;
                     Navigator.of(context).pop();
-                    if (value != null) widget.applyDate(value);
+                    if (value != null) widget.onPicked(value);
                   },
                 ),
               ),
