@@ -7,7 +7,6 @@ import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/widgets/buttons/chuck_button.dart';
 import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
-import 'package:colloborator_v3/features/splash/presentation/widgets/app_version_watermark.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
 import 'package:easy_localization/easy_localization.dart';

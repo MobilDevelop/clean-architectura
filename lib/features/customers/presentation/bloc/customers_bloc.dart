@@ -11,6 +11,7 @@ final class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {
     on<FailureHandled>(_failureHandler);
     on<SearchQueryChanged>(_onQueryChanged);
     on<SearchSubmitted>(_onSubmitted);
+    on<CustomersRefreshed>(_onRefreshed);
   }
 
   final CustomerUsecase _customerUsecase;
@@ -38,14 +39,21 @@ Future<void> _onSubmitted(SearchSubmitted event, Emitter<CustomersState> emit) a
   await _search(params, emit);
 }
 
+Future<void> _onRefreshed(CustomersRefreshed event, Emitter<CustomersState> emit) async {
+  final params = CustomerSearchParams(state.query);
+  if (!params.isSearchable) return;
+
+  await _search(params, emit);
+}
+
 Future<void> _search(CustomerSearchParams params, Emitter<CustomersState> emit) async {
   emit(state.copyWith(isLoading: true,clearFailure: true));
     
     final result = await _customerUsecase(params);
 
     switch (result) {
-      case Ok(: final value):emit(state.copyWith(customers: value,isLoading: false));
-      case Err(: final failure): emit(state.copyWith(isLoading: false,failure: failure));
+      case Ok(: final value):emit(state.copyWith(customers: value,isLoading: false,hasSearched: true));
+      case Err(: final failure): emit(state.copyWith(isLoading: false,failure: failure,hasSearched: true));
     }
   }
 }

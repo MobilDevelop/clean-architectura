@@ -7,10 +7,10 @@ final class ContractsFilter extends Equatable {
   final int page;
   final int perPage;
 
-  ContractsFilter copyWith({DateTime? date,int? page,int? perPage,bool clearDate = false})=>ContractsFilter(
+  ContractsFilter copyWith({DateTime? date, int? page, int? perPage, bool clearDate = false}) => ContractsFilter(
     date: clearDate ? null : (date ?? this.date),
     page: page ?? this.page,
-    perPage: perPage ?? this.perPage
+    perPage: perPage ?? this.perPage,
   );
 
   @override

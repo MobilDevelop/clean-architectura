@@ -9,7 +9,9 @@ import 'package:colloborator_v3/core/services/device_info_service.dart';
 import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
 import 'package:colloborator_v3/core/services/push_token_service.dart';
+import 'package:colloborator_v3/core/services/local_cache.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
+import 'package:colloborator_v3/core/services/shared_prefs_cache.dart';
 import 'package:colloborator_v3/core/services/telegram_error_reporter.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
@@ -28,13 +30,35 @@ import 'package:colloborator_v3/features/contracts/data/datasources/contracts_re
 import 'package:colloborator_v3/features/contracts/data/repositories/contracts_repository_impl.dart';
 import 'package:colloborator_v3/features/contracts/domain/repositories/contracts_repository.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_contract_scoring_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_flex_messages_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_katm_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_mib_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_participants_usecase.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/customer_remote_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/repositories/customer_repository_impl.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/check_client_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
+import 'package:colloborator_v3/features/customers/data/datasources/address_local_datasource.dart';
+import 'package:colloborator_v3/features/customers/data/datasources/address_remote_datasource.dart';
+import 'package:colloborator_v3/features/customers/data/datasources/workplace_remote_datasource.dart';
+import 'package:colloborator_v3/features/customers/data/repositories/address_repository_impl.dart';
+import 'package:colloborator_v3/features/customers/data/repositories/workplace_repository_impl.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
+import 'package:colloborator_v3/features/customers/domain/repositories/address_repository.dart';
+import 'package:colloborator_v3/features/customers/domain/repositories/workplace_repository.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/get_provinces_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/get_regions_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/get_villages_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/get_scoring_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/search_workplaces_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/update_customer_usecase.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/scoring_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
 import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs_bloc.dart';
@@ -45,12 +69,13 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_alice/alice.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get_it/get_it.dart';
 
 final getIt = GetIt.instance;
 
-void setupDependencies() {
-  _registerPlatform();
+void setupDependencies(SharedPreferences prefs) {
+  _registerPlatform(prefs);
   _registerNetwork();
   _registerApp();
   _registerLogin();
@@ -66,11 +91,12 @@ void setupDependencies() {
 }
 
 /// Platformaga va tashqi xizmatlarga ulanish nuqtalari
-void _registerPlatform() {
+void _registerPlatform(SharedPreferences prefs) {
   getIt
     ..registerLazySingleton(() => FirebaseService(getIt()))
     ..registerLazySingleton(() => FirebaseMessaging.instance)
     ..registerLazySingleton(() => PushTokenService(getIt()))
+    ..registerLazySingleton<LocalCache>(() => SharedPrefsCache(prefs: prefs, now: DateTime.now))
     ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
     ..registerLazySingleton<ErrorReporter>(() => TelegramErrorReporter(dio: Dio(),token: dotenv.env['BOT_TOKEN'] ?? '',chatId: dotenv.env['BOT_CHAT_ID'] ?? '',environment: AppConstants.isStaging ? 'staging' : 'production', now: DateTime.now))
     ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')))
@@ -95,7 +121,7 @@ void _registerNetwork() {
 /// Ilova darajasidagi holat va navigatsiya
 void _registerApp() {
   getIt
-    ..registerLazySingleton(() => AuthNotifier(getIt()))
+    ..registerLazySingleton(() => AuthNotifier(getIt(), getIt()))
     ..registerLazySingleton(() => AppRouter(getIt()))
     ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt()));
 }
@@ -126,7 +152,31 @@ void _registerCustomer() {
     ..registerLazySingleton(() => CustomerUsecase(getIt()))
     ..registerLazySingleton(() => CheckClientUsecase(getIt()))
     ..registerFactory(() => CustomersBloc(customerUsecase: getIt()))
-    ..registerFactory(() => FaceIdBloc(checkClientUsecase: getIt(),now: DateTime.now));
+    ..registerFactory(() => FaceIdBloc(checkClientUsecase: getIt(), now: DateTime.now))
+    ..registerLazySingleton(() => AddressRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton(() => AddressLocalDatasource(cache: getIt()))
+    ..registerLazySingleton<AddressRepository>(() => AddressRepositoryImpl(remote: getIt(), local: getIt()))
+    ..registerLazySingleton(() => WorkplaceRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<WorkplaceRepository>(() => WorkplaceRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetProvincesUsecase(getIt()))
+    ..registerLazySingleton(() => GetRegionsUsecase(getIt()))
+    ..registerLazySingleton(() => GetVillagesUsecase(getIt()))
+    ..registerLazySingleton(() => SearchWorkplacesUsecase(getIt()))
+    ..registerLazySingleton(() => UpdateCustomerUsecase(getIt()))
+    ..registerLazySingleton(() => GetScoringUsecase(getIt()))
+    ..registerFactory(() => ScoringBloc(getScoring: getIt()))
+    // Mijoz va rejim ekran ochilganda ma'lum bo'ladi — shuning uchun parametrli.
+    ..registerFactoryParam<AddCustomerBloc, CustomerInfo, bool>(
+      (CustomerInfo info, bool? isEdit) => AddCustomerBloc(
+        info: info,
+        isEdit: isEdit ?? false,
+        getProvinces: getIt(),
+        getRegions: getIt(),
+        getVillages: getIt(),
+        searchWorkplaces: getIt(),
+        updateCustomer: getIt(),
+      ),
+    );
 }
 
 /// features/splash
@@ -139,7 +189,24 @@ void _registerContracts() {
   ..registerLazySingleton(() => ContractsRemoteDatasource(dio: getIt(),now: DateTime.now))
   ..registerLazySingleton<ContractRepository>(() => ContractsRepositoryImpl(remote: getIt()))
   ..registerLazySingleton(() => ContractsUsecase(getIt()))
-  ..registerFactory(() => ContractsBloc(contractsUsecase: getIt()));
+  ..registerFactory(() => ContractsBloc(contractsUsecase: getIt()))
+  ..registerLazySingleton(() => GetContractScoringUsecase(getIt()))
+  ..registerLazySingleton(() => GetFlexMessagesUsecase(getIt()))
+  ..registerLazySingleton(() => GetParticipantsUsecase(getIt()))
+  ..registerLazySingleton(() => GetMibUsecase(getIt()))
+  ..registerLazySingleton(() => GetKatmUsecase(getIt()))
+  // Shartnoma va uning turi ekran ochilganda ma'lum bo'ladi.
+  ..registerFactoryParam<ContractResultBloc, int, bool>(
+    (int contractId, bool? isFlex) => ContractResultBloc(
+      contractId: contractId,
+      isFlex: isFlex ?? false,
+      getScoring: getIt(),
+      getFlexMessages: getIt(),
+      getParticipants: getIt(),
+      getMib: getIt(),
+      getKatm: getIt(),
+    ),
+  );
 }
 
 void _registerOutputs() {

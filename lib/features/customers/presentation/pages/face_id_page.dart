@@ -16,7 +16,7 @@ import 'package:colloborator_v3/features/customers/domain/entities/customer_sear
 import 'package:colloborator_v3/features/customers/domain/entities/face_check_form.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/face_check_issue_text.dart';
-import 'package:colloborator_v3/features/customers/presentation/widgets/face_id_header.dart';
+import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/face_id_hint.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_check.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_sheet.dart';
@@ -30,6 +30,7 @@ import 'package:go_router/go_router.dart';
 /// holat ochiq aytiladi (5.8).
 /// Taqvimda nechta yil orqaga qarash mumkin.
 const int _yearSpan = 100;
+
 
 final class FaceIdPage extends StatefulWidget {
   const FaceIdPage({super.key});
@@ -129,6 +130,7 @@ final class _FaceIdPageState extends State<FaceIdPage> {
                             selector: (FaceIdState state) => state.isOfferAccepted,
                             builder: (BuildContext context, bool isAccepted) => OfferCheck(
                               isAccepted: isAccepted,
+                              errorText: FaceCheckIssueText.offer(issue),
                               onOpen: () => unawaited(
                                 showOfferSheet(context: context, onAccepted: () => _bloc.add(const OfferAccepted(true))),
                               ),
@@ -145,21 +147,20 @@ final class _FaceIdPageState extends State<FaceIdPage> {
                   top: 0,
                   left: 0,
                   right: 0,
-                  child: FaceIdHeader(topInset: topInset, backPress: context.pop),
+                  child: PageHeader(title: "Mijozni tekshirish", topInset: topInset, backPress: context.pop),
                 ),
               ],
             ),
 
             bottomNavigationBar: SafeArea(
               minimum: EdgeInsets.symmetric(horizontal: ScreenSize.h16, vertical: ScreenSize.h12),
-              // Oferta tasdiqlanmaguncha tugma o'chiq turadi — tasdiq katakchasi
-              // uning ustida, sabab ko'rinib turadi.
-              child: BlocSelector<FaceIdBloc, FaceIdState, ({bool isLoading, bool isOfferAccepted})>(
-                selector: (FaceIdState state) => (isLoading: state.isLoading, isOfferAccepted: state.isOfferAccepted),
-                builder: (BuildContext context, ({bool isLoading, bool isOfferAccepted}) data) => MainButton(
+              // Tugma o'chirilmaydi: bosilganda oferta tasdiqlanmagani katakcha
+              // tagida yoziladi, ya'ni sabab ko'rinadi (5.8).
+              child: BlocSelector<FaceIdBloc, FaceIdState, bool>(
+                selector: (FaceIdState state) => state.isLoading,
+                builder: (BuildContext context, bool isLoading) => MainButton(
                   text: "Rasmga olish",
-                  showLoading: data.isLoading,
-                  color: data.isOfferAccepted ? null : AppTheme.colors.grey,
+                  showLoading: isLoading,
                   onPressed: () => _bloc.add(const CaptureRequested()),
                 ),
               ),

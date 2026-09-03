@@ -61,9 +61,12 @@ final class FaceGeometry extends Equatable {
 abstract final class FacePlacementRule {
   /// Yuz kadr kengligining shuncha qismini egallashi kerak.
   ///
-  /// Qiymatlar flex'da qurilmada sozlangan chegaralardan olingan: u yerda yuz
-  /// tik kadr kengligining 71–95% ini egallardi. Yuzni tekshirish uchun rasm
-  /// yaqindan olinadi — pasport rasmiga o'xshash bo'lishi kerak.
+  /// Hisob flex'da qurilmada sozlangan chegaralardan chiqarilgan. Flex Android'da
+  /// `box.width / 1280` bo'yicha 0.40–0.55 ishlatgan, ML Kit esa ramkani
+  /// aylantirilgan kadrda (eni 720) qaytaradi — ya'ni haqiqiy nisbat 71–98%.
+  /// iOS'da bufer tik keladi va 0.72–0.85, ya'ni 72–85%.
+  /// Ikkala oraliq ustma-ust tushmaydi; quyidagi qiymatlar — o'rtachasi va
+  /// qurilmada sinab tanlangan. O'zgartirilsa faqat shu ikki raqam o'zgaradi.
   static const double minWidth = .68;
   static const double maxWidth = .95;
 

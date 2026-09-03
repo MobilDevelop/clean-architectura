@@ -38,11 +38,18 @@ final class FaceIdBloc extends Bloc<FaceIdEvent, FaceIdState> {
   void _birthdayChanged(BirthdayChanged event, Emitter<FaceIdState> emit) => emit(state.copyWith(form: state.form.copyWith(birthday: event.value), issue: FaceCheckIssue.none));
 
   void _offerAccepted(OfferAccepted event, Emitter<FaceIdState> emit) =>
-      emit(state.copyWith(isOfferAccepted: event.value));
+      emit(state.copyWith(isOfferAccepted: event.value, issue: FaceCheckIssue.none));
 
   /// Xato bo'lsa kamera ochilmaydi — aks holda rasm olinib, keyin "pasport
   /// to'liq emas" deyilardi.
   void _captureRequested(CaptureRequested event, Emitter<FaceIdState> emit) {
+    // Rozilik yozuvisiz kamera ochilmaydi. Buni tugmaning rangi emas, qoida
+    // ushlab turishi kerak (6.7).
+    if (!state.isOfferAccepted) {
+      emit(state.copyWith(issue: FaceCheckIssue.offerNotAccepted));
+      return;
+    }
+
     final FaceCheckIssue issue = state.form.issueAt(_now());
 
     if (issue != FaceCheckIssue.none) {

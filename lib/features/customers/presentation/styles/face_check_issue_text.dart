@@ -2,6 +2,11 @@ import 'package:colloborator_v3/features/customers/domain/entities/face_check_fo
 
 /// Kiritish xatosining matni. Har biri o'z maydoni tagida chiqadi (7.5).
 abstract final class FaceCheckIssueText {
+  static String? offer(FaceCheckIssue issue) => switch (issue) {
+    FaceCheckIssue.offerNotAccepted => "Davom etish uchun oferta shartlarini tasdiqlang",
+    _ => null,
+  };
+
   static String? series(FaceCheckIssue issue) => switch (issue) {
     FaceCheckIssue.incompleteSeries => "Ikki harf",
     _ => null,

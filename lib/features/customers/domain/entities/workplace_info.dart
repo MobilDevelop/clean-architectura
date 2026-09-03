@@ -9,7 +9,7 @@ final class WorkplaceInfo extends Equatable{
   final WorkplaceCategory category;
 
   @override
-  List<Object?> get props => [id,name];
+  List<Object?> get props => [id,name,category];
 }
 
 final class WorkplaceCategory extends Equatable{

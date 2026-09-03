@@ -89,6 +89,7 @@ final class _DateSheetState extends State<DateSheet> {
   @override
   Widget build(BuildContext context) {
     final VoidCallback? clear = widget.onClear;
+    final DateTime? picked = _picked;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: ScreenSize.h16),
@@ -189,12 +190,16 @@ final class _DateSheetState extends State<DateSheet> {
               ],
 
               Expanded(
+                // Kun tanlanmaguncha o'chiq: aks holda oyna yopilib, hech nima
+                // o'zgarmasdi va sabab aytilmasdi (5.8).
                 child: MainButton(
                   text: widget.confirmText,
+                  color: picked == null ? AppTheme.colors.grey : null,
                   onPressed: () {
-                    final DateTime? value = _picked;
+                    if (picked == null) return;
+
                     Navigator.of(context).pop();
-                    if (value != null) widget.onPicked(value);
+                    widget.onPicked(picked);
                   },
                 ),
               ),

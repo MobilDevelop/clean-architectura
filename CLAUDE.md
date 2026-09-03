@@ -319,7 +319,7 @@ flutter test
 
 ## 15. Hozirgi holat
 
-*Yangilangan: 2026-09-01*
+*Yangilangan: 2026-09-03*
 
 **Ish uslubi:** UI (`presentation/`, `core/widgets/`, `core/theme/`) — Claude yozadi. `bloc/`, `data/`, `domain/` va `core/` ning qolgani — loyiha egasi yozadi, Claude tekshiradi va birma-bir kamchilik ko'rsatadi.
 
@@ -345,18 +345,42 @@ flutter test
 
 **face_id (mijozlar ichida) — to'liq.** Forma (`FaceCheckForm`: seriya, raqam, sana; 16 yosh qoidasi) → oferta tasdig'i → kamera → avtomatik surat → `checkClient`. Kamera qismi uchga bo'lingan: `FacePlacementRule` va `FaceHold` domainda va kamerasiz testlanadi, `FaceScanner` aylantirish va ko'zguni hisoblaydi, `FaceCameraController` kamera hayotini boshqaradi. Flex'ning platformaga bog'liq chegaralari, bir martalik barqarorlik taymeri va bo'sh `catch` lari takrorlanmagan. Rasm har doim 720px ga siqiladi, base64 `Isolate.run` da kodlanadi.
 
+**Mijoz qo'shish / tahrirlash — to'liq.** `CustomerForm` (validatsiya domainda), manzil ma'lumotnomasi 24 soatlik kesh bilan (`LocalCache` + `SharedPrefsCache`), ish joyi qidiruvi (serverda, `restartable` + 350 ms kutish), `PUT update_client_data`. Qarindosh izohi `RelativeKind` enumida: `title` — backend shartnomasi, ekran matni tarjimadan keyin undan ajraladi.
+
+**Mijoz amallari.** Skoring natijasi, to'liq ma'lumot oynasi va tahrirlash ulangan. `pressContract` ochiq — u mahsulotlarga olib boradi.
+
+**Shartnoma natijasi — uchala tab to'liq.** Shartnomalar ro'yxatidagi "Batafsil" ochadi.
+
+- **Skoring:** `scoring-result/{id}` ro'yxat qaytaradi — har ishtirokchi (mijoz va kafillar) uchun bitta yozuv. Limit kartasi, ichki 4 tekshiruv, tashqi 8 manba. Flex shartnomalarida `flex-contracts/{id}/error-messages` qo'shiladi.
+- **MIB:** `credit-reports` ishtirokchilarni beradi, `mib?client_id=` hisobotni. `state: not_checked` — xato emas, qonuniy holat.
+- **KATM:** `katm?client_id=`, javob 1.7 MB gacha — `ResponseType.plain` bilan olinib `Isolate.run` da ochiladi. Ball gauge'i va dinamika grafigi `CustomPainter` bilan (grafik kutubxonasi qo'shilmagan). Jadvallar backend maketiga (`layout`) qarab chiziladi, shartnoma qatori bosilganda tafsilot oynasi va oltita ichki ro'yxat ochiladi.
+
+Har uch tabning **o'z xatosi va o'z "Qayta urinish"** i bor: bir tabning nosozligi ikkinchisining ma'lumotini o'chirmaydi.
+
+**KATM summalari bo'linmaydi.** Javob so'mda keladi (DEV-4085). Flex'da model ularni 100 ga bo'lgan, bu xato deb topilib olib tashlangan — lekin `katm_fields.dart:41` da yetim izoh qolgan va u o'chirilgan metodga havola qiladi. Shu izohga ishonib bo'lmaydi; flex'ning `test/helper_money_test.dart` i haqiqiy qoidani qulflaydi. v3 da ham `katm_money_fields_test.dart` shuni qulflaydi.
+
 **UI.** Mijozlar va shartnomalar ekranlari qurilgan; umumiy komponentlar `core/widgets/` da (`sheets/`, `states/`, `feedback/`, `dialogs/`, `backgrounds/`). `!` operatori UI'da **nol**, eskirgan API va `ignore_for_file` yo'q, barcha UI klasslari `final`.
 
 ---
 
 ### Ochiq ishlar
 
-*A — kod sifati (loyiha egasida)*
+*A — ulanmagan tugmalar (5.8 buzilishi)*
 
-1. `core/services/cache_data.dart` — 9 ta `!` operatori.
-2. `debugPrint` — 6 joy (`main.dart` da 4, `notification_service.dart` da 1, `custom_animated_toast.dart` da 1). Endi bot bor, ularni hisobotga o'tkazish mumkin.
-3. `workpalce` / `mainAdress` imlosi — 9 joy (mijozlar featurei).
-4. `FirebaseService` — yashirin singleton: private konstruktor, `factory`, ichida `FirebaseMessaging.instance`. DI ga berilsa ham testda almashtirib bo'lmaydi.
+Bosiladi, lekin hech nima qilmaydi — foydalanuvchi uchun bu jimgina yiqilish. 2026-09-03 holatiga 6 ta:
+
+1. Menyu tugmasi — `customer_page.dart:101` va `contracts_page.dart:78` (`drawerPress: () {}`). Menyuning o'zi hali yo'q.
+2. `pressContract` — `customer_page.dart:195`. Mahsulotlarga olib boradi, o'sha feature yo'q.
+3. Shartnoma amallari — `contracts_page.dart:141`: `pressApprove`, `pressEdit`, `pressCancel`. `pressDetails` ulangan.
+
+Oldingi A ro'yxatidagilar — `cache_data.dart`, `debugPrint`, `workpalce` imlosi, `FirebaseService` singletoni, face_id natijasi, mijoz amallari, shartnoma tafsiloti — **yopilgan**.
+
+*A2 — backenddan javob kutayotganlar*
+
+5. **`is_edit` har doim `true` ketadi.** Flex'da map literalida kalit ikki marta yozilgan va oxirgisi shartsiz `true` edi — ya'ni yangi mijozda ham `true` ketgan. v3 shu xatti-harakatni saqlaydi: backend `false` yo'lida sinalmagan. **So'ralishi kerak:** `is_edit` nima uchun kerak va yangi mijozda `false` bo'lishi kerakmi?
+6. **`data:image/png;base64,`** — yuborilayotgan baytlar JPEG. Prefiks o'qiladimi?
+7. **`client-search` `page: 1` da qotgan.** Flex sahifalash qilardi; 30 tadan ko'p natija jimgina kesiladi.
+8. **Skoring DTO'sida 13 ta qat'iy tip.** Flex hammasiga zaxira qiymat qo'ygan. Bitta maydon kelmasa `ParseFailure` chiqadi va botga aynan qaysi maydon ekani yoziladi — shundan keyin aniq hal qilinadi.
 
 *B — qaror kutayotganlar*
 
@@ -368,8 +392,8 @@ flutter test
 
    Shu qaror tufayli UI'da hozirdan amal qiladigan qoida: matn qat'iy kenglikka bog'lanmaydi (`Flexible`/`Expanded`, bir qatorlida `maxLines: 1` + `ellipsis`), va foydalanuvchi matnlari har feature uchun bitta faylga yig'iladi. Kiril va rus matnlari lotindan 15–30% uzunroq.
    - **Ommaviy oferta ham tilga qarab tanlanadi.** `assets/offer/` da `offerUZ.html` va `offerRU.html` bor, `AppIcons.offerUz` / `AppIcons.offerRu` sifatida yozilgan. Hozir `OfferSheet` faqat o'zbekchasini ochadi — `offerRu` shu ishgacha chaqirilmaydi. Kiril o'zbek uchun uchinchi fayl kerak bo'ladi (transliteratsiya HTML ustida ishlamaydi — teglarni ham o'zgartirib yuboradi).
-6. Contracts DTO'sida 25 + 8 zaxira qiymat — backend qaysi maydonlar `null` bo'lishi mumkinligini aytgach hal qilinadi.
-7. Registratsiyadagi `successMessage` backenddan keladi va ekranga chiqadi. Backend har xil holatda har xil matn yuborsa, matn emas `code` kerak bo'ladi.
+9. Contracts DTO'sida 25 + 8 zaxira qiymat — backend qaysi maydonlar `null` bo'lishi mumkinligini aytgach hal qilinadi.
+10. Registratsiyadagi `successMessage` backenddan keladi va ekranga chiqadi. Backend har xil holatda har xil matn yuborsa, matn emas `code` kerak bo'ladi.
 
 *C — ataylab qoldirilgan*
 
@@ -388,7 +412,7 @@ flutter test
 flutter analyze                                   # toza bo'lishi shart
 grep -rn "import.*data/\|package:dio\|package:flutter/" lib/features/*/domain lib/features/*/*/domain
 grep -rn "getIt<" lib/features                    # faqat BlocProvider.create da
-flutter test                                      # 64 ta test
+flutter test                                      # 118 ta test
 dart run tool/bot_test.dart                       # bot ulanishini tekshirish
 ```
 

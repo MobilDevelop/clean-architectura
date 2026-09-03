@@ -3,6 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PhoneFormatter extends TextInputFormatter {
+  /// Tayyor raqamni ko'rsatish shakliga keltiradi: `998901234567` →
+  /// `+998 90 123-45-67`. Kiritish paytida emas — mavjud qiymatni maydonga
+  /// qo'yishda ishlatiladi, shuning uchun hech qanday UI ta'siri yo'q.
+  static String mask(String value) {
+    String digits = value.replaceAll(RegExp(r'\D'), '');
+    if (digits.isEmpty) return '';
+
+    if (!digits.startsWith('998')) digits = '998$digits';
+    if (digits.length > 12) digits = digits.substring(0, 12);
+
+    final StringBuffer result = StringBuffer('+998');
+    if (digits.length > 3) result.write(' ${digits.substring(3, digits.length.clamp(3, 5))}');
+    if (digits.length > 5) result.write(' ${digits.substring(5, digits.length.clamp(5, 8))}');
+    if (digits.length > 8) result.write('-${digits.substring(8, digits.length.clamp(8, 10))}');
+    if (digits.length > 10) result.write('-${digits.substring(10, digits.length)}');
+
+    return result.toString();
+  }
+
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     String digits = newValue.text.replaceAll(RegExp(r'\D'), '');

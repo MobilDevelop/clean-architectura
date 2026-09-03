@@ -30,6 +30,7 @@ final class FaceScanner {
   };
 
   bool _busy = false;
+  bool _isClosed = false;
 
   /// Oldingi kadr hali tekshirilayotgan bo'lsa yangisi tashlab yuboriladi —
   /// navbat yig'ilsa kechikish sekundlarga chiqadi.
@@ -40,7 +41,7 @@ final class FaceScanner {
     required CameraDescription camera,
     required DeviceOrientation orientation,
   }) async {
-    if (_busy) return null;
+    if (_busy || _isClosed) return null;
     _busy = true;
 
     try {
@@ -63,11 +64,17 @@ final class FaceScanner {
       final double frameWidth = swapped ? metadata.size.height : metadata.size.width;
       final double frameHeight = swapped ? metadata.size.width : metadata.size.height;
 
-      // Oldingi kamera ekranda ko'zgudek ko'rsatiladi: foydalanuvchi o'ngga
-      // siljiganda kadrda chapga siljiydi.
-      final bool mirrored = camera.lensDirection == CameraLensDirection.front;
+      // iOS'da kadr oqimi ALLAQACHON ko'zgulangan holda keladi: camera_avfoundation
+      // oldingi kamera uchun `connection.isVideoMirrored = true` qo'yadi va o'sha
+      // ulanish ham ko'rinishni, ham oqimni to'ydiradi. Ustidan yana ko'zgu qo'yilsa
+      // chap va o'ng joyini almashtiradi va yo'riqnoma teskari bo'ladi.
+      final bool mirrored = !Platform.isIOS && camera.lensDirection == CameraLensDirection.front;
 
       return faces.map((Face face) => _toGeometry(face, frameWidth, frameHeight, mirrored)).toList();
+    } catch (_) {
+      // Sahifa yopilayotganda oxirgi kadr yo'lda qolishi mumkin. Bu nosozlik emas,
+      // shuning uchun botga chiqarilmaydi (5.7).
+      return null;
     } finally {
       _busy = false;
     }
@@ -139,5 +146,8 @@ final class FaceScanner {
     return InputImageRotationValue.fromRawValue(compensated);
   }
 
-  Future<void> close() => _detector.close();
+  Future<void> close() {
+    _isClosed = true;
+    return _detector.close();
+  }
 }

@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-class AppIcons {
-  const AppIcons();
+abstract final class AppIcons {
   
   // Svg icons
   static const String success = "assets/icons/success.svg";

@@ -1,12 +1,14 @@
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
+import 'package:colloborator_v3/core/services/local_cache.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthNotifier extends ChangeNotifier {
-  AuthNotifier(this._tokenStorage);
+  AuthNotifier(this._tokenStorage, this._cache);
 
   final SecureTokenStorage _tokenStorage;
+  final LocalCache _cache;
 
   String _token = '';
   String get token => _token;
@@ -31,14 +33,17 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   Future<void> signOut() async {
-  try {
-    await _tokenStorage.deleteToken();
-  } catch (_) {
-    // Diskdan o'chirib bo'lmasa ham, xotiradagi sessiya tugatiladi —
-    // aks holda ilova yarim kirgan holatda qolib ketadi.
-  }
+    try {
+      await _tokenStorage.deleteToken();
+      // Keshdagi ma'lumotnomalar ham ketadi: bitta qurilmada ikkinchi agent
+      // kirsa, oldingisining ma'lumotini ko'rmasligi kerak.
+      await _cache.clear();
+    } catch (_) {
+      // Diskdan o'chirib bo'lmasa ham, xotiradagi sessiya tugatiladi —
+      // aks holda ilova yarim kirgan holatda qolib ketadi.
+    }
 
-  _token = '';
-  notifyListeners();
-}
+    _token = '';
+    notifyListeners();
+  }
 }

@@ -8,9 +8,12 @@ import 'package:colloborator_v3/core/widgets/buttons/circle_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-final class FaceIdHeader extends StatelessWidget {
-  const FaceIdHeader({super.key, required this.topInset, required this.backPress});
+/// Orqaga tugmasi va sarlavha. Suzuvchi ro'yxat sarlavhalaridan farqli —
+/// forma sahifalari uchun.
+final class PageHeader extends StatelessWidget {
+  const PageHeader({super.key, required this.title, required this.topInset, required this.backPress});
 
+  final String title;
   final double topInset;
   final VoidCallback backPress;
 
@@ -34,7 +37,7 @@ final class FaceIdHeader extends StatelessWidget {
                 Gap(ScreenSize.w12),
                 Expanded(
                   child: Text(
-                    "Mijozni tekshirish",
+                    title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft),

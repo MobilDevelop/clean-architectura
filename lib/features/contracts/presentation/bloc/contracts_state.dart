@@ -25,5 +25,5 @@ final class ContractsState extends Equatable {
   );
   
   @override
-  List<Object> get props => [contracts,isLoading,filter,?failure];
+  List<Object?> get props => [contracts,isLoading,filter,failure];
 }

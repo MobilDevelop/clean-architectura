@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/customers/data/models/phone_number_dto.dart';
 import 'package:colloborator_v3/features/customers/data/models/workplace_info_dto.dart';
@@ -22,6 +24,7 @@ final class CustomerInfoDto{
     required this.houseNumber,
     required this.street,
     required this.passportType,
+    this.flexData,
   });
 
   final int id;
@@ -41,24 +44,34 @@ final class CustomerInfoDto{
   final String street;
   final bool passportType;
 
+  /// Server bergan va o'zgarishsiz qaytariladigan ma'lumot. Ilova uni ochmaydi.
+  final Map<String,dynamic>? flexData;
 
+
+  /// Ikkita endpoint bitta shaklni ikki xil kalit bilan yuboradi: ro'yxat
+  /// (`client-search`) va yuz tekshiruvi (`check_client_by_myid`).
   factory CustomerInfoDto.fromJson(Map<String,dynamic> user)=>CustomerInfoDto(
-    id: user['id'] as int, 
-    fullName: user['fio'] as String, 
-    inps: user['inps'] as String, 
-    passportNumber: user['passport_series_number'] as String, 
-    birthDay: user['birth_date'] as String, 
-    mainAddress: user['main_address'] as String, 
-    phones: JsonParser.list(user['phone_numbers'], fromJson: PhoneNumberDto.fromJson), 
-    passportGiven: user['passport_issue_date'] as String, 
-    passportExpire: user['passport_expiry_date'] as String, 
-    workplace: WorkplaceInfoDto.fromJson(user['workplace'] as Map<String,dynamic>), 
-    province: ProvinceDto.fromJson(user['province'] as Map<String,dynamic>),
-    region: RegionDto.fromJson(user['region'] as Map<String,dynamic>),
-    village: VillageDto.fromJson(user['village'] as Map<String,dynamic>), 
-    houseNumber: user['house_number'] as String, 
-    street: user['street'] as String, 
-    passportType: user['passport_type'] as bool, 
+    id: user['id'] as int,
+    fullName: user['fio'] as String? ?? user['name'] as String? ?? '',
+    inps: user['inps'] as String? ?? '',
+    passportNumber: user['passport_series_number'] as String? ?? '',
+    birthDay: user['date_of_birth'] as String? ?? user['birth_date'] as String? ?? '',
+    mainAddress: user['main_address'] as String? ?? '',
+    phones: JsonParser.list(user['phone_numbers'], fromJson: PhoneNumberDto.fromJson),
+    passportGiven: user['passport_given_date'] as String? ?? user['passport_issue_date'] as String? ?? '',
+    passportExpire: user['passport_expiry_date'] as String? ?? '',
+
+    // Manzil va ish joyi — aynan shu ekranda to'ldiriladigan narsa, ya'ni yangi
+    // mijozda ular hali yo'q. Majburiy deb kastlansa yuz tekshiruvidan o'tgan
+    // mijoz formaga umuman yetib bormaydi.
+    workplace: WorkplaceInfoDto.fromJson(user['workplace'] as Map<String,dynamic>? ?? const <String,dynamic>{}),
+    province: ProvinceDto.fromJson(user['province'] as Map<String,dynamic>? ?? const <String,dynamic>{}),
+    region: RegionDto.fromJson(user['region'] as Map<String,dynamic>? ?? const <String,dynamic>{}),
+    village: VillageDto.fromJson(user['village'] as Map<String,dynamic>? ?? const <String,dynamic>{}),
+    houseNumber: user['house_number'] as String? ?? '',
+    street: user['street'] as String? ?? '',
+    passportType: user['passport_type'] as bool? ?? false,
+    flexData: user['flex_data'] as Map<String,dynamic>?,
   );
 
   CustomerInfo toEntity()=>CustomerInfo(
@@ -77,7 +90,8 @@ final class CustomerInfoDto{
     village: village.toEntity(), 
     houseNumber: houseNumber, 
     street: street, 
-    passportType: passportType, 
+    passportType: passportType,
+    flexData: flexData == null ? '' : jsonEncode(flexData),
   );
 
 }
@@ -85,9 +99,11 @@ final class CustomerInfoDto{
 final class ProvinceDto{
   const ProvinceDto({required this.id, required this.title});
 
+  /// Bo'sh obyekt ham keladi — mijozda manzil hali tanlanmagan bo'lishi mumkin.
+  /// `id: 0` shu holatni bildiradi.
   factory ProvinceDto.fromJson(Map<String,dynamic> json)=>ProvinceDto(
-    id: json['id'] as int, 
-    title: json['name'] as String
+    id: json['id'] as int? ?? 0,
+    title: json['name'] as String? ?? '',
   );
 
   final int id;
@@ -100,9 +116,11 @@ final class ProvinceDto{
 final class RegionDto{
   const RegionDto({required this.id, required this.title});
 
+  /// Bo'sh obyekt ham keladi — mijozda manzil hali tanlanmagan bo'lishi mumkin.
+  /// `id: 0` shu holatni bildiradi.
   factory RegionDto.fromJson(Map<String,dynamic> json)=>RegionDto(
-    id: json['id'] as int, 
-    title: json['name'] as String
+    id: json['id'] as int? ?? 0,
+    title: json['name'] as String? ?? '',
   );
 
   final int id;
@@ -115,9 +133,11 @@ final class RegionDto{
 final class VillageDto{
   const VillageDto({required this.id, required this.title});
 
+  /// Bo'sh obyekt ham keladi — mijozda manzil hali tanlanmagan bo'lishi mumkin.
+  /// `id: 0` shu holatni bildiradi.
   factory VillageDto.fromJson(Map<String,dynamic> json)=>VillageDto(
-    id: json['id'] as int, 
-    title: json['name'] as String
+    id: json['id'] as int? ?? 0,
+    title: json['name'] as String? ?? '',
   );
 
   final int id;

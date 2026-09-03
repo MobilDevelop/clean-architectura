@@ -2,14 +2,13 @@ import 'package:colloborator_v3/features/contracts/domain/entities/contract_stat
 import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:equatable/equatable.dart';
 
-final class ContractInfo extends Equatable{
-
+final class ContractInfo extends Equatable {
   const ContractInfo({
     required this.id,
     required this.clientId,
-    required this.clientFio, 
-    required this.status, 
-    required this.birthDay, 
+    required this.clientFio,
+    required this.status,
+    required this.birthDay,
     required this.passport,
     required this.isFormal,
     required this.isReturned,
@@ -29,7 +28,7 @@ final class ContractInfo extends Equatable{
     required this.engine,
     this.directorConfirmedAt,
     this.scoringTime,
-    this.sentAt
+    this.sentAt,
   });
 
   final int id;
@@ -61,11 +60,35 @@ final class ContractInfo extends Equatable{
   final DateTime? scoringTime;
   final DateTime? sentAt;
 
-  bool get needsApproval => status == ContractStatus.allowed && (higherPositionConfirmationRequired || canUserAllowConfirmation);
+  bool get needsApproval =>
+      status == ContractStatus.allowed && (higherPositionConfirmationRequired || canUserAllowConfirmation);
 
   @override
-  List<Object?> get props => [id,clientId,clientFio,createdAt,birthDay,passport,isFormal,
-    isReturned,isCard,flex,guarantors,clientSignUrl,isClientFace,higherPositionConfirmationRequired,isSentForApproval,status,
-    canUserAllowConfirmation,sentPartnerFullname,sentUserFullname,showButtonKATM,hasBenefit,engine,directorConfirmedAt,scoringTime,sentAt
+  List<Object?> get props => [
+    id,
+    clientId,
+    clientFio,
+    createdAt,
+    birthDay,
+    passport,
+    isFormal,
+    isReturned,
+    isCard,
+    flex,
+    guarantors,
+    clientSignUrl,
+    isClientFace,
+    higherPositionConfirmationRequired,
+    isSentForApproval,
+    status,
+    canUserAllowConfirmation,
+    sentPartnerFullname,
+    sentUserFullname,
+    showButtonKATM,
+    hasBenefit,
+    engine,
+    directorConfirmedAt,
+    scoringTime,
+    sentAt,
   ];
 }

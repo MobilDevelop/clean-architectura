@@ -13,7 +13,15 @@ abstract final class Endpoints {
   // customer_page all url
   static const String getCustomer = "${_prefix}client-search";
   static const String checkClient = "${_prefix}check_client_by_myid";
+  static const String provinces = "${_prefix}provinces";
+  static const String regions = "${_prefix}regions";
+  static const String villages = "${_prefix}get_mfy_by_region_id";
+  static const String workplaces = "${_prefix}workplaces";
+  static const String updateClient = "${_prefix}update_client_data";
+  static const String scoringResult = "${_prefix}local-scoring-result/";
 
   // contracts page all ulrs
   static const String getContracts = "${_prefix}contracts";
+  static const String contractScoring = "${_prefix}scoring-result/";
+  static const String flexContracts = "${_prefix}flex-contracts/";
 }

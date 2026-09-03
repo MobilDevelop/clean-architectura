@@ -4,7 +4,7 @@ import 'package:colloborator_v3/features/customers/domain/entities/customer_sear
 import 'package:colloborator_v3/features/customers/domain/entities/face_check_params.dart';
 import 'package:equatable/equatable.dart';
 
-enum FaceCheckIssue { none, incompleteSeries, incompleteNumber, incompleteDate, invalidDate, futureDate, tooYoung }
+enum FaceCheckIssue { none, offerNotAccepted, incompleteSeries, incompleteNumber, incompleteDate, invalidDate, futureDate, tooYoung }
 
 /// Rasm olinishidan oldingi holat: faqat qo'lda kiritiladigan maydonlar.
 /// Tekshiruv shu yerda, chunki u rasmga bog'liq emas — kamera ochilishidan

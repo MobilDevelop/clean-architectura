@@ -7,14 +7,38 @@ import 'package:gap/gap.dart';
 /// Oferta tasdig'i. Belgilanmagan bo'lsa bosilganda matn ochiladi,
 /// belgilangan bo'lsa bekor qiladi.
 final class OfferCheck extends StatelessWidget {
-  const OfferCheck({super.key, required this.isAccepted, required this.onOpen, required this.onCancel});
+  const OfferCheck({
+    super.key,
+    required this.isAccepted,
+    required this.onOpen,
+    required this.onCancel,
+    this.errorText,
+  });
 
   final bool isAccepted;
   final VoidCallback onOpen;
   final VoidCallback onCancel;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
+    final String? error = errorText;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        _tile(error != null),
+
+        if (error != null)
+          Padding(
+            padding: EdgeInsets.only(left: ScreenSize.w12, top: ScreenSize.h4),
+            child: Text(error, style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.red)),
+          ),
+      ],
+    );
+  }
+
+  Widget _tile(bool hasError) {
     return InkWell(
       onTap: isAccepted ? onCancel : onOpen,
       borderRadius: BorderRadius.circular(ScreenSize.r18),
@@ -23,7 +47,11 @@ final class OfferCheck extends StatelessWidget {
         decoration: BoxDecoration(
           color: isAccepted ? AppTheme.colors.primary.withValues(alpha: .08) : AppTheme.colors.white,
           borderRadius: BorderRadius.circular(ScreenSize.r18),
-          border: isAccepted ? Border.all(color: AppTheme.colors.primary.withValues(alpha: .35)) : AppSurface.border(),
+          border: hasError
+              ? Border.all(color: AppTheme.colors.red)
+              : isAccepted
+              ? Border.all(color: AppTheme.colors.primary.withValues(alpha: .35))
+              : AppSurface.border(),
         ),
         child: Row(
           children: <Widget>[

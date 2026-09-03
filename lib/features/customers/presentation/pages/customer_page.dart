@@ -13,6 +13,8 @@ import 'package:colloborator_v3/features/customers/presentation/bloc/customers_b
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_event.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_state.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customer_action_sheet.dart';
+import 'package:colloborator_v3/features/customers/presentation/widgets/customer_details_sheet.dart';
+import 'package:colloborator_v3/features/customers/presentation/widgets/scoring_sheet.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customer_info.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customers_header.dart';
@@ -74,9 +76,10 @@ final class _CustomerPageState extends State<CustomerPage> {
                 // Ro'yxat header ostidan suzib o'tadi — shuning uchun tepadagi
                 // bo'shliq header balandligiga teng qilib berilyapti.
                 Positioned.fill(
-                  child: BlocSelector<CustomersBloc, CustomersState, ({bool isLoading, List<CustomerInfo> customers})>(
-                    selector: (CustomersState state) => (isLoading: state.isLoading, customers: state.customers),
-                    builder: (BuildContext context, ({bool isLoading, List<CustomerInfo> customers}) data) =>
+                  child: BlocSelector<CustomersBloc, CustomersState, ({bool isLoading, List<CustomerInfo> customers, bool hasSearched})>(
+                    selector: (CustomersState state) =>
+                        (isLoading: state.isLoading, customers: state.customers, hasSearched: state.hasSearched),
+                    builder: (BuildContext context, ({bool isLoading, List<CustomerInfo> customers, bool hasSearched}) data) =>
                         _content(data: data, topPadding: topInset + ScreenSize.h56 + (showSearch ? ScreenSize.h76 : 0)),
                   ),
                 ),
@@ -127,16 +130,31 @@ final class _CustomerPageState extends State<CustomerPage> {
     );
   }
 
-  /// Topilgan mijoz bilan nima qilinishi keyingi ekran yozilgach hal bo'ladi —
-  /// hozircha natija ko'rinadigan qilib aytiladi (5.8).
+  /// Yuz tekshiruvidan o'tgan mijoz darhol to'ldirish ekraniga o'tadi.
   Future<void> _openFaceId() async {
     final CustomerInfo? customer = await context.push<CustomerInfo>(Routes.faceId.path);
     if (customer == null || !mounted) return;
 
-    await CustomAnimatedToast.showSuccess("${customer.fullName} tasdiqlandi");
+    await _openForm(customer, isEdit: false);
   }
 
-  Widget _content({required ({bool isLoading, List<CustomerInfo> customers}) data, required double topPadding}) {
+  Future<void> _openForm(CustomerInfo customer, {required bool isEdit}) async {
+    final bool? saved = await context.push<bool>(
+      Routes.addCustomer.path,
+      extra: (info: customer, isEdit: isEdit),
+    );
+
+    if (saved != true || !mounted) return;
+
+    await CustomAnimatedToast.showSuccess("Ma'lumot saqlandi");
+    // Ro'yxat eskirdi: yangi mijoz qo'shildi yoki mavjudi o'zgardi.
+    _bloc.add(const CustomersRefreshed());
+  }
+
+  Widget _content({
+    required ({bool isLoading, List<CustomerInfo> customers, bool hasSearched}) data,
+    required double topPadding,
+  }) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h90);
 
     if (data.isLoading) {
@@ -147,7 +165,19 @@ final class _CustomerPageState extends State<CustomerPage> {
       return ListView(
         padding: padding,
         physics: NeverScrollableScrollPhysics(),
-        children: const <Widget>[EmptyPlaceholder(icon: AppIcons.search, title: "Mijozni qidiring", message: "Pasport seriyasi, INPS yoki ism-familiya bo'yicha qidirish mumkin")],
+        children: <Widget>[
+          data.hasSearched
+              ? const EmptyPlaceholder(
+                  icon: AppIcons.search,
+                  title: "Mijoz topilmadi",
+                  message: "Boshqa pasport, INPS yoki ism bilan qidirib ko'ring",
+                )
+              : const EmptyPlaceholder(
+                  icon: AppIcons.search,
+                  title: "Mijozni qidiring",
+                  message: "Pasport seriyasi, INPS yoki ism-familiya bo'yicha qidirish mumkin",
+                ),
+        ],
       );
     }
 
@@ -162,7 +192,7 @@ final class _CustomerPageState extends State<CustomerPage> {
         return CustomerInfoWidget(
           key: ValueKey<int>(customer.id),
           info: customer,
-          pressActions: () => unawaited(showCustomerActions(context: context, info: customer, pressScoring: () {}, pressContract: () {}, pressEdit: () {}, pressInfo: () {})),
+          pressActions: () => unawaited(showCustomerActions(context: context, info: customer, pressScoring: () => unawaited(showScoringSheet(context: context, customerId: customer.id)), pressContract: () {}, pressEdit: () => unawaited(_openForm(customer, isEdit: true)), pressInfo: () => unawaited(showCustomerDetails(context: context, info: customer)))),
         );
       },
     );

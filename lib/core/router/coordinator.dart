@@ -8,10 +8,15 @@ import 'package:colloborator_v3/features/auth/registration/presentation/bloc/reg
 import 'package:colloborator_v3/features/auth/registration/presentation/pages/registration_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/contract_result_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/add_customer_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/face_camera_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
@@ -129,6 +134,59 @@ class AppRouter {
             child: const RegistrationPage(),
           ),
         ),
+      ),
+
+      GoRoute(
+        name: Routes.contractResult.name,
+        path: Routes.contractResult.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          if (extra is! ContractInfo) {
+            return buildScaleTransitionPage<void>(
+              context: context,
+              state: state,
+              child: RouteErrorView(location: state.uri.toString(), onBack: () => context.go(Routes.contracts.path)),
+            );
+          }
+
+          return buildScaleTransitionPage<void>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) =>
+                  getIt<ContractResultBloc>(param1: extra.id, param2: extra.flex)..add(const ScoringRequested()),
+              child: const ContractResultPage(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: Routes.addCustomer.name,
+        path: Routes.addCustomer.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          // Ekran mijozsiz ma'nosiz — noto'g'ri chaqiruv jimgina bo'sh sahifa
+          // bermasin.
+          if (extra is! ({CustomerInfo info, bool isEdit})) {
+            return buildScaleTransitionPage<void>(
+              context: context,
+              state: state,
+              child: RouteErrorView(location: state.uri.toString(), onBack: () => context.go(Routes.customer.path)),
+            );
+          }
+
+          return buildScaleTransitionPage<bool>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<AddCustomerBloc>(param1: extra.info, param2: extra.isEdit)..add(const AddCustomerStarted()),
+              child: AddCustomerPage(isEdit: extra.isEdit),
+            ),
+          );
+        },
       ),
 
       GoRoute(

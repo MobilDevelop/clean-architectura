@@ -6,6 +6,9 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 /// Kamera ochilmaganda nima bo'lganini aytadi — sabab yo'qolmasligi kerak.
 enum CameraStartIssue { none, denied, notFound, failed }
 
+/// Surat olinmaganda nima bo'lganini aytadi.
+enum CaptureIssue { none, notReady, failed }
+
 /// Oldingi kamerani ochadi va rasm oladi.
 ///
 /// Nega alohida: sahifa faqat ko'rsatadi. Kamera hayoti — ochish, kadr oqimi,
@@ -13,6 +16,7 @@ enum CameraStartIssue { none, denied, notFound, failed }
 final class FaceCameraController {
   CameraController? _controller;
   CameraDescription? _camera;
+  bool _isDisposed = false;
 
   /// Rasmning qisqa tomoni shu o'lchamga tushiriladi. Yuzni solishtirish
   /// uchun bundan kattasi kerak emas, base64 esa hajmni yana 33% oshiradi.
@@ -40,6 +44,13 @@ final class FaceCameraController {
 
       await controller.initialize();
 
+      // Ochilish tugagunicha sahifadan chiqilgan bo'lishi mumkin — bunday nusxa
+      // hech qayerda saqlanmaydi, ya'ni uni faqat shu yerda yopish mumkin.
+      if (_isDisposed) {
+        await controller.dispose();
+        return CameraStartIssue.failed;
+      }
+
       _controller = controller;
       _camera = camera;
 
@@ -65,18 +76,21 @@ final class FaceCameraController {
     await controller.stopImageStream();
   }
 
-  /// Rasm olinmasa `null` — chaqiruvchi buni foydalanuvchiga aytadi.
-  Future<File?> capture() async {
+  /// Sabab bilan qaytaradi: chaqiruvchi muvaffaqiyatsizlikni ko'rsatishi kerak,
+  /// bo'sh natijani jimgina yutib yuborish mumkin emas (5.8).
+  Future<({File? photo, CaptureIssue issue})> capture() async {
     final CameraController? controller = _controller;
-    if (controller == null || !controller.value.isInitialized) return null;
+    if (controller == null || !controller.value.isInitialized) {
+      return (photo: null, issue: CaptureIssue.notReady);
+    }
 
     try {
       await stopStream();
       final XFile shot = await controller.takePicture();
 
-      return _compressed(File(shot.path));
+      return (photo: await _compressed(File(shot.path)), issue: CaptureIssue.none);
     } catch (_) {
-      return null;
+      return (photo: null, issue: CaptureIssue.failed);
     }
   }
 
@@ -85,17 +99,26 @@ final class FaceCameraController {
   Future<File> _compressed(File file) async {
     final XFile? result = await FlutterImageCompress.compressAndGetFile(
       file.path,
-      '${file.parent.path}/small_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      '${file.parent.path}/small_${file.uri.pathSegments.last}.jpg',
       quality: _quality,
       minWidth: _targetSide,
       minHeight: _targetSide,
       format: CompressFormat.jpeg,
     );
 
-    return result == null ? file : File(result.path);
+    if (result == null) return file;
+
+    // Asl nusxa endi kerak emas: har suratdan diskda ikkita fayl qolib ketardi.
+    // O'chirilmasa ham oqim buzilmaydi, shuning uchun xato yutiladi.
+    try {
+      await file.delete();
+    } catch (_) {}
+
+    return File(result.path);
   }
 
   Future<void> dispose() async {
+    _isDisposed = true;
     final CameraController? controller = _controller;
     _controller = null;
     _camera = null;

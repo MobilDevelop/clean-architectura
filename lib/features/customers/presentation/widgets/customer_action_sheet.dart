@@ -35,7 +35,7 @@ Future<void> showCustomerActions({required BuildContext context,
       icon: AppIcons.graphic,
       color: AppTheme.colors.blue,
       title: "Skoring natijasi",
-      subtitle: "KATM va MIB bo'yicha tekshiruv",
+      subtitle: "Ball, limit va shartnomalar",
       onTap: pressScoring,
     ),
 

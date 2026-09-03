@@ -55,5 +55,5 @@ final class RegistrationState extends Equatable {
     );
 
   @override
-  List<Object?> get props => [isLoading, selectedPartner, selectedOrganization,partners,successMessage,isRegistered,?failure];
+  List<Object?> get props => [isLoading, selectedPartner, selectedOrganization,partners,successMessage,isRegistered,failure];
 }

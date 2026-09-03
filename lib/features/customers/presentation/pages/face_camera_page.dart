@@ -6,10 +6,12 @@ import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/buttons/circle_icon_button.dart';
+import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/face_placement.dart';
 import 'package:colloborator_v3/features/customers/presentation/camera/face_camera_controller.dart';
 import 'package:colloborator_v3/features/customers/presentation/camera/face_scanner.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/camera_start_text.dart';
+import 'package:colloborator_v3/features/customers/presentation/styles/capture_issue_text.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/face_placement_text.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/face_camera_view.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/face_guidance_bar.dart';
@@ -39,6 +41,7 @@ final class _FaceCameraPageState extends State<FaceCameraPage> with WidgetsBindi
   FacePlacement _placement = FacePlacement.noFace;
   bool _isStarting = true;
   bool _isCapturing = false;
+  CaptureIssue _captureIssue = CaptureIssue.none;
   int _frame = 0;
 
   @override
@@ -83,7 +86,7 @@ final class _FaceCameraPageState extends State<FaceCameraPage> with WidgetsBindi
   }
 
   void _onFrame(CameraImage image) {
-    if (_isCapturing || _scanner.isBusy) return;
+    if (_isCapturing || _scanner.isBusy || _captureIssue != CaptureIssue.none) return;
 
     _frame++;
     if (_frame % _frameStep != 0) return;
@@ -114,18 +117,28 @@ final class _FaceCameraPageState extends State<FaceCameraPage> with WidgetsBindi
     if (_isCapturing) return;
     setState(() => _isCapturing = true);
 
-    final File? photo = await _camera.capture();
+    final ({File? photo, CaptureIssue issue}) result = await _camera.capture();
     if (!mounted) return;
 
-    if (photo == null) {
-      // Rasm chiqmadi — oqimni qaytarib, qayta urinamiz.
-      _hold.reset();
-      setState(() => _isCapturing = false);
-      await _camera.startStream(_onFrame);
+    final File? photo = result.photo;
+    if (photo != null) {
+      context.pop(photo);
       return;
     }
 
-    if (mounted) context.pop(photo);
+    // Jimgina qayta urinish sikliga tushmaymiz: sabab ekranga chiqadi va
+    // takrorlashni foydalanuvchi o'zi tanlaydi (5.8).
+    _hold.reset();
+    setState(() {
+      _isCapturing = false;
+      _captureIssue = result.issue;
+    });
+  }
+
+  Future<void> _retryCapture() async {
+    _hold.reset();
+    setState(() => _captureIssue = CaptureIssue.none);
+    await _camera.startStream(_onFrame);
   }
 
   @override
@@ -180,11 +193,19 @@ final class _FaceCameraPageState extends State<FaceCameraPage> with WidgetsBindi
                 ),
               ),
 
-              if (issue == CameraStartIssue.none)
-                FaceGuidanceBar(
-                  message: _isStarting ? "Kamera tayyorlanmoqda" : FacePlacementText.of(_placement),
-                  isReady: _placement == FacePlacement.ready,
-                ),
+              if (issue == CameraStartIssue.none) ...<Widget>[
+                if (_captureIssue == CaptureIssue.none)
+                  FaceGuidanceBar(
+                    message: _isStarting ? "Kamera tayyorlanmoqda" : FacePlacementText.of(_placement),
+                    isReady: _placement == FacePlacement.ready,
+                  )
+                else ...<Widget>[
+                  FaceGuidanceBar(message: CaptureIssueText.of(_captureIssue), isReady: false),
+
+                  Gap(ScreenSize.h12),
+                  MainButton(text: "Qayta urinish", onPressed: () => unawaited(_retryCapture())),
+                ],
+              ],
 
               Gap(ScreenSize.h20),
             ],

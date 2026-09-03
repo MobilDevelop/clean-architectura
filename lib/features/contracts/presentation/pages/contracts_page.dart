@@ -16,9 +16,11 @@ import 'package:colloborator_v3/features/contracts/presentation/widgets/contract
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_card.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_header.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_skeleton.dart';
+import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 /// Ro'yxatning birinchi o'rni sarlavhaga ketadi.
 const int _headerSlot = 1;
@@ -102,6 +104,9 @@ final class _ContractsPageState extends State<ContractsPage> {
     );
   }
 
+  Future<void> _openResult(ContractInfo contract) =>
+      context.push(Routes.contractResult.path, extra: contract);
+
   Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data, required double topPadding}) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);
 
@@ -133,7 +138,7 @@ final class _ContractsPageState extends State<ContractsPage> {
         return ContractCard(
           key: ValueKey<int>(contract.id),
           contract: contract,
-          pressActions: () => unawaited(showContractActions(context: context, contract: contract, pressApprove: () {}, pressEdit: () {}, pressDetails: () {}, pressCancel: () {})),
+          pressActions: () => unawaited(showContractActions(context: context, contract: contract, pressApprove: () {}, pressEdit: () {}, pressDetails: () => unawaited(_openResult(contract)), pressCancel: () {})),
         );
       },
     );

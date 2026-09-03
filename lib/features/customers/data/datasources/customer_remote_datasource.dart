@@ -5,7 +5,10 @@ import 'dart:isolate';
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/customers/data/models/customer_info_dto.dart';
+import 'package:colloborator_v3/features/customers/data/models/customer_update_dto.dart';
+import 'package:colloborator_v3/features/customers/data/models/scoring_info_dto.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/customer_update_params.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/face_check_params.dart';
 import 'package:dio/dio.dart';
 
@@ -36,6 +39,17 @@ final class CustomerRemoteDatasource {
 
     return JsonParser.object(result.data?['client'], fromJson: CustomerInfoDto.fromJson);
   }
+
+  Future<ScoringInfoDto?> getScoring(int customerId) async {
+    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+      '${Endpoints.scoringResult}$customerId',
+    );
+
+    return JsonParser.object(result.data, fromJson: ScoringInfoDto.fromJson);
+  }
+
+  Future<void> updateCustomer(CustomerUpdateParams params) =>
+      _dio.put<Map<String, dynamic>>(Endpoints.updateClient, data: CustomerUpdateDto(params).toJson());
 }
 
 /// Rasmni o'qish va base64 ga o'girish alohida izolyatda bajariladi — asosiy

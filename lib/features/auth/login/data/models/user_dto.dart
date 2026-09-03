@@ -55,9 +55,8 @@ final class UserDto {
   );
 }
 
-/// Backend imkoniyatlarni ikki xil shaklda yuboradi: eski (`show_katm`) va
-/// yangi (`permissions.scoring.turn-off-katm`). Migratsiya tugamagani uchun
-/// ikkalasi ham qo'llab-quvvatlanadi — yangisi ustun.
+/// Ruxsatlar faqat ichma-ich `permissions` obyektida keladi.
+/// Guruh yo'q bo'lsa yoki qiymat mantiqiy tip bo'lmasa `null` qaytadi.
 final class PermissionsDto {
   const PermissionsDto({
      this.showScoringResult,

@@ -22,6 +22,12 @@ final class SearchSubmitted extends CustomersEvent {
   const SearchSubmitted();
 }
 
+/// Ro'yxatni qayta so'raydi. Qidiruv qilinmagan bo'lsa hech nima qilmaydi —
+/// yangilanadigan ro'yxatning o'zi yo'q.
+final class CustomersRefreshed extends CustomersEvent {
+  const CustomersRefreshed();
+}
+
 final class FailureHandled extends CustomersEvent {
   const FailureHandled();
 }

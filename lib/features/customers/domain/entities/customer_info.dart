@@ -21,6 +21,7 @@ final class CustomerInfo extends Equatable{
     required this.houseNumber,
     required this.street,
     required this.passportType,
+    this.flexData = '',
   });
 
   final int id;
@@ -40,6 +41,11 @@ final class CustomerInfo extends Equatable{
   final String street;
   final bool passportType;
 
+  /// Server bergan va o'zgarishsiz qaytarilishi kerak bo'lgan ma'lumot.
+  /// Ilova uni ochmaydi, shuning uchun matn — `Map` entityda turmaydi (3.2).
+  /// Bo'sh satr — bunday ma'lumot yo'q.
+  final String flexData;
+
   PhoneNumber? get mainPhone {
   for (final phone in phones) {
     if (phone.isMain) return phone;
@@ -48,7 +54,7 @@ final class CustomerInfo extends Equatable{
 }
 
   @override
-  List<Object?> get props => [id,fullName,inps,passportNumber,birthDay,mainAddress,phones,passportGiven,passportExpire,workplace,province,region,village,houseNumber,street,passportType];
+  List<Object?> get props => [id,fullName,inps,passportNumber,birthDay,mainAddress,phones,passportGiven,passportExpire,workplace,province,region,village,houseNumber,street,passportType,flexData];
 
 }
 
