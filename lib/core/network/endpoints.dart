@@ -24,4 +24,57 @@ abstract final class Endpoints {
   static const String getContracts = "${_prefix}contracts";
   static const String contractScoring = "${_prefix}scoring-result/";
   static const String flexContracts = "${_prefix}flex-contracts/";
+  static const String authorityCheck = "${_prefix}contract-authority/check/";
+  static const String authorityConfirm = "${_prefix}contract-authority/confirm";
+  static const String authorityEscalate = "${_prefix}contract-authority/escalate";
+  static const String cancelContract = "${_prefix}loan_rejected/";
+  /// Eski dvijokdagi "yuqoriga yuborish": `contracts/{id}/allow-confirmation`.
+  static const String contractsBase = "${_prefix}contracts/";
+
+  // contract_create feature — mahsulot tanlash.
+  // Nomi `partners` emas: registratsiyadagi hamkorlar ro'yxati boshqa endpoint.
+  static const String suppliers = "${_prefix}partners";
+  static const String categories = "${_prefix}categories";
+  static const String brands = "${_prefix}brands";
+  static const String products = "${_prefix}products";
+  static const String imeiImage = "${_prefix}imei/phone/img";
+
+  // contract_create feature — qoralama va yuborish
+  static const String loans = "${_prefix}loans";
+  static const String loanDraft = "${_prefix}loans/draft";
+  static const String loanById = "${_prefix}loans/";
+  static const String paymentDays = "${_prefix}contract_payment_days/";
+  static const String addLoanProduct = "${_prefix}add_loan_products";
+  static const String updateLoanProduct = "${_prefix}update_loan_product/";
+  static const String deleteLoanProduct = "${_prefix}delete_loan_product/";
+
+  // contract_create feature — kafillar
+  static const String addLoanGuarantor = "${_prefix}add_loan_guarantor";
+  static const String deleteLoanGuarantor = "${_prefix}delete_loan_guarantor/";
+
+  // contract_create feature — daromad bloki
+  static const String occupationAutocomplete = "${_prefix}occupation-types/get-all-autocomplete";
+  static const String occupationAll = "${_prefix}occupation-types/all";
+  static const String addLoanCard = "${_prefix}add_loan_plastic_card";
+  static const String deleteLoanCard = "${_prefix}delete_loan_plastic_card/";
+
+  // contract_create feature — to'lov jadvali va maxsus tarif
+  static const String generateGraphic = "${_prefix}generate_graphic";
+  static const String specialTariffsAvailable = "${_prefix}special-tariffs/available";
+
+  /// `contracts/{id}/special-tariff` — biriktirish, o'qish va bekor qilish.
+  static String specialTariffOf(int contractId) => "$contractsBase$contractId/special-tariff";
+
+  // contract_create feature — KATM skip va menejer bonusi
+  static const String turnOffKatm = "${_prefix}underwriter/turn-off-katm";
+  static const String skipReasonCategories = "${_prefix}underwriter/skip-reason-categories";
+  static const String managerBonus = "${_prefix}contract/benefit";
+
+  // imzolash
+  static const String electronicContract = "${_prefix}electronic_contract";
+  static const String electronicFlexContract = "${_prefix}electronic_flex_contract";
+  static const String confirmClientFace = "${_prefix}confirm_client_face";
+  static const String confirmGuarantorFace = "${_prefix}confirm_guarantor_face";
+  static const String signClientContract = "${_prefix}sign_client_contract";
+  static const String signGuarantorContract = "${_prefix}sign_guarantor_contract";
 }

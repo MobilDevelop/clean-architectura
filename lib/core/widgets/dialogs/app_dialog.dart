@@ -1,5 +1,6 @@
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/widgets/buttons/border_button.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -19,6 +20,7 @@ final class AppDialog extends StatelessWidget {
     required this.message,
     required this.actionLabel,
     required this.onAction,
+    this.cancelLabel,
   });
 
   final String icon;
@@ -27,6 +29,10 @@ final class AppDialog extends StatelessWidget {
   final String message;
   final String actionLabel;
   final VoidCallback onAction;
+
+  /// Berilsa ikkinchi, bekor qiluvchi tugma chiqadi. Qaytarib bo'lmaydigan
+  /// amallarda chiqib ketish yo'li ko'rinib turishi kerak.
+  final String? cancelLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +76,23 @@ final class AppDialog extends StatelessWidget {
             ),
 
             Gap(ScreenSize.h20),
-            MainButton(text: actionLabel, onPressed: onAction),
+            if (cancelLabel == null)
+              MainButton(text: actionLabel, onPressed: onAction)
+            else
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: BorderButton(
+                      text: cancelLabel ?? '',
+                      color: AppTheme.colors.grey,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+
+                  Gap(ScreenSize.w10),
+                  Expanded(child: MainButton(text: actionLabel, onPressed: onAction)),
+                ],
+              ),
           ],
         ),
       ),

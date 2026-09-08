@@ -9,6 +9,7 @@ import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/customer_search_issue_text.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_event.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_state.dart';
@@ -138,6 +139,39 @@ final class _CustomerPageState extends State<CustomerPage> {
     await _openForm(customer, isEdit: false);
   }
 
+  /// Shartnoma tuzish — oferta va yuz tekshiruvidan keyin.
+  ///
+  /// Mijozning o'zi ekani tasdiqlanmasdan shartnoma ochilmaydi. Oferta yuz
+  /// tekshiruvi ekranining bir qismi: usiz "Davom etish" ishlamaydi.
+  /// Marshrut argumenti oddiy yozuv — sahifa `contract_create` ni import
+  /// qilmaydi (1.3).
+  Future<void> _openContract(CustomerInfo customer) async {
+    final CustomerInfo? verified = await context.push<CustomerInfo>(
+      Routes.faceId.path,
+      extra: faceIdPrefillOf(customer),
+    );
+
+    if (verified == null || !mounted) return;
+
+    // Server boshqa mijozni qaytarsa — bu boshqa odam. Tekshiruvsiz davom
+    // etish shartnomani noto'g'ri mijozga ochib yuborardi.
+    if (verified.id != customer.id) {
+      await CustomAnimatedToast.showError("Yuz tekshiruvi bu mijozga mos kelmadi");
+      return;
+    }
+
+    if (!mounted) return;
+
+    final bool? isSubmitted = await context.push<bool>(
+      Routes.addContract.path,
+      extra: (clientId: customer.id, contractId: null, canSkipKatm: false),
+    );
+
+    if (isSubmitted ?? false) {
+      await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
+    }
+  }
+
   Future<void> _openForm(CustomerInfo customer, {required bool isEdit}) async {
     final bool? saved = await context.push<bool>(
       Routes.addCustomer.path,
@@ -192,7 +226,7 @@ final class _CustomerPageState extends State<CustomerPage> {
         return CustomerInfoWidget(
           key: ValueKey<int>(customer.id),
           info: customer,
-          pressActions: () => unawaited(showCustomerActions(context: context, info: customer, pressScoring: () => unawaited(showScoringSheet(context: context, customerId: customer.id)), pressContract: () {}, pressEdit: () => unawaited(_openForm(customer, isEdit: true)), pressInfo: () => unawaited(showCustomerDetails(context: context, info: customer)))),
+          pressActions: () => unawaited(showCustomerActions(context: context, info: customer, pressScoring: () => unawaited(showScoringSheet(context: context, customerId: customer.id)), pressContract: () => unawaited(_openContract(customer)), pressEdit: () => unawaited(_openForm(customer, isEdit: true)), pressInfo: () => unawaited(showCustomerDetails(context: context, info: customer)))),
         );
       },
     );

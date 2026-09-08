@@ -1,5 +1,6 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_status.dart';
+import 'package:colloborator_v3/core/contract/contract_status.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:equatable/equatable.dart';
 
 final class ContractInfo extends Equatable {
@@ -26,6 +27,7 @@ final class ContractInfo extends Equatable {
     required this.showButtonKATM,
     required this.hasBenefit,
     required this.engine,
+    required this.statusCode,
     this.directorConfirmedAt,
     this.scoringTime,
     this.sentAt,
@@ -38,7 +40,15 @@ final class ContractInfo extends Equatable {
   final String passport;
   final String birthDay;
   final String clientSignUrl;
-  final String engine;
+  /// Amallarni kim hal qiladi. Backend `authority_engine` matni bilan yuboradi.
+  final AuthorityEngine engine;
+
+  /// Xom status kodi.
+  ///
+  /// Nega enumdan tashqari: amal qoidalari backend tomonidan aynan kodlarda
+  /// belgilangan (`[1,4,5,7,8,13]`), va ular enumga to'liq tushmaydi — `13` ning
+  /// nomi yo'q, `5` bilan `23` esa bitta enumga yig'ilgan.
+  final int statusCode;
   final String createdAt;
   final String sentUserFullname;
   final String sentPartnerFullname;
@@ -87,6 +97,7 @@ final class ContractInfo extends Equatable {
     showButtonKATM,
     hasBenefit,
     engine,
+    statusCode,
     directorConfirmedAt,
     scoringTime,
     sentAt,

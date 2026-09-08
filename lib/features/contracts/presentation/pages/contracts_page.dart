@@ -8,6 +8,7 @@ import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/states/results_header.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
+import 'package:colloborator_v3/features/contracts/presentation/widgets/pull_refresh.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
@@ -17,6 +18,9 @@ import 'package:colloborator_v3/features/contracts/presentation/widgets/contract
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_header.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_skeleton.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
+import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_actions.dart';
+import 'package:colloborator_v3/features/contracts/presentation/styles/contract_tap_text.dart';
 import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,7 +68,13 @@ final class _ContractsPageState extends State<ContractsPage> {
               Positioned.fill(
                 child: BlocSelector<ContractsBloc, ContractsState, ({bool isLoading, List<ContractInfo> contracts, DateTime? date})>(
                   selector: (ContractsState state) => (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
-                  builder: (BuildContext context, ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data) => _content(data: data, topPadding: topInset + ScreenSize.h56),
+                  builder: (BuildContext context, ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data) =>
+                      PullRefresh<ContractsBloc, ContractsState>(
+                        isLoading: (ContractsState state) => state.isLoading,
+                        refreshPress: () => _bloc.add(const ContractsGet()),
+                        edgeOffset: topInset + ScreenSize.h56,
+                        child: _content(data: data, topPadding: topInset + ScreenSize.h56),
+                      ),
                 ),
               ),
 
@@ -107,16 +117,62 @@ final class _ContractsPageState extends State<ContractsPage> {
   Future<void> _openResult(ContractInfo contract) =>
       context.push(Routes.contractResult.path, extra: contract);
 
+  /// Shartnoma bosilganda avval statusga qaraladi: ayrim holatlarda amallar
+  /// oynasi emas, aniq bir oqim ochilishi kerak.
+  Future<void> _onTap(ContractInfo contract) async {
+    switch (ContractActions.tapOf(contract.statusCode)) {
+      case ContractTap.selectIncome:
+        await CustomAnimatedToast.showInfo(ContractTapText.selectIncome);
+      case ContractTap.confirmSms:
+        await CustomAnimatedToast.showInfo(ContractTapText.confirmSms);
+      case ContractTap.viewProduct:
+        await context.push(Routes.contractDetails.path, extra: contract.id);
+      case ContractTap.showActions:
+        await _openActions(contract);
+    }
+  }
+
+  /// Shartnomani tahrirlash. Argument oddiy yozuv — sahifa `contract_create`
+  /// ni import qilmaydi (1.3).
+  Future<void> _openEdit(ContractInfo contract) async {
+    final bool? isSubmitted = await context.push<bool>(
+      Routes.addContract.path,
+      // KATM skipni ko'rsatish huquqi ro'yxatdan keladi: `loans/{id}`
+      // bu bayroqni qaytarmaydi.
+      extra: (clientId: contract.clientId, contractId: contract.id, canSkipKatm: contract.showButtonKATM),
+    );
+
+    // Ro'yxat har qanday holatda yangilanadi: ekran yuborilmasa ham tovar,
+    // kafil yoki kartani serverga yozgan bo'lishi mumkin.
+    _bloc.add(const ContractsGet());
+
+    if (isSubmitted ?? false) await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
+  }
+
+  Future<void> _openActions(ContractInfo contract) => showContractActions(
+    context: context,
+    contract: contract,
+    pressDetails: () => unawaited(_openResult(contract)),
+    pressEdit: () => unawaited(_openEdit(contract)),
+    // Amal bajarilgach ro'yxatdagi holat eskiradi.
+    onChanged: () => _bloc.add(const ContractsGet()),
+    onSigningRequested: () => unawaited(CustomAnimatedToast.showInfo(ContractTapText.signing)),
+  );
+
   Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data, required double topPadding}) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);
 
-    if (data.isLoading) {
+    // Skelet faqat birinchi yuklashda. Yangilashda ro'yxat ekranda qoladi,
+    // aks holda tortib yangilash paytida u yo'qolib ketadi.
+    if (data.isLoading && data.contracts.isEmpty) {
       return ListView(padding: padding, children: const <Widget>[ContractsSkeleton()]);
     }
 
     if (data.contracts.isEmpty) {
       return ListView(
         padding: padding,
+        // Bo'sh ro'yxatni ham tortib yangilash mumkin.
+        physics: const AlwaysScrollableScrollPhysics(),
         children: <Widget>[
           EmptyPlaceholder(
             icon: AppIcons.contract,
@@ -138,7 +194,7 @@ final class _ContractsPageState extends State<ContractsPage> {
         return ContractCard(
           key: ValueKey<int>(contract.id),
           contract: contract,
-          pressActions: () => unawaited(showContractActions(context: context, contract: contract, pressApprove: () {}, pressEdit: () {}, pressDetails: () => unawaited(_openResult(contract)), pressCancel: () {})),
+          pressActions: () => unawaited(_onTap(contract)),
         );
       },
     );

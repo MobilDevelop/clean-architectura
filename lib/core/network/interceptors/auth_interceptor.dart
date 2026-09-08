@@ -1,10 +1,13 @@
-import 'dart:async';
-
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:dio/dio.dart';
 
-// So'rovga token qo'shadi va 401 kelganda sessiyani yopadi.
-// UI ko'rsatmaydi va log yozmaydi — bu presentation qatlamining ishi.
+// So'rovga token qo'shadi. Boshqa hech nima qilmaydi.
+//
+// Nega bu yerda `signOut` yo'q: 401 kelganda sessiyani yopish — ko'rinadigan
+// amal, foydalanuvchi nima uchun chiqarilganini bilishi kerak. Uni tarmoq
+// qatlami ham, `FailureView` ham bajarsa, interceptor birinchi ulguradi va
+// router ekranni yiqitib, dialogni ko'rsatishga ham imkon bermaydi (6.4).
+// Sessiyani yopish faqat `FailureView` da — dialog yopilgandan keyin.
 class AuthInterceptor extends Interceptor {
   AuthInterceptor(this._auth);
 
@@ -15,14 +18,5 @@ class AuthInterceptor extends Interceptor {
     if (_auth.isAuthenticated) options.headers['Authorization'] = 'Bearer ${_auth.token}';
 
     handler.next(options);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Faqat tokenli so'rov rad etilganda chiqaramiz — login so'rovining o'zi
-    // 401 qaytarsa (parol xato), bu sessiya tugagani emas
-    if (err.response?.statusCode == 401 && _auth.isAuthenticated) unawaited(_auth.signOut());
-
-    handler.next(err);
   }
 }

@@ -21,7 +21,7 @@ import 'package:colloborator_v3/features/customers/presentation/widgets/form_sec
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/phones_section.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/pick_sheet.dart';
-import 'package:colloborator_v3/features/customers/presentation/widgets/select_tile.dart';
+import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/workplace_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

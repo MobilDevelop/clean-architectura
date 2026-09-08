@@ -1,4 +1,4 @@
-import 'package:colloborator_v3/features/auth/login/domain/entities/user.dart';
+import 'package:colloborator_v3/core/session/app_user.dart';
 import 'package:equatable/equatable.dart';
 
 // Muvaffaqiyatli kirish natijasi: kim kirdi va qaysi token bilan.

@@ -64,6 +64,20 @@ final class ContractsHeader extends StatelessWidget {
                       ),
                     ),
 
+                    // Faol filtr kalendar tugmasining yonida turadi: sarlavha
+                    // bir qatorda qoladi va ro'yxat pastga surilmaydi.
+                    AnimatedSize(
+                      duration: Duration(milliseconds: AppConstants.duration),
+                      curve: Curves.easeOutCubic,
+                      alignment: Alignment.centerRight,
+                      child: selected == null
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: EdgeInsets.only(right: ScreenSize.w8),
+                              child: _ActiveFilterChip(label: _dayFormat.format(selected), onClear: clearDate),
+                            ),
+                    ),
+
                     CircleIconButton(
                       icon: AppIcons.calendar,
                       onTap: filterPress,
@@ -72,23 +86,6 @@ final class ContractsHeader extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
-
-              // Faol filtr sarlavha ostida ko'rinib turadi — foydalanuvchi
-              // ro'yxat nega qisqarganini eslab qolishi shart emas.
-              AnimatedSize(
-                duration: Duration(milliseconds: AppConstants.duration),
-                curve: Curves.easeOutCubic,
-                alignment: Alignment.topCenter,
-                child: selected == null
-                  ? const SizedBox(width: double.infinity)
-                  : Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: ScreenSize.h8),
-                        child: _ActiveFilterChip(label: _dayFormat.format(selected), onClear: clearDate),
-                      ),
-                    ),
               ),
             ],
           ),

@@ -66,6 +66,16 @@ final class ContractResultState extends Equatable {
   final Failure? mibFailure;
   final Failure? katmFailure;
 
+  /// Sessiya tugashi qaysi so'rovdan kelgani muhim emas: u ekranga emas,
+  /// `FailureView` ga borishi kerak — u dialog ko'rsatib tizimdan chiqaradi.
+  Failure? get sessionFailure {
+    for (final Failure? failure in <Failure?>[scoringFailure, participantsFailure, mibFailure, katmFailure]) {
+      if (failure != null && failure.group == FailureGroup.session) return failure;
+    }
+
+    return null;
+  }
+
   ContractResultState copyWith({
     bool? isScoringLoading,
     bool? isScoringLoaded,

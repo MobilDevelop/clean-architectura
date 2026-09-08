@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:colloborator_v3/core/di/injection.dart';
+import 'package:colloborator_v3/core/router/contract_create_routes.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_bloc.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_event.dart';
@@ -8,6 +9,12 @@ import 'package:colloborator_v3/features/auth/registration/presentation/bloc/reg
 import 'package:colloborator_v3/features/auth/registration/presentation/pages/registration_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
+
+import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_page.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_page.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contract_result_page.dart';
@@ -137,6 +144,46 @@ class AppRouter {
       ),
 
       GoRoute(
+        name: Routes.productPicker.name,
+        path: Routes.productPicker.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<ProductDraft>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<ProductPickerBloc>(),
+            child: const ProductPickerPage(),
+          ),
+        ),
+      ),
+
+      ...contractCreateRoutes(),
+
+      GoRoute(
+        name: Routes.contractDetails.name,
+        path: Routes.contractDetails.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          if (extra is! int) {
+            return buildScaleTransitionPage<void>(
+              context: context,
+              state: state,
+              child: RouteErrorView(location: state.uri.toString(), onBack: () => context.go(Routes.contracts.path)),
+            );
+          }
+
+          return buildScaleTransitionPage<void>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<ContractDetailsBloc>(param1: extra)..add(const DetailsRequested()),
+              child: const ContractDetailsPage(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
         name: Routes.contractResult.name,
         path: Routes.contractResult.path,
         pageBuilder: (context, state) {
@@ -202,14 +249,20 @@ class AppRouter {
       GoRoute(
         name: Routes.faceId.name,
         path: Routes.faceId.path,
-        pageBuilder: (context, state) => buildScaleTransitionPage<CustomerInfo>(
-          context: context,
-          state: state,
-          child: BlocProvider(
-            create: (context) => getIt<FaceIdBloc>(),
-            child: const FaceIdPage(),
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          return buildScaleTransitionPage<CustomerInfo>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<FaceIdBloc>(),
+              // Mavjud mijozni tekshirishda pasport oldindan to'ldiriladi.
+              // Bu argument uzatilayotgan edi, lekin o'qilmay yo'qolardi.
+              child: FaceIdPage(prefill: extra is FaceIdPrefill ? extra : null),
+            ),
+          );
+        },
       ),
 
     ],

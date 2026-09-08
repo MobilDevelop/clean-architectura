@@ -1,6 +1,7 @@
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/credit_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
@@ -17,4 +18,14 @@ abstract interface class ContractRepository {
   Future<Result<List<CreditParticipant>>> getParticipants(int contractId);
   Future<Result<MibReport>> getMib(MibParams params);
   Future<Result<KatmReport>> getKatm(KatmParams params);
+
+  /// Faqat `matrix` dvijogidagi shartnomalar uchun.
+  Future<Result<ContractAuthority>> getAuthority(int contractId);
+
+  Future<Result<void>> confirmAuthority(int contractId);
+  Future<Result<void>> escalateAuthority(int contractId);
+  /// Eski dvijokdagi yuqoriga yuborish va ruxsat berish.
+  Future<Result<void>> allowConfirmation(int contractId);
+
+  Future<Result<void>> cancelContract(int contractId);
 }

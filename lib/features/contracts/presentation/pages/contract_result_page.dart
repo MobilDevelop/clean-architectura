@@ -57,7 +57,9 @@ final class _ContractResultPageState extends State<ContractResultPage> with Sing
     final ContractResultBloc bloc = _bloc;
 
     return BlocSelector<ContractResultBloc, ContractResultState, Failure?>(
-      selector: (ContractResultState state) => state.scoringFailure,
+      // Sessiya xatosi birinchi: u qaysi tabdan kelganidan qat'i nazar dialog
+      // bilan tugaydi. Qolgan xatolar o'z tabida ko'rsatiladi.
+      selector: (ContractResultState state) => state.sessionFailure ?? state.scoringFailure,
       builder: (BuildContext context, Failure? failure) => FailureView(
         failure: failure,
         onHandled: () => bloc.add(const ScoringFailureHandled()),

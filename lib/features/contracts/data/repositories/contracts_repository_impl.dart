@@ -2,11 +2,13 @@ import 'package:colloborator_v3/core/error/error_mapper.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contracts/data/datasources/contracts_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/models/contract_authority_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/contract_scoring_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/credit_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/katm_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/mib_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/credit_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
@@ -100,6 +102,49 @@ final class ContractsRepositoryImpl implements ContractRepository {
       if (dto == null) return const Err(ParseFailure('Server javobi kutilgan shaklda emas'));
 
       return Ok(dto.toEntity());
+    } on DioException catch (e) {
+      return Err(ErrorMapper.fromDio(e));
+    } on TypeError catch (_) {
+      return const Err(ParseFailure('Server javobi kutilgan shaklda emas'));
+    } catch (_) {
+      return const Err(UnknownFailure('Kutilmagan xatolik yuz berdi'));
+    }
+  }
+
+  @override
+  Future<Result<ContractAuthority>> getAuthority(int contractId) async {
+    try {
+      final ContractAuthorityDto? dto = await _remote.getAuthority(contractId);
+
+      if (dto == null) return const Err(ParseFailure('Server javobi kutilgan shaklda emas'));
+
+      return Ok(dto.toEntity());
+    } on DioException catch (e) {
+      return Err(ErrorMapper.fromDio(e));
+    } on TypeError catch (_) {
+      return const Err(ParseFailure('Server javobi kutilgan shaklda emas'));
+    } catch (_) {
+      return const Err(UnknownFailure('Kutilmagan xatolik yuz berdi'));
+    }
+  }
+
+  @override
+  Future<Result<void>> confirmAuthority(int contractId) => _run(() => _remote.confirmAuthority(contractId));
+
+  @override
+  Future<Result<void>> escalateAuthority(int contractId) => _run(() => _remote.escalateAuthority(contractId));
+
+  @override
+  Future<Result<void>> allowConfirmation(int contractId) => _run(() => _remote.allowConfirmation(contractId));
+
+  @override
+  Future<Result<void>> cancelContract(int contractId) => _run(() => _remote.cancelContract(contractId));
+
+  /// Javob tanasi kerak bo'lmagan amallar bir xil yo'ldan o'tadi.
+  Future<Result<void>> _run(Future<void> Function() action) async {
+    try {
+      await action();
+      return const Ok(null);
     } on DioException catch (e) {
       return Err(ErrorMapper.fromDio(e));
     } on TypeError catch (_) {

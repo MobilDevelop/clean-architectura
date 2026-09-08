@@ -1,4 +1,4 @@
-import 'package:colloborator_v3/features/auth/login/domain/entities/user.dart';
+import 'package:colloborator_v3/core/session/app_user.dart';
 
 /// Backend'ning `user` obyekti. Shakli backendniki — snake_case nomlar,
 /// yo'q bo'lishi mumkin bo'lgan maydonlar. Ilova bu shaklga bog'lanmasligi uchun
@@ -56,13 +56,13 @@ final class UserDto {
 }
 
 /// Ruxsatlar faqat ichma-ich `permissions` obyektida keladi.
-/// Guruh yo'q bo'lsa yoki qiymat mantiqiy tip bo'lmasa `null` qaytadi.
+/// Guruh yo'q bo'lsa yoki qiymat mantiqiy tip bo'lmasa — ruxsat yo'q.
 final class PermissionsDto {
   const PermissionsDto({
-     this.showScoringResult,
-     this.showPrescoring,
-     this.showScoringCard,
-     this.showKatmButton,
+    required this.showScoringResult,
+    required this.showPrescoring,
+    required this.showScoringCard,
+    required this.showKatmButton,
   });
 
   factory PermissionsDto.fromUserJson(Map<String, dynamic> json) {
@@ -77,25 +77,13 @@ final class PermissionsDto {
     );
   }
 
-  /// Guruh obyekti yo'q yoki kutilgan shaklda emas — `null` qaytaradi,
-  /// shunda chaqiruvchi eski shaklga tushadi
-  static bool? _flag(dynamic group, String key) {
-    
-    if (group == null){
-      return null;
-    }else if(group is Map){
-      final value = group[key];
+  /// Guruh yo'q yoki qiymat mantiqiy tip emas — ruxsat berilmagan.
+  static bool _flag(Object? group, String key) => group is Map && group[key] is bool && group[key] as bool;
 
-      return value is bool ? value : null;
-    }
-
-    return null;
-  }
-
-  final bool? showScoringResult;
-  final bool? showPrescoring;
-  final bool? showScoringCard;
-  final bool? showKatmButton;
+  final bool showScoringResult;
+  final bool showPrescoring;
+  final bool showScoringCard;
+  final bool showKatmButton;
 
   UserPermissions toEntity() => UserPermissions(
     showScoringResult: showScoringResult,

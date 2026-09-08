@@ -71,6 +71,16 @@ class Routes implements Coordinate {
     path: '/add_customer',
   );
 
+  static const contractDetails = Routes._(
+    name: 'contract_details_page',
+    path: '/contract-details',
+  );
+
+  static const productPicker = Routes._(
+    name: 'product_picker_page',
+    path: '/product-picker',
+  );
+
   static const addProduct = Routes._(
     name: 'add_product_page',
     path: '/add_product',
@@ -79,6 +89,32 @@ class Routes implements Coordinate {
   static const addContract = Routes._(
     name: 'add_contract_page',
     path: '/add_contract',
+  );
+
+  // Shartnoma tuzish ekrani va uning qo'shimcha ekranlari.
+  static const guarantorPicker = Routes._(
+    name: 'guarantor_picker_page',
+    path: '/guarantor_picker',
+  );
+
+  static const paymentSchedule = Routes._(
+    name: 'payment_schedule_page',
+    path: '/payment_schedule',
+  );
+
+  static const specialTariff = Routes._(
+    name: 'special_tariff_page',
+    path: '/special_tariff',
+  );
+
+  static const managerBonus = Routes._(
+    name: 'manager_bonus_page',
+    path: '/manager_bonus',
+  );
+
+  static const katmSkip = Routes._(
+    name: 'katm_skip_page',
+    path: '/katm_skip',
   );
 
   static const contractConfirm = Routes._(

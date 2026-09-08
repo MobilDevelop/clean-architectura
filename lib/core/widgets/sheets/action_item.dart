@@ -16,6 +16,8 @@ final class ActionItem extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.enabled = true,
+    this.closeOnTap = true,
   });
 
   final String icon;
@@ -24,67 +26,80 @@ final class ActionItem extends StatelessWidget {
   final String subtitle;
   final VoidCallback onTap;
 
+  /// O'chiq amal xiralashadi va bosilmaydi. Sababi oyna tepasida yoziladi —
+  /// tugmaning o'zi hech nima tushuntirmaydi.
+  final bool enabled;
+
+  /// Amal oynani yopadimi. Ish oynaning o'zida bajarilsa (yuklanish, tasdiq
+  /// so'rash) oyna ochiq qolishi kerak.
+  final bool closeOnTap;
+
   @override
   Widget build(BuildContext context) {
     return Bounce(
       duration: Duration(milliseconds: AppConstants.duration),
       // Nega avval yopilib, keyin amal: amal navigatsiya qilsa, keyin
       // chaqirilgan `pop` yangi ochilgan sahifani yopib yuborardi.
-      onTap: () {
-        Navigator.of(context).pop();
-        onTap();
-      },
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: ScreenSize.h8, horizontal: ScreenSize.h6),
-        child: Row(
-          children: <Widget>[
-            Container(
-              height: ScreenSize.h42,
-              width: ScreenSize.h42,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: .10),
-                borderRadius: BorderRadius.circular(ScreenSize.r14),
-                border: Border.all(color: color.withValues(alpha: .22)),
+      onTap: enabled
+          ? () {
+              if (closeOnTap) Navigator.of(context).pop();
+              onTap();
+            }
+          : () {},
+      child: Opacity(
+        opacity: enabled ? 1 : .4,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: ScreenSize.h8, horizontal: ScreenSize.h6),
+          child: Row(
+            children: <Widget>[
+              Container(
+                height: ScreenSize.h42,
+                width: ScreenSize.h42,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .10),
+                  borderRadius: BorderRadius.circular(ScreenSize.r14),
+                  border: Border.all(color: color.withValues(alpha: .22)),
+                ),
+                child: SvgPicture.asset(
+                  icon,
+                  height: ScreenSize.h20,
+                  width: ScreenSize.h20,
+                  colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                ),
               ),
-              child: SvgPicture.asset(
-                icon,
-                height: ScreenSize.h20,
-                width: ScreenSize.h20,
-                colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+
+              Gap(ScreenSize.w12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.blackSoft),
+                    ),
+
+                    Gap(ScreenSize.h2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTheme.data.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Gap(ScreenSize.w12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.blackSoft),
-                  ),
-
-                  Gap(ScreenSize.h2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTheme.data.textTheme.bodyMedium,
-                  ),
-                ],
+              Gap(ScreenSize.w8),
+              SvgPicture.asset(
+                AppIcons.arrowRight,
+                height: ScreenSize.h16,
+                colorFilter: ColorFilter.mode(AppTheme.colors.grey.withValues(alpha: .6), BlendMode.srcIn),
               ),
-            ),
-
-            Gap(ScreenSize.w8),
-            SvgPicture.asset(
-              AppIcons.arrowRight,
-              height: ScreenSize.h16,
-              colorFilter: ColorFilter.mode(AppTheme.colors.grey.withValues(alpha: .6), BlendMode.srcIn),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

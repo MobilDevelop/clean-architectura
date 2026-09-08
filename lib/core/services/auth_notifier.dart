@@ -2,13 +2,15 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/local_cache.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
+import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthNotifier extends ChangeNotifier {
-  AuthNotifier(this._tokenStorage, this._cache);
+  AuthNotifier(this._tokenStorage, this._cache, this._session);
 
   final SecureTokenStorage _tokenStorage;
   final LocalCache _cache;
+  final SessionStore _session;
 
   String _token = '';
   String get token => _token;
@@ -38,6 +40,7 @@ class AuthNotifier extends ChangeNotifier {
       // Keshdagi ma'lumotnomalar ham ketadi: bitta qurilmada ikkinchi agent
       // kirsa, oldingisining ma'lumotini ko'rmasligi kerak.
       await _cache.clear();
+      _session.clear();
     } catch (_) {
       // Diskdan o'chirib bo'lmasa ham, xotiradagi sessiya tugatiladi —
       // aks holda ilova yarim kirgan holatda qolib ketadi.

@@ -1,7 +1,8 @@
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/contracts/data/models/guarantor_info_dto.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_status.dart';
+import 'package:colloborator_v3/core/contract/contract_status.dart';
 
 final class ContractInfoDto {
 
@@ -80,8 +81,9 @@ final class ContractInfoDto {
     sentPartnerFullname: sentPartnerFullname, 
     showButtonKATM: showButtonKATM, 
     hasBenefit: hasBenefit, 
-    engine: engine,
-    status: _statusFrom(statusId),
+    engine: _engineFrom(engine),
+    status: ContractStatus.fromCode(statusId),
+    statusCode: statusId,
     scoringTime: _dateFrom(scoringTime),
     sentAt: _dateFrom(sentAt),
     directorConfirmedAt: _dateFrom(directorConfirmedAt),
@@ -117,26 +119,10 @@ final class ContractInfoDto {
 
   /// Backend kodini domain ma'nosiga o'giradi.
 /// Nega bu yerda: kodlar backendniki, ular domainga o'tmasligi kerak.
-ContractStatus _statusFrom(int code) => switch (code) {
-  1 => ContractStatus.created,
-  2 || 3 => ContractStatus.scoring,
-  4 => ContractStatus.failed,
-  5 || 23 => ContractStatus.notAllowed,
-  6 => ContractStatus.rejected,
-  7 => ContractStatus.edited,
-  8 => ContractStatus.allowed,
-  9 => ContractStatus.faceVerified,
-  10 => ContractStatus.signed,
-  11 => ContractStatus.confirmed,
-  12 => ContractStatus.canceledByClient,
-  15 => ContractStatus.invoiceCreated,
-  16 => ContractStatus.canceled,
-  24 => ContractStatus.waitingSms,
-  25 => ContractStatus.errorFound,
-  27 => ContractStatus.invoiceConfirmed,
-  40 => ContractStatus.incomeSelect,
-  _ => ContractStatus.unknown,
-};
+/// Backend faqat `matrix` ni ataylab yuboradi; qolgan hamma narsa — eski dvijok.
+/// Ilgari bu `?? ''` edi va bo'sh qiymat jimgina "eski" degani bo'lardi.
+AuthorityEngine _engineFrom(String raw) => raw == 'matrix' ? AuthorityEngine.matrix : AuthorityEngine.legacy;
+
 
 /// Bo'sh yoki noto'g'ri satr — "vaqt yo'q" degani.
 DateTime? _dateFrom(String raw) => raw.isEmpty ? null : DateTime.tryParse(raw)?.toLocal();

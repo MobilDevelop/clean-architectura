@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/contracts/data/models/contract_info_dto.dart';
+import 'package:colloborator_v3/features/contracts/data/models/contract_authority_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/contract_scoring_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/credit_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/katm_report_dto.dart';
@@ -72,6 +73,31 @@ final class ContractsRemoteDatasource {
   /// ochishda `304` keladi va tana umuman yuborilmaydi (1.7 MB → 0 bayt).
   final Map<String, ({String etag, KatmReportDto report})> _katmCache =
       <String, ({String etag, KatmReportDto report})>{};
+
+  /// Amallar oynasi ochilganda qaysi tugma faol ekanini serverdan o'qiydi.
+  /// Faqat `matrix` dvijogidagi shartnomalar uchun chaqiriladi.
+  Future<ContractAuthorityDto?> getAuthority(int contractId) async {
+    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+      '${Endpoints.authorityCheck}$contractId',
+    );
+
+    return JsonParser.object(result.data, fromJson: ContractAuthorityDto.fromJson);
+  }
+
+  /// O'ziga eskalatsiya qilingan shartnomaga ruxsat berish.
+  Future<void> confirmAuthority(int contractId) =>
+      _dio.post<Map<String, dynamic>>(Endpoints.authorityConfirm, data: <String, dynamic>{'contract_id': contractId});
+
+  /// Shartnomani matritsa ko'rsatgan darajaga yo'naltirish.
+  Future<void> escalateAuthority(int contractId) =>
+      _dio.post<Map<String, dynamic>>(Endpoints.authorityEscalate, data: <String, dynamic>{'contract_id': contractId});
+
+  /// Eski dvijokda ruxsat berish ham, yuborish ham shu bitta so'rov.
+  Future<void> allowConfirmation(int contractId) =>
+      _dio.post<Map<String, dynamic>>('${Endpoints.contractsBase}$contractId/allow-confirmation');
+
+  Future<void> cancelContract(int contractId) =>
+      _dio.put<Map<String, dynamic>>('${Endpoints.cancelContract}$contractId');
 
   /// Javob 1.7 MB gacha yetadi. `ResponseType.plain` bilan olib, JSON ni alohida
   /// izolyatda ochamiz — asosiy oqimda bu ekranni bir necha yuz millisekundga

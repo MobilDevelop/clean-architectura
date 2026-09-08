@@ -26,7 +26,8 @@ final class TextInputWidget extends StatelessWidget {
     this.onChanged, 
     this.initial, 
     this.valueLength,
-    this.onSubmitted, 
+    this.onSubmitted,
+    this.textInputAction,
     this.enabled,
     this.iconHeight,
     this.focusNode
@@ -53,6 +54,11 @@ final class TextInputWidget extends StatelessWidget {
   final VoidCallback? suffixPress;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+
+  /// Klaviaturadagi amal tugmasi. Berilmasa Flutter bir qatorli maydonga
+  /// `done` qo'yadi va u klaviaturani yopadi — ketma-ket to'ldiriladigan
+  /// formada bu har maydondan keyin klaviaturani yo'qotadi.
+  final TextInputAction? textInputAction;
   final FocusNode? focusNode;
 
   @override
@@ -97,6 +103,7 @@ final class TextInputWidget extends StatelessWidget {
           controller: controller,
           initialValue: initial,
           keyboardType: keyboardType ?? TextInputType.text,
+          textInputAction: textInputAction,
           autofocus: autoFocus ?? false,
           style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.blackSoft),
           obscureText: isPassword ?? false,

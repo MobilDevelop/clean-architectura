@@ -1,5 +1,6 @@
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
+import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
 import 'package:colloborator_v3/core/utils/validator/rules.dart';
 import 'package:colloborator_v3/features/auth/login/domain/entities/login_param.dart';
@@ -10,7 +11,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class 
 LoginBloc extends Bloc<LoginEvent, LoginState> {
-  LoginBloc({required this._loginUseCase, required this._auth,required this._deviceInfo}) : super(const LoginState.initial()) {
+  LoginBloc({required this._loginUseCase, required this._auth, required this._session, required this._deviceInfo}) : super(const LoginState.initial()) {
     on<LoginStarted>(_onStarted);
     on<LoginPasswordVisibilityToggled>(_onVisibilityToggled);
     on<LoginSubmitted>(_onSubmitted);
@@ -21,6 +22,7 @@ LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   final LoginUseCase _loginUseCase;
   final AuthNotifier _auth;
+  final SessionStore _session;
   final DeviceInfoService _deviceInfo;
 
   Future<void> _onStarted(LoginStarted event, Emitter<LoginState> emit) async {
@@ -48,6 +50,10 @@ LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     switch (result) {
       case Ok(:final value):
+        // Ruxsatlar tokendan alohida kerak bo'ladi: qaysi tugma ko'rinishini
+        // ular hal qiladi.
+        _session.save(value.user);
+
         final saved = await _auth.signIn(value.token);
 
         switch (saved) {

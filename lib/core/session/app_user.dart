@@ -33,12 +33,16 @@ final class User extends Equatable {
 
 // Hodimga ochilgan imkoniyatlar. Backend'da alohida `permissions` obyektida keladi
 // va birga o'zgaradi, shuning uchun `User` ga sochib tashlanmagan.
+//
+// Maydonlar `null` emas: "guruh yo'q" va "qiymat mantiqiy tip emas" ikkalasi ham
+// "ruxsat yo'q" degani. Uchinchi holatni saqlash foyda bermaydi — hech kim uni
+// ajratib ishlatmaydi (5.3).
 final class UserPermissions extends Equatable {
   const UserPermissions({
-     this.showScoringResult,
-     this.showPrescoring,
-     this.showScoringCard,
-     this.showKatmButton,
+    required this.showScoringResult,
+    required this.showPrescoring,
+    required this.showScoringCard,
+    required this.showKatmButton,
   });
 
   const UserPermissions.none()
@@ -47,10 +51,10 @@ final class UserPermissions extends Equatable {
         showScoringCard = false,
         showKatmButton = false;
 
-  final bool? showScoringResult;
-  final bool? showPrescoring;
-  final bool? showScoringCard;
-  final bool? showKatmButton;
+  final bool showScoringResult;
+  final bool showPrescoring;
+  final bool showScoringCard;
+  final bool showKatmButton;
 
   @override
   List<Object?> get props => [showScoringResult, showPrescoring, showScoringCard, showKatmButton];
