@@ -10,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'contract_guarantors_event.dart';
 part 'contract_guarantors_state.dart';
 
-
 /// Kafillar ekrani.
 ///
 /// Kafil tanlash oqimi bu featureda emas: u mijozlar ekranidan o'tadi va
@@ -25,11 +24,7 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
     required this._addGuarantor,
     required this._removeGuarantor,
   }) : super(
-         ContractGuarantorsState.initial(
-           contractId: contractId,
-           clientId: clientId,
-           guarantors: guarantors,
-         ),
+         ContractGuarantorsState.initial(contractId: contractId, clientId: clientId, guarantors: guarantors),
        ) {
     on<GuarantorAdded>(_added, transformer: sequential());
     on<GuarantorRemoved>(_removed, transformer: sequential());
@@ -81,18 +76,12 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
     event: event,
     emit: emit,
     busy: state.copyWith(busyId: event.rowId, issue: GuarantorIssue.none, clearFailure: true),
-    run: () =>
-        _removeGuarantor(RemoveGuarantorParams(rowId: event.rowId, contractId: state.contractId)),
-    onOk: (_) => state.copyWith(
-      clearBusyId: true,
-      revision: state.revision + 1,
-      guarantors: state.guarantors.where((ContractGuarantor e) => e.clientId != event.rowId).toList(),
-    ),
+    run: () => _removeGuarantor(RemoveGuarantorParams(rowId: event.rowId, contractId: state.contractId)),
+    onOk: (_) => state.copyWith(clearBusyId: true,revision: state.revision + 1,guarantors: state.guarantors.where((ContractGuarantor e) => e.clientId != event.rowId).toList()),
     onFailure: (Failure failure) => state.copyWith(failure: failure),
   );
 
-  void _failureHandled(FailureHandled event, Emitter<ContractGuarantorsState> emit) =>
-      emit(state.copyWith(clearFailure: true, clearBusyId: true, isAdding: false));
+  void _failureHandled(FailureHandled event, Emitter<ContractGuarantorsState> emit) => emit(state.copyWith(clearFailure: true, clearBusyId: true, isAdding: false));
 
   Future<void> _retried(Retried event, Emitter<ContractGuarantorsState> emit) async {
     emit(state.copyWith(clearFailure: true, clearBusyId: true, isAdding: false));

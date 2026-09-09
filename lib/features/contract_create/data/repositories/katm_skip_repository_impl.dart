@@ -2,7 +2,7 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/katm_skip_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/models/skip_reason_dto.dart';
-import 'package:colloborator_v3/features/contract_create/data/repositories/result_guard.dart';
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/katm_skip.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/katm_skip_repository.dart';
 
@@ -25,10 +25,9 @@ final class KatmSkipRepositoryImpl implements KatmSkipRepository {
     final Result<bool> result = await guard(() => _remote.turnOffKatm(params));
 
     return switch (result) {
-      Ok(: final bool value) => value
-          ? const Ok<void>(null)
-          : const Err<void>(ClientFailure('Tekshiruvni o‘chirib bo‘lmadi')),
-      Err(: final failure) => Err<void>(failure),
+      Ok(:final bool value) =>
+        value ? const Ok<void>(null) : const Err<void>(ClientFailure('Tekshiruvni o‘chirib bo‘lmadi')),
+      Err(:final failure) => Err<void>(failure),
     };
   }
 }

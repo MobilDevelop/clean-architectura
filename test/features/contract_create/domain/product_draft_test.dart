@@ -62,11 +62,14 @@ void main() {
       expect(base.copyWith(imeis: const <String>['1', '2']).issue, ProductDraftIssue.none);
     });
 
-    test('miqdor IMEI sonidan olinadi', () {
+    // Bitta yorliq — bitta qurilma. IMEI'lar soni qurilmalar soni emas:
+    // ikki SIM'li telefon ikkita raqam qaytaradi.
+    test('miqdor har doim 1, IMEI soni qancha bo‘lishidan qat‘i nazar', () {
       final ProductDraft draft = base.copyWith(imeis: const <String>['1', '2', '3'], count: 99);
 
-      expect(draft.effectiveCount, 3);
-      expect(draft.total, 3000);
+      expect(draft.effectiveCount, 1);
+      expect(draft.total, 1000);
+      expect(draft.toProduct(7).count, 1);
     });
 
     test('miqdor kiritilmagani xato emas', () {
@@ -82,6 +85,7 @@ void main() {
       expect(changed.brand, isNull);
       expect(changed.variant, isNull);
       expect(changed.price, 500);
+      expect(changed.count, _full.count);
     });
 
     test('toifa o‘zgarsa brend va tovar bekor', () {

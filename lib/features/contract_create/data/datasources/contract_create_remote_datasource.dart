@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
+
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/result/paged.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
@@ -8,6 +12,10 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/add_pro
 import 'package:colloborator_v3/features/contract_create/domain/entities/catalog_query.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_write_params.dart';
 import 'package:dio/dio.dart';
+
+/// base64 asosiy oqimda hisoblanmaydi: bir megabaytlik rasm ekranni sezilarli
+/// muddatga qotiradi.
+Future<String> _encodedImage(String path) => Isolate.run(() => base64Encode(File(path).readAsBytesSync()));
 
 final class ContractCreateRemoteDatasource {
   const ContractCreateRemoteDatasource({required this._dio});
@@ -89,6 +97,25 @@ final class ContractCreateRemoteDatasource {
       contractId: result.data?['contract_id'] as int?,
       message: result.data?['message'] as String? ?? '',
     );
+  }
+
+  /// Rasmdan IMEI o'qish. Javob `{"imeis": [...]}` shaklida keladi.
+  Future<List<String>> scanImei(ScanImeiParams params) async {
+    final String encoded = await _encodedImage(params.image.path);
+
+    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+      Endpoints.imeiImage,
+      data: <String, dynamic>{
+        'product_variant_id': params.variantId,
+        // Prefiks flex bilan bir xil: rasm JPEG ga siqilib yuboriladi.
+        'img': 'data:image/jpg;base64,$encoded',
+      },
+    );
+
+    final Object? raw = result.data?['imeis'];
+    if (raw is! List) return const <String>[];
+
+    return raw.map((Object? e) => e?.toString() ?? '').where((String e) => e.isNotEmpty).toList();
   }
 
   /// Qo'shilgan qatorning id sini qaytaradi.

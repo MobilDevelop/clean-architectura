@@ -154,10 +154,7 @@ final class SpecialTariffPage extends StatelessWidget {
             Gap(ScreenSize.h8),
             _line("Oldingi marja", "${tariff.frontMargin}%"),
             _line("Boshlang'ich to'lov", "${tariff.prepaymentPercent}%"),
-            _line(
-              "Choraklik marja",
-              tariff.quarters.map((double e) => "$e%").join(" · "),
-            ),
+            _line("Choraklik marja", tariff.quarters.map((double e) => "$e%").join(" · ")),
 
             if (tariff.startsAt.isNotEmpty || tariff.endsAt.isNotEmpty)
               _line("Amal muddati", "${tariff.startsAt} — ${tariff.endsAt}"),

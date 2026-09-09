@@ -14,15 +14,12 @@ final class ContractCardState extends Equatable {
     this.failure,
   });
 
-  const ContractCardState.initial({
-    required this.contractId,
-    required this.clientId,
-    required this.card,
-  }) : form = const CardForm(),
-       write = CardWrite.none,
-       revision = 0,
-       issue = CardFieldIssue.none,
-       failure = null;
+  const ContractCardState.initial({required this.contractId, required this.clientId, required this.card})
+    : form = const CardForm(),
+      write = CardWrite.none,
+      revision = 0,
+      issue = CardFieldIssue.none,
+      failure = null;
 
   final int contractId;
   final int clientId;

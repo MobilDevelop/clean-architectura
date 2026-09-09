@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 
 /// Ommaviy oferta matnini ochadi. Foydalanuvchi oxirigacha o'qigach tasdiqlay
 /// oladi.
@@ -28,6 +29,8 @@ final class OfferSheet extends StatefulWidget {
 final class _OfferSheetState extends State<OfferSheet> {
   final ScrollController _scroll = ScrollController();
 
+  late final OfferDocument _document;
+
   String _html = '';
   bool _isLoading = true;
   bool _isFailed = false;
@@ -37,6 +40,22 @@ final class _OfferSheetState extends State<OfferSheet> {
   void initState() {
     super.initState();
     _scroll.addListener(_onScroll);
+
+    // `context.read` obuna yaratmaydi, shuning uchun `initState` da mumkin (6.9).
+    _document = context.read<OfferDocument>();
+
+    // Ishga tushishda o'qilgan bo'lsa yuklanish belgisi umuman ko'rinmaydi:
+    // `rootBundle` ham keshlaydi, lekin natijani `Future` qilib qaytaradi va
+    // bitta kadr baribir belgi bilan chiziladi.
+    final String? ready = _document.ready(AppIcons.offerUz);
+
+    if (ready != null) {
+      _html = ready;
+      _isLoading = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkFits());
+      return;
+    }
+
     unawaited(_load());
   }
 
@@ -49,7 +68,7 @@ final class _OfferSheetState extends State<OfferSheet> {
 
   Future<void> _load() async {
     try {
-      final String content = await rootBundle.loadString(AppIcons.offerUz);
+      final String content = await _document.load(AppIcons.offerUz);
       if (!mounted) return;
 
       setState(() {
@@ -182,6 +201,17 @@ final class _OfferSheetState extends State<OfferSheet> {
             padding: EdgeInsets.all(ScreenSize.h14),
             child: HtmlWidget(
               _html,
+              // `buildAsync` ning sukut qiymati `html.length > 10000`, oferta
+              // esa ~26 000 belgi — ya'ni u o'zi yoqilardi. Async rejimda
+              // kutubxona har ochilishda `compute()` bilan yangi izolyat ochadi
+              // va parse tugagunicha **o'zining** `CircularProgressIndicator`
+              // ini chizadi (`core_widget_factory.dart:628`). Sinxron parse
+              // o'lchandi — bir necha o'n millisekund, ya'ni bir-ikki kadr:
+              // spinnerdan ham, izolyat ochishdan ham arzon.
+              buildAsync: false,
+              // `enableCaching` ning sukut qiymati `!buildAsync` edi, ya'ni
+              // async bilan kesh ham o'chiq qolardi.
+              enableCaching: true,
               textStyle: AppTheme.data.textTheme.bodyLarge?.copyWith(
                 color: AppTheme.colors.blackSoft,
                 fontWeight: FontWeight.w400,

@@ -21,3 +21,28 @@ Dio createDio({required List<Interceptor> interceptors}) {
 
   return dio;
 }
+
+/// Tashqi xizmatga (imzolangan S3 havolasiga) fayl yuborish uchun klient.
+///
+/// Nega alohida nusxa: imzolangan havolaga bizning `Authorization` headerimiz
+/// ham, `Content-Type: application/json` ham ketmasligi kerak — ular imzoni
+/// buzadi. Interceptorlar esa ikkalasini ham har so'rovga qo'shadi. Shuning
+/// uchun bu klientda na interceptor, na `baseUrl` bor.
+///
+/// Bu 12-bo'limdagi "global Dio nusxasi" taqiqiga zid emas: nusxa servis
+/// ichida emas, DI da yaratiladi va tipi bilan nima uchun kerakligini aytadi.
+final class UploadClient {
+  const UploadClient(this.dio);
+
+  final Dio dio;
+}
+
+UploadClient createUploadClient() => UploadClient(
+  Dio(
+    BaseOptions(
+      // Fayl yuklash sekin tarmoqda uzoq davom etadi.
+      sendTimeout: const Duration(minutes: 3),
+      receiveTimeout: const Duration(minutes: 1),
+    ),
+  ),
+);

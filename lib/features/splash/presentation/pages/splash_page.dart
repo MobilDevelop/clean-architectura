@@ -4,6 +4,7 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
+import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/widgets/buttons/chuck_button.dart';
 import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
@@ -68,8 +69,13 @@ final class SplashPage extends StatelessWidget {
   );
 
   Widget _buildInitialWidget(BuildContext context,String version)=>OverlaySupport(
-    child: ChangeNotifierProvider<AuthNotifier>.value(
-      value: getIt<AuthNotifier>(),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthNotifier>.value(value: getIt<AuthNotifier>()),
+        // Oferta oynasi `MaterialApp` ostida ochiladi, shuning uchun provider
+        // shu yerda: oyna matnni sinxron oladi va yuklanish belgisi ko'rinmaydi.
+        Provider<OfferDocument>.value(value: getIt<OfferDocument>()),
+      ],
       child: MaterialApp.router(
         title: 'Collaborator Flex',
         theme: AppTheme.data,

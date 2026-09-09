@@ -25,6 +25,7 @@ import 'package:colloborator_v3/features/customers/presentation/bloc/add_custome
 import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/add_customer_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/face_camera_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/client_verify_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
@@ -33,7 +34,10 @@ import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs_bloc.
 import 'package:colloborator_v3/features/outputs/presentation/pages/outputs_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
+
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
+import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/core/widgets/states/route_error_view.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/pages/login_page.dart';
@@ -41,9 +45,26 @@ import 'package:colloborator_v3/features/main/presentation/pages/main_page.dart'
 import 'package:flutter/material.dart';
 
 class AppRouter {
-  AppRouter(this._auth);
+  AppRouter(this._auth, this._push) {
+    // Bildirishnoma bosildi — foydalanuvchi qaysi ekranda bo'lishidan qat'i
+    // nazar shartnomalar ro'yxatiga o'tiladi. Xabarning o'zini `ContractsBloc`
+    // oladi (`takePending`), bu yerda faqat marshrut: navigatsiya bloc ichida
+    // bo'lmasligi kerak (6.2).
+    _opened = _push.opened.listen((_) => router.go(Routes.contracts.path));
+  }
 
   final AuthNotifier _auth;
+  final PushNotifications _push;
+
+  StreamSubscription<PushMessage>? _opened;
+
+  /// `AppRouter` ilova bilan tug'ilib ilova bilan o'ladi, shuning uchun bu
+  /// hozircha chaqirilmaydi — `FirebaseService.dispose()` ham shunday. Obuna
+  /// egasiz qolmasligi kerak: `cancel_subscriptions` qoidasi shuni talab qiladi.
+  Future<void> dispose() async {
+    await _opened?.cancel();
+    _opened = null;
+  }
 
   late final GoRouter router = GoRouter(
     initialLocation: Routes.login.path,
@@ -56,6 +77,16 @@ class AppRouter {
 
       if (!_auth.isAuthenticated && !isPublic) return Routes.login.path;
       if (_auth.isAuthenticated && isPublic) return Routes.customer.path;
+
+      // Sovuq start: bildirishnoma ilovani ishga tushirgan bo'lsa, `opened`
+      // oqimi `AppRouter` yaratilishidan oldin o'tib ketadi va tinglovchi uni
+      // ko'rmaydi. Shuning uchun kutib turgan bosish shu yerda ham
+      // tekshiriladi — aks holda bosish faqat foydalanuvchi shartnomalar
+      // tabiga o'zi kirganda ishlab qolardi.
+      if (_auth.isAuthenticated && _push.hasPending && state.matchedLocation != Routes.contracts.path) {
+        return Routes.contracts.path;
+      }
+
       return null;
     },
     routes: <RouteBase>[
@@ -237,6 +268,31 @@ class AppRouter {
       ),
 
       GoRoute(
+        name: Routes.clientVerify.name,
+        path: Routes.clientVerify.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          if (extra is! ({CustomerInfo customer, String reason})) {
+            return buildScaleTransitionPage<CustomerInfo>(
+              context: context,
+              state: state,
+              child: RouteErrorView(location: state.uri.toString(), onBack: () => context.pop()),
+            );
+          }
+
+          return buildScaleTransitionPage<CustomerInfo>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<FaceIdBloc>(),
+              child: ClientVerifyPage(customer: extra.customer, reason: extra.reason),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
         name: Routes.faceCamera.name,
         path: Routes.faceCamera.path,
         pageBuilder: (context, state) => buildScaleTransitionPage<File>(
@@ -249,20 +305,14 @@ class AppRouter {
       GoRoute(
         name: Routes.faceId.name,
         path: Routes.faceId.path,
-        pageBuilder: (context, state) {
-          final extra = state.extra;
-
-          return buildScaleTransitionPage<CustomerInfo>(
-            context: context,
-            state: state,
-            child: BlocProvider(
-              create: (context) => getIt<FaceIdBloc>(),
-              // Mavjud mijozni tekshirishda pasport oldindan to'ldiriladi.
-              // Bu argument uzatilayotgan edi, lekin o'qilmay yo'qolardi.
-              child: FaceIdPage(prefill: extra is FaceIdPrefill ? extra : null),
-            ),
-          );
-        },
+        pageBuilder: (context, state) => buildScaleTransitionPage<CustomerInfo>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<FaceIdBloc>(),
+            child: const FaceIdPage(),
+          ),
+        ),
       ),
 
     ],

@@ -26,13 +26,10 @@ final class ContractDetailsBloc extends Bloc<ContractDetailsEvent, ContractDetai
     if (emit.isDone) return;
 
     switch (result) {
-      case Ok(: final ContractDetails value):
-        emit(state.copyWith(isLoading: false, details: value));
-      case Err(: final Failure failure):
-        emit(state.copyWith(isLoading: false, failure: failure));
+      case Ok(: final ContractDetails value): emit(state.copyWith(isLoading: false, details: value));
+      case Err(: final Failure failure): emit(state.copyWith(isLoading: false, failure: failure));
     }
   }
 
-  void _failureHandled(FailureHandled event, Emitter<ContractDetailsState> emit) =>
-      emit(state.copyWith(clearFailure: true));
+  void _failureHandled(FailureHandled event, Emitter<ContractDetailsState> emit) => emit(state.copyWith(clearFailure: true));
 }

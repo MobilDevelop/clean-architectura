@@ -24,10 +24,8 @@ Paged<T> pagedFrom<T>(Map<String, dynamic>? body, List<T> items) {
 final class CatalogItemDto {
   const CatalogItemDto({required this.id, required this.name});
 
-  factory CatalogItemDto.fromJson(Map<String, dynamic> json) => CatalogItemDto(
-    id: json['id'] as int? ?? 0,
-    name: json['name'] as String? ?? '',
-  );
+  factory CatalogItemDto.fromJson(Map<String, dynamic> json) =>
+      CatalogItemDto(id: json['id'] as int? ?? 0, name: json['name'] as String? ?? '');
 
   /// Tovar nomi to'liq nom bilan keladi, bo'lmasa oddiy nom bilan.
   factory CatalogItemDto.variantFromJson(Map<String, dynamic> json) => CatalogItemDto(

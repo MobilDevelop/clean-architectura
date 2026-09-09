@@ -9,7 +9,6 @@ import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/customer_search_issue_text.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_event.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_state.dart';
@@ -78,10 +77,8 @@ final class _CustomerPageState extends State<CustomerPage> {
                 // bo'shliq header balandligiga teng qilib berilyapti.
                 Positioned.fill(
                   child: BlocSelector<CustomersBloc, CustomersState, ({bool isLoading, List<CustomerInfo> customers, bool hasSearched})>(
-                    selector: (CustomersState state) =>
-                        (isLoading: state.isLoading, customers: state.customers, hasSearched: state.hasSearched),
-                    builder: (BuildContext context, ({bool isLoading, List<CustomerInfo> customers, bool hasSearched}) data) =>
-                        _content(data: data, topPadding: topInset + ScreenSize.h56 + (showSearch ? ScreenSize.h76 : 0)),
+                    selector: (CustomersState state) => (isLoading: state.isLoading, customers: state.customers, hasSearched: state.hasSearched),
+                    builder: (BuildContext context, ({bool isLoading, List<CustomerInfo> customers, bool hasSearched}) data) => _content(data: data, topPadding: topInset + ScreenSize.h56 + (showSearch ? ScreenSize.h76 : 0)),
                   ),
                 ),
 
@@ -103,7 +100,7 @@ final class _CustomerPageState extends State<CustomerPage> {
                       searchPress: () => _bloc.add(const ShowSearch()),
                       onChanged: (String value) => _bloc.add(SearchQueryChanged(value)),
                       onSubmitted: (String _) => _bloc.add(const SearchSubmitted()),
-                    ),
+                    ), 
                   ),
                 ),
               ],
@@ -122,10 +119,7 @@ final class _CustomerPageState extends State<CustomerPage> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(ScreenSize.r18)),
           extendedPadding: EdgeInsets.symmetric(horizontal: ScreenSize.h16),
           icon: Icon(Icons.add_rounded, color: AppTheme.colors.white, size: ScreenSize.h22),
-          label: Text(
-            "Mijoz qo'shish",
-            style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.white, fontWeight: FontWeight.w600),
-          ),
+          label: Text("Mijoz qo'shish",style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.white, fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -147,29 +141,28 @@ final class _CustomerPageState extends State<CustomerPage> {
   /// qilmaydi (1.3).
   Future<void> _openContract(CustomerInfo customer) async {
     final CustomerInfo? verified = await context.push<CustomerInfo>(
-      Routes.faceId.path,
-      extra: faceIdPrefillOf(customer),
+      Routes.clientVerify.path,
+      extra: (customer: customer, reason: "Shartnoma tuzish"),
     );
 
     if (verified == null || !mounted) return;
-
-    // Server boshqa mijozni qaytarsa — bu boshqa odam. Tekshiruvsiz davom
-    // etish shartnomani noto'g'ri mijozga ochib yuborardi.
-    if (verified.id != customer.id) {
-      await CustomAnimatedToast.showError("Yuz tekshiruvi bu mijozga mos kelmadi");
-      return;
-    }
-
-    if (!mounted) return;
 
     final bool? isSubmitted = await context.push<bool>(
       Routes.addContract.path,
       extra: (clientId: customer.id, contractId: null, canSkipKatm: false),
     );
 
-    if (isSubmitted ?? false) {
-      await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
-    }
+    if (!(isSubmitted ?? false) || !mounted) return;
+
+    // Yangi shartnoma ro'yxatning boshida turadi va foydalanuvchi uning
+    // holatini kuzatib boradi — shuning uchun tabga o'zi o'tmaydi, ilova
+    // o'tkazadi. Ro'yxatni yangilash bu yerda emas: `ContractCreateBloc`
+    // yuborilgach `ContractChanges` orqali "eskirdi" deb qo'yadi va
+    // `ContractsBloc` uni o'zi qayta o'qiydi (1.3 — bu sahifa `contracts`
+    // featureni ko'rmaydi).
+    context.go(Routes.contracts.path);
+
+    await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
   }
 
   Future<void> _openForm(CustomerInfo customer, {required bool isEdit}) async {
@@ -226,7 +219,14 @@ final class _CustomerPageState extends State<CustomerPage> {
         return CustomerInfoWidget(
           key: ValueKey<int>(customer.id),
           info: customer,
-          pressActions: () => unawaited(showCustomerActions(context: context, info: customer, pressScoring: () => unawaited(showScoringSheet(context: context, customerId: customer.id)), pressContract: () => unawaited(_openContract(customer)), pressEdit: () => unawaited(_openForm(customer, isEdit: true)), pressInfo: () => unawaited(showCustomerDetails(context: context, info: customer)))),
+          pressActions: () => unawaited(showCustomerActions(
+            context: context, 
+            info: customer, 
+            pressScoring: () => unawaited(showScoringSheet(context: context, customerId: customer.id)), 
+            pressContract: () => unawaited(_openContract(customer)), 
+            pressEdit: () => unawaited(_openForm(customer, isEdit: true)), 
+            pressInfo: () => unawaited(showCustomerDetails(context: context, info: customer)))
+          ),
         );
       },
     );

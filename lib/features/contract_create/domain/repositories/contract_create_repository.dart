@@ -17,6 +17,12 @@ abstract interface class ContractCreateRepository {
   /// Qoralama yaratadi va uning id sini qaytaradi.
   Future<Result<int>> createDraft(int clientId);
 
+  /// Rasmdan topilgan IMEI'lar.
+  ///
+  /// Bo'sh ro'yxat — muvaffaqiyat emas: rasmda hech nima topilmagan degani
+  /// va foydalanuvchi buni bilishi kerak (5.8).
+  Future<Result<List<String>>> scanImei(ScanImeiParams params);
+
   /// Tovar qo'shadi va qatorning id sini qaytaradi.
   Future<Result<int>> addProduct(AddProductParams params);
 

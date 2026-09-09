@@ -67,7 +67,10 @@ final class ProductsSection extends StatelessWidget {
 
         if (errorText != null) ...<Widget>[
           Gap(ScreenSize.h8),
-          Text(errorText ?? '', style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.red)),
+          Text(
+            errorText ?? '',
+            style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.red),
+          ),
         ],
       ],
     );

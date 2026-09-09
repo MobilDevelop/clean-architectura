@@ -57,8 +57,7 @@ final class ContractSection extends StatelessWidget {
                 ),
               ),
 
-              if (total != null)
-                Text("$total ta", style: AppTheme.data.textTheme.bodyMedium),
+              if (total != null) Text("$total ta", style: AppTheme.data.textTheme.bodyMedium),
             ],
           ),
 
@@ -156,7 +155,8 @@ final class ContractCardSection extends StatelessWidget {
             style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft),
           ),
 
-          if (card.expiry.isNotEmpty) Text("Amal qiladi: ${card.expiry}", style: AppTheme.data.textTheme.bodySmall),
+          if (card.expiry.isNotEmpty)
+            Text("Amal qiladi: ${card.expiry}", style: AppTheme.data.textTheme.bodySmall),
           if (card.phone.isNotEmpty) Text(card.phone, style: AppTheme.data.textTheme.bodySmall),
         ],
       ),
@@ -235,10 +235,16 @@ final class ContractFailReasons extends StatelessWidget {
       children: <Widget>[
         Text(
           source,
-          style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.red, fontWeight: FontWeight.w700),
+          style: AppTheme.data.textTheme.bodySmall?.copyWith(
+            color: AppTheme.colors.red,
+            fontWeight: FontWeight.w700,
+          ),
         ),
 
-        Text(text, style: AppTheme.data.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w400, height: 1.4)),
+        Text(
+          text,
+          style: AppTheme.data.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w400, height: 1.4),
+        ),
       ],
     ),
   );

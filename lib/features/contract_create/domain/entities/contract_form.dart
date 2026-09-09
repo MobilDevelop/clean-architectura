@@ -93,7 +93,9 @@ final class ContractForm extends Equatable {
   ContractFormIssue issueAt({required int productCount, required bool hasCard}) {
     if (productCount == 0) return ContractFormIssue.noProducts;
     if (paymentDay == 0) return ContractFormIssue.paymentDayMissing;
-    if (isOccupationNeeded(hasCard: hasCard) && occupation.isEmpty) return ContractFormIssue.occupationMissing;
+    if (isOccupationNeeded(hasCard: hasCard) && occupation.isEmpty) {
+      return ContractFormIssue.occupationMissing;
+    }
 
     return ContractFormIssue.none;
   }

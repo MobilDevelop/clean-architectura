@@ -59,11 +59,7 @@ final class SpokeScaffold extends StatelessWidget {
             Positioned.fill(
               child: Column(
                 children: <Widget>[
-                  PageHeader(
-                    title: title,
-                    topInset: MediaQuery.paddingOf(context).top,
-                    backPress: backPress,
-                  ),
+                  PageHeader(title: title, topInset: MediaQuery.paddingOf(context).top, backPress: backPress),
 
                   Expanded(
                     child: isLoading

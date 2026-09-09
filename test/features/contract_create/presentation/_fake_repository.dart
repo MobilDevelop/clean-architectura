@@ -18,12 +18,18 @@ final class FakeContractCreateRepository implements ContractCreateRepository {
   Result<List<int>> paymentDaysResult = const Ok<List<int>>(<int>[5, 15, 25]);
   Result<void> submitResult = const Ok<void>(null);
   Result<ContractDetails> detailsResult = const Err<ContractDetails>(UnknownFailure('yo`q'));
+  Result<List<String>> scanResult = const Ok<List<String>>(<String>['358240051111110']);
+
+  /// Javob kechikishini sinash uchun — ketma-ket hodisalarni tekshiradi.
+  Duration scanDelay = Duration.zero;
 
   int draftCalls = 0;
   int addCalls = 0;
   int deleteCalls = 0;
   int submitCalls = 0;
+  int scanCalls = 0;
   SubmitContractParams? lastSubmit;
+  ScanImeiParams? lastScan;
   UpdateProductParams? lastUpdate;
 
   @override
@@ -31,6 +37,15 @@ final class FakeContractCreateRepository implements ContractCreateRepository {
     draftCalls++;
 
     return draftResult;
+  }
+
+  @override
+  Future<Result<List<String>>> scanImei(ScanImeiParams params) async {
+    scanCalls++;
+    lastScan = params;
+    if (scanDelay > Duration.zero) await Future<void>.delayed(scanDelay);
+
+    return scanResult;
   }
 
   @override

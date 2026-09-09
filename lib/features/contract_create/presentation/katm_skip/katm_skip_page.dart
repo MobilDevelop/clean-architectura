@@ -9,7 +9,7 @@ import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/katm_skip.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/katm_skip/katm_skip_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/katm_skip/katm_skip_issue_text.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/shared/option_sheet.dart';
+import 'package:colloborator_v3/core/widgets/sheets/option_sheet.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/shared/spoke_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,8 +59,7 @@ final class _KatmSkipPageState extends State<KatmSkipPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<KatmSkipBloc, KatmSkipState>(
       listenWhen: (KatmSkipState previous, KatmSkipState current) => current.isDone && !previous.isDone,
-      listener: (BuildContext context, KatmSkipState state) =>
-          context.pop(true),
+      listener: (BuildContext context, KatmSkipState state) => context.pop(true),
       builder: (BuildContext context, KatmSkipState state) {
         final KatmSkipBloc bloc = context.read<KatmSkipBloc>();
 
@@ -80,10 +79,7 @@ final class _KatmSkipPageState extends State<KatmSkipPage> {
           child: ListView(
             padding: EdgeInsets.fromLTRB(ScreenSize.h16, ScreenSize.h16, ScreenSize.h16, ScreenSize.h24),
             children: <Widget>[
-              if (state.hasFailReasons) ...<Widget>[
-                _reasons(state),
-                Gap(ScreenSize.h14),
-              ],
+              if (state.hasFailReasons) ...<Widget>[_reasons(state), Gap(ScreenSize.h14)],
 
               SelectTile(
                 title: "Sabab turi",

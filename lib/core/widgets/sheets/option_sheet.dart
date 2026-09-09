@@ -16,6 +16,12 @@ Future<void> showOptionSheet<T>({
   required String Function(T) labelOf,
   required bool Function(T) isSelected,
   required ValueChanged<T> onPicked,
+
+  /// Ro'yxat bo'sh bo'lganda ko'rsatiladigan sabab.
+  ///
+  /// Bo'sh oyna — jimgina yiqilish (5.8): ma'lumotnoma yuklanmagani ham,
+  /// serverda haqiqatan hech nima yo'qligi ham bir xil ko'rinardi.
+  String emptyText = "Ro'yxat bo'sh",
 }) => showAppSheet(
   context: context,
   child: Padding(
@@ -27,57 +33,65 @@ Future<void> showOptionSheet<T>({
         Text(title, style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft)),
         Gap(ScreenSize.h12),
 
-        Flexible(
-          child: ListView.builder(
-            shrinkWrap: true,
-            padding: EdgeInsets.only(bottom: ScreenSize.h12),
-            itemCount: options.length,
-            itemBuilder: (BuildContext context, int index) {
-              final T item = options[index];
-              final bool selected = isSelected(item);
+        if (options.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: ScreenSize.h24),
+            child: Text(emptyText, style: AppTheme.data.textTheme.bodySmall),
+          )
+        else
+          Flexible(
+            child: ListView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.only(bottom: ScreenSize.h12),
+              itemCount: options.length,
+              itemBuilder: (BuildContext context, int index) {
+                final T item = options[index];
+                final bool selected = isSelected(item);
 
-              return Padding(
-                padding: EdgeInsets.only(bottom: ScreenSize.h8),
-                child: InkWell(
-                  onTap: () {
-                    onPicked(item);
-                    Navigator.of(context).pop();
-                  },
-                  borderRadius: BorderRadius.circular(ScreenSize.r14),
-                  child: Container(
-                    padding: EdgeInsets.all(ScreenSize.h14),
-                    decoration: BoxDecoration(
-                      // Tanlangani ajralib turadi — foydalanuvchi qayta
-                      // kirganda nima tanlanganini ko'radi.
-                      color: selected ? AppTheme.colors.primary.withValues(alpha: .08) : AppTheme.colors.backcolor,
-                      borderRadius: BorderRadius.circular(ScreenSize.r14),
-                      border: selected
-                          ? Border.all(color: AppTheme.colors.primary)
-                          : AppSurface.border(alpha: .5),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            labelOf(item),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTheme.data.textTheme.bodyLarge?.copyWith(
-                              color: selected ? AppTheme.colors.primary : AppTheme.colors.blackSoft,
+                return Padding(
+                  padding: EdgeInsets.only(bottom: ScreenSize.h8),
+                  child: InkWell(
+                    onTap: () {
+                      onPicked(item);
+                      Navigator.of(context).pop();
+                    },
+                    borderRadius: BorderRadius.circular(ScreenSize.r14),
+                    child: Container(
+                      padding: EdgeInsets.all(ScreenSize.h14),
+                      decoration: BoxDecoration(
+                        // Tanlangani ajralib turadi — foydalanuvchi qayta
+                        // kirganda nima tanlanganini ko'radi.
+                        color: selected
+                            ? AppTheme.colors.primary.withValues(alpha: .08)
+                            : AppTheme.colors.backcolor,
+                        borderRadius: BorderRadius.circular(ScreenSize.r14),
+                        border: selected
+                            ? Border.all(color: AppTheme.colors.primary)
+                            : AppSurface.border(alpha: .5),
+                      ),
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Text(
+                              labelOf(item),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTheme.data.textTheme.bodyLarge?.copyWith(
+                                color: selected ? AppTheme.colors.primary : AppTheme.colors.blackSoft,
+                              ),
                             ),
                           ),
-                        ),
 
-                        if (selected)
-                          Icon(Icons.check_circle, size: ScreenSize.h20, color: AppTheme.colors.primary),
-                      ],
+                          if (selected)
+                            Icon(Icons.check_circle, size: ScreenSize.h20, color: AppTheme.colors.primary),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
       ],
     ),
   ),

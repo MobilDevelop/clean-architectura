@@ -46,9 +46,9 @@ class Routes implements Coordinate {
     path: '/products',
     );
 
-  static const anderrayter = Routes._(
-    name: 'anderrayter_page',
-    path: '/anderrayter',
+  static const underwriter = Routes._(
+    name: 'underwriter_page',
+    path: '/underwriter',
   );
 
   static const outputsProducts = Routes._(
@@ -59,6 +59,11 @@ class Routes implements Coordinate {
   static const faceId = Routes._(
     name: 'face_id_page',
     path: '/face-id',
+  );
+
+  static const clientVerify = Routes._(
+    name: 'client_verify_page',
+    path: '/client-verify',
   );
 
   static const faceCamera = Routes._(

@@ -45,10 +45,8 @@ final class _ManagerBonusPageState extends State<ManagerBonusPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ManagerBonusBloc, ManagerBonusState>(
-      listenWhen: (ManagerBonusState previous, ManagerBonusState current) =>
-          current.isSent && !previous.isSent,
-      listener: (BuildContext context, ManagerBonusState state) =>
-          context.pop(true),
+      listenWhen: (ManagerBonusState previous, ManagerBonusState current) => current.isSent && !previous.isSent,
+      listener: (BuildContext context, ManagerBonusState state) => context.pop(true),
       builder: (BuildContext context, ManagerBonusState state) {
         final ManagerBonusBloc bloc = context.read<ManagerBonusBloc>();
         final bool isApproving = state.form.decision == BonusDecision.approved;
@@ -153,12 +151,7 @@ final class _ManagerBonusPageState extends State<ManagerBonusPage> {
     ),
   );
 
-  Widget _decision({
-    required String label,
-    required bool isSelected,
-    required Color accent,
-    required VoidCallback onTap,
-  }) => InkWell(
+  Widget _decision({required String label,required bool isSelected,required Color accent,required VoidCallback onTap}) => InkWell(
     onTap: onTap,
     borderRadius: BorderRadius.circular(ScreenSize.r14),
     child: Container(
@@ -169,12 +162,7 @@ final class _ManagerBonusPageState extends State<ManagerBonusPage> {
         borderRadius: BorderRadius.circular(ScreenSize.r14),
         border: isSelected ? Border.all(color: accent) : AppSurface.border(),
       ),
-      child: Text(
-        label,
-        style: AppTheme.data.textTheme.titleSmall?.copyWith(
-          color: isSelected ? accent : AppTheme.colors.grey,
-        ),
-      ),
+      child: Text(label,style: AppTheme.data.textTheme.titleSmall?.copyWith(color: isSelected ? accent : AppTheme.colors.grey)),
     ),
   );
 }

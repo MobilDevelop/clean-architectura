@@ -17,9 +17,6 @@ abstract final class ProductDraftIssueText {
   static String? count(ProductDraftIssue issue) =>
       issue == ProductDraftIssue.countMissing ? "Miqdorni kiriting" : null;
 
-  static String? imei(ProductDraftIssue issue) => switch (issue) {
-    ProductDraftIssue.imeiMissing => "Kamida bitta IMEI kiriting",
-    ProductDraftIssue.imeiCountMismatch => "IMEI soni miqdorga mos emas",
-    _ => null,
-  };
+  static String? imei(ProductDraftIssue issue) =>
+      issue == ProductDraftIssue.imeiMissing ? "Qurilma yorlig'ini suratga oling" : null;
 }

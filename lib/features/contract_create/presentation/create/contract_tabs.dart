@@ -41,28 +41,22 @@ final class ContractTabs extends StatelessWidget {
         // Qoralama yaratildi. Alohida signal: tovar qo'shish undan keyin
         // yiqilsa ham qolgan bo'limlar ochilishi kerak.
         BlocListener<ContractProductsBloc, ContractProductsState>(
-          listenWhen: (ContractProductsState previous, ContractProductsState current) =>
-              current.contractId != previous.contractId && current.contractId != null,
-          listener: (BuildContext context, ContractProductsState products) =>
-              context.read<ContractCreateBloc>().add(ContractIdReceived(products.contractId ?? 0)),
+          listenWhen: (ContractProductsState previous, ContractProductsState current) => current.contractId != previous.contractId && current.contractId != null,
+          listener: (BuildContext context, ContractProductsState products) => context.read<ContractCreateBloc>().add(ContractIdReceived(products.contractId ?? 0)),
         ),
 
         // Tovar yozilgach shartnoma qayta o'qiladi: summa, tarif va status
         // shu javobdan keladi.
         BlocListener<ContractProductsBloc, ContractProductsState>(
-          listenWhen: (ContractProductsState previous, ContractProductsState current) =>
-              current.revision != previous.revision,
-          listener: (BuildContext context, ContractProductsState products) =>
-              context.read<ContractCreateBloc>().add(const ContractRequested()),
+          listenWhen: (ContractProductsState previous, ContractProductsState current) => current.revision != previous.revision,
+          listener: (BuildContext context, ContractProductsState products) => context.read<ContractCreateBloc>().add(const ContractRequested()),
         ),
 
         // To'ldirilmagan joy boshqa tabda bo'lsa, o'sha tabga o'tiladi —
         // aks holda "Yuborish" bosiladi va hech nima ko'rinmaydi (5.8).
         BlocListener<ContractCreateBloc, ContractCreateState>(
-          listenWhen: (ContractCreateState previous, ContractCreateState current) =>
-              current.issue != previous.issue && current.issue == ContractFormIssue.noProducts,
-          listener: (BuildContext context, ContractCreateState state) =>
-              DefaultTabController.of(context).animateTo(1),
+          listenWhen: (ContractCreateState previous, ContractCreateState current) => current.issue != previous.issue && current.issue == ContractFormIssue.noProducts,
+          listener: (BuildContext context, ContractCreateState state) => DefaultTabController.of(context).animateTo(1),
         ),
       ],
       child: contractId == null ? _tabs(context) : _withResources(context, contractId),
@@ -87,10 +81,8 @@ final class ContractTabs extends StatelessWidget {
       ),
     ],
     child: BlocListener<ContractGuarantorsBloc, ContractGuarantorsState>(
-      listenWhen: (ContractGuarantorsState previous, ContractGuarantorsState current) =>
-          current.revision != previous.revision,
-      listener: (BuildContext context, ContractGuarantorsState guarantors) =>
-          context.read<ContractCreateBloc>().add(const ContractRequested()),
+      listenWhen: (ContractGuarantorsState previous, ContractGuarantorsState current) => current.revision != previous.revision,
+      listener: (BuildContext context, ContractGuarantorsState guarantors) => context.read<ContractCreateBloc>().add(const ContractRequested()),
       child: _tabs(context),
     ),
   );
@@ -99,9 +91,7 @@ final class ContractTabs extends StatelessWidget {
     children: <Widget>[
       ContractTermsTab(state: state, extraPressed: extraPressed),
       ProductsTab(productPicker: productPicker),
-      state.hasContract
-          ? GuarantorsTab(guarantorPicker: guarantorPicker)
-          : const GuarantorsPlaceholder(),
+      state.hasContract ? GuarantorsTab(guarantorPicker: guarantorPicker) : const GuarantorsPlaceholder(),
     ],
   );
 }

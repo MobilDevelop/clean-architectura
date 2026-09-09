@@ -4,6 +4,7 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_create_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/models/catalog_dto.dart';
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/features/contract_create/data/models/contract_details_dto.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/add_product_params.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/catalog_query.dart';
@@ -55,6 +56,20 @@ final class ContractCreateRepositoryImpl implements ContractCreateRepository {
     } catch (_) {
       return const Err(UnknownFailure('Kutilmagan xatolik yuz berdi'));
     }
+  }
+
+  /// Bo'sh ro'yxat xatoga aylantiriladi: server HTTP 200 qaytaradi, lekin
+  /// foydalanuvchi uchun bu "topilmadi" degani va u ko'rinishi kerak (5.8).
+  @override
+  Future<Result<List<String>>> scanImei(ScanImeiParams params) async {
+    final Result<List<String>> result = await guard(() => _remote.scanImei(params));
+
+    return switch (result) {
+      Ok(:final List<String> value) when value.isEmpty => const Err<List<String>>(
+        ClientFailure("Rasmdan IMEI topilmadi. Yorliqni aniqroq suratga oling"),
+      ),
+      _ => result,
+    };
   }
 
   @override

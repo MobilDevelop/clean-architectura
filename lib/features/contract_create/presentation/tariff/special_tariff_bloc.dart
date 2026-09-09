@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'special_tariff_event.dart';
 part 'special_tariff_state.dart';
 
-
 /// Maxsus tarif: mavjudlarini ko'rish, biriktirish va bekor qilish.
 ///
 /// Har amaldan keyin biriktirilgan tarif serverdan qayta o'qiladi: server uni
@@ -26,9 +25,7 @@ final class SpecialTariffBloc extends Bloc<SpecialTariffEvent, SpecialTariffStat
     required this._apply,
     required this._remove,
     required this._getApplied,
-  }) : super(
-         SpecialTariffState.initial(contractId: contractId, termMonths: termMonths, applied: applied),
-       ) {
+  }) : super(SpecialTariffState.initial(contractId: contractId, termMonths: termMonths, applied: applied)) {
     on<TariffsRequested>(_requested, transformer: droppable());
     on<TariffApplied>(_applied, transformer: sequential());
     on<TariffRemoved>(_removed, transformer: sequential());
@@ -50,9 +47,9 @@ final class SpecialTariffBloc extends Bloc<SpecialTariffEvent, SpecialTariffStat
     if (emit.isDone) return;
 
     switch (result) {
-      case Ok(: final List<SpecialTariff> value):
+      case Ok(:final List<SpecialTariff> value):
         emit(state.copyWith(isLoading: false, isLoaded: true, tariffs: value));
-      case Err(: final Failure failure):
+      case Err(:final Failure failure):
         emit(state.copyWith(isLoading: false, failure: failure));
     }
   }
@@ -102,9 +99,9 @@ final class SpecialTariffBloc extends Bloc<SpecialTariffEvent, SpecialTariffStat
     if (emit.isDone) return;
 
     switch (result) {
-      case Ok(: final AppliedTariff value):
+      case Ok(:final AppliedTariff value):
         emit(state.copyWith(applied: value));
-      case Err(: final Failure failure):
+      case Err(:final Failure failure):
         emit(state.copyWith(failure: failure));
     }
   }

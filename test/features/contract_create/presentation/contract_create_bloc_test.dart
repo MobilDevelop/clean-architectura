@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
@@ -7,6 +9,7 @@ import 'package:colloborator_v3/features/contract_create/domain/usecase/contract
 import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_income_repository.dart';
@@ -53,12 +56,14 @@ ContractCreateBloc _bloc(
   FakeContractCreateRepository repo,
   FakeContractIncomeRepository income, {
   int? contractId = 5,
+  ContractChanges? changes,
 }) => ContractCreateBloc(
   args: ContractCreateArgs(clientId: 42, contractId: contractId),
   getDetails: GetContractDetailsUsecase(repo),
   getPaymentDays: GetPaymentDaysUsecase(repo),
   getOccupations: GetOccupationsUsecase(income),
   submit: SubmitContractUsecase(repo),
+  changes: changes ?? ContractChanges(),
 );
 
 Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 40));
@@ -271,5 +276,57 @@ void main() {
     expect(bloc.state.contractId, 77);
 
     await bloc.close();
+  });
+
+  // Shartnoma yuborilgach ro'yxat eskiradi: yangisi uning boshida turadi va
+  // foydalanuvchi holatini kuzatadi. Ilgari u tabga o'zi o'tib, ekranni
+  // qo'lda yangilardi.
+  test('yuborilgach ro‘yxat eskirgani belgilanadi', () async {
+    final ContractChanges changes = ContractChanges();
+    addTearDown(changes.dispose);
+
+    final List<ContractChange> marks = <ContractChange>[];
+    final StreamSubscription<ContractChange> sub = changes.changes.listen(marks.add);
+    addTearDown(sub.cancel);
+
+    repo.detailsResult = Ok<ContractDetails>(_details(products: <ContractProduct>[_product()]));
+
+    final ContractCreateBloc bloc = _bloc(repo, income, changes: changes);
+    addTearDown(bloc.close);
+
+    bloc.add(const ContractRequested());
+    await _settle();
+
+    bloc.add(const SubmitRequested());
+    await _settle();
+
+    expect(repo.submitCalls, 1);
+    // Qoralama (status 1) birinchi marta yuborildi — ro'yxatga yangi qator.
+    expect(marks, <ContractChange>[ContractChange.created]);
+  });
+
+  // Yiqilgan yuborishdan keyin ro'yxatda o'zgarish yo'q — behuda so'rov
+  // yuborish serverni urardi.
+  test('yuborish yiqilsa ro‘yxat eskirmaydi', () async {
+    final ContractChanges changes = ContractChanges();
+    addTearDown(changes.dispose);
+
+    final List<ContractChange> marks = <ContractChange>[];
+    final StreamSubscription<ContractChange> sub = changes.changes.listen(marks.add);
+    addTearDown(sub.cancel);
+
+    repo.detailsResult = Ok<ContractDetails>(_details(products: <ContractProduct>[_product()]));
+    repo.submitResult = const Err<void>(ServerFailure('xato'));
+
+    final ContractCreateBloc bloc = _bloc(repo, income, changes: changes);
+    addTearDown(bloc.close);
+
+    bloc.add(const ContractRequested());
+    await _settle();
+
+    bloc.add(const SubmitRequested());
+    await _settle();
+
+    expect(marks, isEmpty);
   });
 }

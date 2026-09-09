@@ -6,7 +6,10 @@ import 'package:flutter/material.dart';
 
 /// Tovarni o'chirishni tasdiqlash. O'chirish serverda darhol bajariladi va
 /// qaytarib bo'lmaydi — shuning uchun so'raladi.
-Future<bool> showRemoveProductDialog({required BuildContext context, required ContractProduct product}) async {
+Future<bool> showRemoveProductDialog({
+  required BuildContext context,
+  required ContractProduct product,
+}) async {
   final String title = product.variant.isEmpty ? product.category.name : product.variant.name;
 
   final bool? result = await showDialog<bool>(
@@ -15,7 +18,9 @@ Future<bool> showRemoveProductDialog({required BuildContext context, required Co
       icon: AppIcons.delete,
       accent: AppTheme.colors.red,
       title: "Tovarni o'chirish",
-      message: title.isEmpty ? "Tanlangan tovar shartnomadan olib tashlanadi." : "«$title» shartnomadan olib tashlanadi.",
+      message: title.isEmpty
+          ? "Tanlangan tovar shartnomadan olib tashlanadi."
+          : "«$title» shartnomadan olib tashlanadi.",
       actionLabel: "O'chirish",
       cancelLabel: "Bekor qilish",
       onAction: () => Navigator.of(context).pop(true),

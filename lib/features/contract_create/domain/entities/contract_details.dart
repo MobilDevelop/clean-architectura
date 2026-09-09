@@ -81,9 +81,8 @@ final class ContractCard extends Equatable {
   bool get isEmpty => id == 0;
 
   /// `09/28`. Muddat kelmagan bo'lsa bo'sh satr.
-  String get expiry => month == 0 || year == 0
-      ? ''
-      : '${month.toString().padLeft(2, '0')}/${year.toString().padLeft(2, '0')}';
+  String get expiry =>
+      month == 0 || year == 0 ? '' : '${month.toString().padLeft(2, '0')}/${year.toString().padLeft(2, '0')}';
 
   @override
   List<Object?> get props => [id, number, phone, month, year];

@@ -52,47 +52,100 @@ final class _ContractsPageState extends State<ContractsPage> {
   Widget build(BuildContext context) {
     final double topInset = MediaQuery.paddingOf(context).top;
 
-    return Scaffold(
-      backgroundColor: AppTheme.colors.backcolor,
-      body: BlocSelector<ContractsBloc, ContractsState, Failure?>(
-        selector: (ContractsState state) => state.failure,
-        builder: (BuildContext context, Failure? failure) => FailureView(
-          failure: failure,
-          onHandled: () => _bloc.add(const FailureHandled()),
-          onRetry: () => _bloc.add(const ContractsGet()),
-          child: Stack(
-            children: <Widget>[
-              const BackgroundWash(),
+    // Bildirishnoma bosilgan shartnomani ochadi.
+    //
+    // Nega ro'yxat yuklanib bo'lgandan keyin: push kelgan shartnoma eski
+    // ro'yxatda bo'lmasligi mumkin (sana filtri yoki hali o'qilmagan) — o'shanda
+    // "topilmadi" deyish noto'g'ri bo'lardi. Xato bo'lsa belgi saqlanadi:
+    // «Qayta urinish» muvaffaqiyatli tugagach shartnoma baribir ochiladi.
+    return BlocListener<ContractsBloc, ContractsState>(
+      listenWhen: (ContractsState previous, ContractsState current) =>
+          current.openContractId != 0 && previous.isLoading && !current.isLoading && current.failure == null,
+      listener: (BuildContext context, ContractsState state) => unawaited(_openFromPush(state)),
+      child: Scaffold(
+        backgroundColor: AppTheme.colors.backcolor,
+        body: BlocSelector<ContractsBloc, ContractsState, Failure?>(
+          selector: (ContractsState state) => state.failure,
+          builder: (BuildContext context, Failure? failure) => FailureView(
+            failure: failure,
+            onHandled: () => _bloc.add(const FailureHandled()),
+            onRetry: () => _bloc.add(const ContractsGet()),
+            child: Stack(
+              children: <Widget>[
+                const BackgroundWash(),
 
-              // Ro'yxat sarlavha ostidan suzib o'tadi.
-              Positioned.fill(
-                child: BlocSelector<ContractsBloc, ContractsState, ({bool isLoading, List<ContractInfo> contracts, DateTime? date})>(
-                  selector: (ContractsState state) => (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
-                  builder: (BuildContext context, ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data) =>
-                      PullRefresh<ContractsBloc, ContractsState>(
-                        isLoading: (ContractsState state) => state.isLoading,
-                        refreshPress: () => _bloc.add(const ContractsGet()),
-                        edgeOffset: topInset + ScreenSize.h56,
-                        child: _content(data: data, topPadding: topInset + ScreenSize.h56),
+                // Ro'yxat sarlavha ostidan suzib o'tadi.
+                Positioned.fill(
+                  child:
+                      BlocSelector<
+                        ContractsBloc,
+                        ContractsState,
+                        ({bool isLoading, List<ContractInfo> contracts, DateTime? date})
+                      >(
+                        selector: (ContractsState state) =>
+                            (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
+                        builder:
+                            (
+                              BuildContext context,
+                              ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,
+                            ) => PullRefresh<ContractsBloc, ContractsState>(
+                              isLoading: (ContractsState state) => state.isLoading,
+                              refreshPress: () => _bloc.add(const ContractsGet()),
+                              edgeOffset: topInset + ScreenSize.h56,
+                              child: _content(data: data, topPadding: topInset + ScreenSize.h56),
+                            ),
                       ),
                 ),
-              ),
 
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: BlocSelector<ContractsBloc, ContractsState, DateTime?>(
-                  selector: (ContractsState state) => state.filter.date,
-                  builder: (BuildContext context, DateTime? date) =>
-                      ContractsHeader(topInset: topInset, date: date, drawerPress: () {}, filterPress: () => unawaited(_openFilter(date)), clearDate: () => _bloc.add(const DateCleared())),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: BlocSelector<ContractsBloc, ContractsState, DateTime?>(
+                    selector: (ContractsState state) => state.filter.date,
+                    builder: (BuildContext context, DateTime? date) => ContractsHeader(
+                      topInset: topInset,
+                      date: date,
+                      drawerPress: () {},
+                      filterPress: () => unawaited(_openFilter(date)),
+                      clearDate: () => _bloc.add(const DateCleared()),
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  /// Bildirishnoma bosilgan shartnomani ro'yxatdan topib, kartani bosgandek
+  /// ochadi — statusiga qarab amal oynasi, tovarlar yoki holat matni.
+  ///
+  /// Nega alohida marshrut emas: bosish natijasi kartani bosish bilan bir xil
+  /// bo'lishi kerak. Ikkinchi yo'l yozilsa, status qoidasi ikki joyda turardi.
+  Future<void> _openFromPush(ContractsState state) async {
+    // Belgi bir marta ishlaydi: ro'yxat keyin yana yangilansa oyna ikkinchi
+    // marta ochilmaydi.
+    _bloc.add(const ContractOpened());
+
+    final ContractInfo? contract = _find(state.contracts, state.openContractId);
+
+    if (contract == null) {
+      await CustomAnimatedToast.showInfo(ContractTapText.pushNotFound);
+      return;
+    }
+
+    await _onTap(contract);
+  }
+
+  ContractInfo? _find(List<ContractInfo> contracts, int id) {
+    for (final ContractInfo contract in contracts) {
+      if (contract.id == id) return contract;
+    }
+
+    return null;
   }
 
   /// Sana filtri oynasi.
@@ -142,11 +195,16 @@ final class _ContractsPageState extends State<ContractsPage> {
       extra: (clientId: contract.clientId, contractId: contract.id, canSkipKatm: contract.showButtonKATM),
     );
 
-    // Ro'yxat har qanday holatda yangilanadi: ekran yuborilmasa ham tovar,
-    // kafil yoki kartani serverga yozgan bo'lishi mumkin.
-    _bloc.add(const ContractsGet());
+    if (isSubmitted ?? false) {
+      // Yuborilgan bo'lsa ro'yxatni `ContractChanges` allaqachon yangilagan —
+      // ikkinchi so'rov ortiqcha.
+      await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
+      return;
+    }
 
-    if (isSubmitted ?? false) await CustomAnimatedToast.showSuccess("Shartnoma yuborildi");
+    // Yuborilmasa ham tovar, kafil yoki karta serverga yozilgan bo'lishi
+    // mumkin: ular alohida bloclarda va bu signalni bermaydi.
+    _bloc.add(const ContractsGet());
   }
 
   Future<void> _openActions(ContractInfo contract) => showContractActions(
@@ -159,7 +217,10 @@ final class _ContractsPageState extends State<ContractsPage> {
     onSigningRequested: () => unawaited(CustomAnimatedToast.showInfo(ContractTapText.signing)),
   );
 
-  Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data, required double topPadding}) {
+  Widget _content({
+    required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,
+    required double topPadding,
+  }) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);
 
     // Skelet faqat birinchi yuklashda. Yangilashda ro'yxat ekranda qoladi,
@@ -177,7 +238,9 @@ final class _ContractsPageState extends State<ContractsPage> {
           EmptyPlaceholder(
             icon: AppIcons.contract,
             title: "Shartnoma yo'q",
-            message: data.date == null ? "Bugungi kunda tuzilgan shartnoma topilmadi" : "Tanlangan kunda shartnoma topilmadi. Boshqa sanani tanlab ko'ring",
+            message: data.date == null
+                ? "Bugungi kunda tuzilgan shartnoma topilmadi"
+                : "Tanlangan kunda shartnoma topilmadi. Boshqa sanani tanlab ko'ring",
           ),
         ],
       );

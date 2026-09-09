@@ -26,13 +26,12 @@ enum ProductDraftIssue {
   priceMissing,
   countMissing,
   imeiMissing,
-  imeiCountMismatch,
 }
 
 /// Tovar qo'shish formasi.
 ///
 /// Miqdor va IMEI bir-birini almashtiradi: raqamlanadigan toifada miqdor
-/// kiritilmaydi, u skanerlangan IMEI'lar soniga teng bo'ladi.
+/// kiritilmaydi, u yorliqdan o'qilgan IMEI'lar soniga teng bo'ladi.
 final class ProductDraft extends Equatable {
   const ProductDraft({
     this.supplier,
@@ -58,10 +57,17 @@ final class ProductDraft extends Equatable {
   final int count;
   final List<String> imeis;
 
-  /// Raqamlanadigan toifada miqdor IMEI'lar sonidan olinadi.
   bool get requiresImei => category?.requiresImei ?? false;
 
-  int get effectiveCount => requiresImei ? imeis.length : count;
+  /// Raqamlanadigan toifada miqdor **har doim 1**.
+  ///
+  /// Bitta yorliq — bitta qurilma, lekin uning IMEI'lari bittadan ko'p
+  /// bo'lishi mumkin (ikki SIM'li telefonda ikkita). Shuning uchun
+  /// `imeis.length` qurilmalar soni emas: undan miqdor yasalsa, bitta telefon
+  /// ikki dona bo'lib yozilib, summa ikki barobar chiqardi. Ikkinchi qurilma
+  /// alohida tovar qatori bo'lib qo'shiladi — flex ham shunday yuboradi
+  /// (`amount: "1"`).
+  int get effectiveCount => requiresImei ? 1 : count;
 
   int get total => price * effectiveCount;
 
@@ -82,26 +88,35 @@ final class ProductDraft extends Equatable {
     return ProductDraftIssue.none;
   }
 
-  /// Yuqoridagi tanlov o'zgarsa, unga bog'liqlari bekor bo'ladi.
+  /// Yuqoridagi tanlov o'zgarsa, unga bog'liqlari bekor bo'ladi. Narx va
+  /// miqdor esa tanlovga bog'liq emas — ular saqlanadi, aks holda ekranda
+  /// ko'rinib turgan son bilan yuboriladigan son ajralib ketardi.
   ProductDraft withSupplier(CatalogItem value) =>
-      ProductDraft(supplier: value, price: price);
+      ProductDraft(supplier: value, price: price, count: count);
 
   ProductDraft withCategory(ProductCategory value) =>
-      ProductDraft(supplier: supplier, category: value, price: price);
+      ProductDraft(supplier: supplier, category: value, price: price, count: count);
 
   ProductDraft withBrand(CatalogItem value) =>
-      ProductDraft(supplier: supplier, category: category, brand: value, price: price);
+      ProductDraft(supplier: supplier, category: category, brand: value, price: price, count: count);
 
-  ProductDraft copyWith({
-    CatalogItem? variant,
-    int? price,
-    int? count,
-    List<String>? imeis,
-  }) => ProductDraft(
+  /// IMEI aynan tanlangan tovarning yorlig'idan o'qiladi, shuning uchun tovar
+  /// almashganda ro'yxat bekor bo'ladi. Aks holda oldingi qurilmaning
+  /// raqamlari yangisining nomi bilan serverga ketardi.
+  ProductDraft withVariant(CatalogItem value) => ProductDraft(
     supplier: supplier,
     category: category,
     brand: brand,
-    variant: variant ?? this.variant,
+    variant: value,
+    price: price,
+    count: count,
+  );
+
+  ProductDraft copyWith({int? price, int? count, List<String>? imeis}) => ProductDraft(
+    supplier: supplier,
+    category: category,
+    brand: brand,
+    variant: variant,
     price: price ?? this.price,
     count: count ?? this.count,
     imeis: imeis ?? this.imeis,

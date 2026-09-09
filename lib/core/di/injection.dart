@@ -3,12 +3,18 @@ import 'package:colloborator_v3/core/di/app_startup.dart';
 import 'package:colloborator_v3/core/network/dio_client.dart';
 import 'package:colloborator_v3/core/network/interceptors/auth_interceptor.dart';
 import 'package:colloborator_v3/core/network/interceptors/error_report_interceptor.dart';
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
 import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
 import 'package:colloborator_v3/core/services/push_token_service.dart';
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
+import 'package:colloborator_v3/core/services/offer_document.dart';
+import 'package:colloborator_v3/core/services/push_notifications.dart';
+import 'package:colloborator_v3/core/services/notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:colloborator_v3/core/services/local_cache.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
@@ -33,6 +39,12 @@ import 'package:colloborator_v3/features/contracts/domain/repositories/contracts
 import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_contract_scoring_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_flex_messages_usecase.dart';
+import 'package:colloborator_v3/features/underwriter/data/datasources/underwriter_remote_datasource.dart';
+import 'package:colloborator_v3/features/underwriter/data/repositories/underwriter_repository_impl.dart';
+import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
+import 'package:colloborator_v3/features/underwriter/domain/repositories/underwriter_repository.dart';
+import 'package:colloborator_v3/features/underwriter/domain/usecase/underwriter_usecases.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_create_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_create_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
@@ -132,17 +144,29 @@ void setupDependencies(SharedPreferences prefs) {
   _registerCustomer();
   _registerContracts();
   _registerContractCreate();
+  _registerUnderwriter();
   _registerOutputs();
   _registerInvoices();
 
   // Parse nosozliklari ham shu kanaldan ketadi.
   JsonParser.reporter = (issue) => getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
+
+  // Repository chegarasida `Failure` ga o'girilgan istisnolar ham (5.7).
+  // Ular `ErrorReportInterceptor` dan o'tmaydi: interceptor faqat zanjir
+  // ichidagi `DioException` ni ko'radi.
+  GuardReport.reporter = (failure, error, trace) =>
+      getIt<ErrorReporter>().report(ErrorReport(source: failure.runtimeType.toString(), message: '$error', trace: trace));
 }
 
 /// Platformaga va tashqi xizmatlarga ulanish nuqtalari
 void _registerPlatform(SharedPreferences prefs) {
   getIt
-    ..registerLazySingleton(() => FirebaseService(getIt()))
+    ..registerLazySingleton(PushNotifications.new)
+    ..registerLazySingleton(ContractChanges.new)
+    ..registerLazySingleton(() => OfferDocument(rootBundle))
+    ..registerLazySingleton(FlutterLocalNotificationsPlugin.new)
+    ..registerLazySingleton(() => LocalNotificationService(plugin: getIt(), push: getIt()))
+    ..registerLazySingleton(() => FirebaseService(getIt(), getIt(), getIt()))
     ..registerLazySingleton(() => FirebaseMessaging.instance)
     ..registerLazySingleton(() => PushTokenService(getIt()))
     ..registerLazySingleton<SessionStore>(MemorySessionStore.new)
@@ -172,8 +196,8 @@ void _registerNetwork() {
 void _registerApp() {
   getIt
     ..registerLazySingleton(() => AuthNotifier(getIt(), getIt(), getIt()))
-    ..registerLazySingleton(() => AppRouter(getIt()))
-    ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt()));
+    ..registerLazySingleton(() => AppRouter(getIt(), getIt()))
+    ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt(), getIt()));
 }
 
 /// features/auth/login — data → domain → presentation
@@ -239,7 +263,7 @@ void _registerContracts() {
   ..registerLazySingleton(() => ContractsRemoteDatasource(dio: getIt(),now: DateTime.now))
   ..registerLazySingleton<ContractRepository>(() => ContractsRepositoryImpl(remote: getIt()))
   ..registerLazySingleton(() => ContractsUsecase(getIt()))
-  ..registerFactory(() => ContractsBloc(contractsUsecase: getIt()))
+  ..registerFactory(() => ContractsBloc(contractsUsecase: getIt(), push: getIt(), changes: getIt()))
   ..registerLazySingleton(() => GetContractScoringUsecase(getIt()))
   ..registerLazySingleton(() => GetFlexMessagesUsecase(getIt()))
   ..registerLazySingleton(() => GetParticipantsUsecase(getIt()))
@@ -304,6 +328,7 @@ void _registerContractCreate() {
     ..registerLazySingleton(() => GetVariantsUsecase(getIt()))
     ..registerLazySingleton(() => CreateDraftUsecase(getIt()))
     ..registerLazySingleton(() => AddProductUsecase(getIt(), getIt()))
+    ..registerLazySingleton(() => ScanImeiUsecase(getIt()))
     ..registerLazySingleton(() => UpdateProductUsecase(getIt()))
     ..registerLazySingleton(() => DeleteProductUsecase(getIt(), getIt()))
     ..registerLazySingleton(() => GetPaymentDaysUsecase(getIt()))
@@ -328,6 +353,7 @@ void _registerContractCreate() {
         categories: getIt(),
         brands: getIt(),
         variants: getIt(),
+        scanImei: getIt(),
       ),
     )
     ..registerFactoryParam<ContractDetailsBloc, int, void>(
@@ -340,6 +366,7 @@ void _registerContractCreate() {
         getPaymentDays: getIt(),
         getOccupations: getIt(),
         submit: getIt(),
+        changes: getIt(),
       ),
     )
     ..registerFactoryParam<ContractProductsBloc, ContractCreateArgs, void>(
@@ -394,6 +421,33 @@ void _registerContractCreate() {
         katmFailReason: reasons?.katm ?? '',
         getReasons: getIt(),
         turnOff: getIt(),
+      ),
+    );
+}
+
+/// Anderrayter featurei: daromadni tasdiqlovchi hujjatlar.
+void _registerUnderwriter() {
+  getIt
+    // Imzolangan S3 havolasiga yozish uchun interceptorsiz klient.
+    ..registerLazySingleton(createUploadClient)
+    ..registerLazySingleton(() => UnderwriterRemoteDatasource(dio: getIt(), upload: getIt()))
+    ..registerLazySingleton<UnderwriterRepository>(() => UnderwriterRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => LoadUnderwriterUsecase(getIt()))
+    ..registerLazySingleton(() => LoadReferencesUsecase(getIt()))
+    ..registerLazySingleton(() => GetCarModelsUsecase(getIt()))
+    ..registerLazySingleton(() => UploadDocumentUsecase(getIt()))
+    ..registerLazySingleton(() => SaveUnderwriterUsecase(getIt()))
+    ..registerFactoryParam<UnderwriterBloc, UnderwriterArgs, void>(
+      (UnderwriterArgs args, void _) => UnderwriterBloc(
+        args: args,
+        load: getIt(),
+        getReferences: getIt(),
+        getModels: getIt(),
+        upload: getIt(),
+        save: getIt(),
+        // Sana tashqaridan: ish haqi oylari va avtomobil yillari shunga
+        // bog'liq va testda qotirib qo'yilishi kerak (9.4).
+        today: DateTime.now,
       ),
     );
 }

@@ -71,7 +71,9 @@ final class ContractDetailsDto {
     // deb o'qiydi. Qaysi biri to'g'ri ekani backenddan so'ralgan — ikkalasi ham
     // qabul qilinadi, aks holda biriktirilgan tarif jimgina yo'qoladi.
     final Object? tariffRaw = _json['specialTariff'] ?? _json['special_tariff'];
-    final Map<String, dynamic> tariff = tariffRaw is Map<String, dynamic> ? tariffRaw : const <String, dynamic>{};
+    final Map<String, dynamic> tariff = tariffRaw is Map<String, dynamic>
+        ? tariffRaw
+        : const <String, dynamic>{};
 
     return ContractDetails(
       id: _json['id'] as int? ?? 0,
@@ -82,12 +84,14 @@ final class ContractDetailsDto {
       isFormal: _json['formal'] as bool? ?? false,
       hasCarIncome: _json['checked_car_income'] as bool? ?? false,
       fileUrl: _json['file_url'] as String? ?? '',
-      products: JsonParser.list(_json['contract_products'], fromJson: ContractProductDto.fromJson)
-          .map((ContractProductDto dto) => dto.toEntity())
-          .toList(),
-      guarantors: JsonParser.list(_json['guarantors'], fromJson: ContractGuarantorDto.fromJson)
-          .map((ContractGuarantorDto dto) => dto.toEntity())
-          .toList(),
+      products: JsonParser.list(
+        _json['contract_products'],
+        fromJson: ContractProductDto.fromJson,
+      ).map((ContractProductDto dto) => dto.toEntity()).toList(),
+      guarantors: JsonParser.list(
+        _json['guarantors'],
+        fromJson: ContractGuarantorDto.fromJson,
+      ).map((ContractGuarantorDto dto) => dto.toEntity()).toList(),
       card: ContractCard(
         id: card['id'] as int? ?? 0,
         number: card['card_number'] as String? ?? '',

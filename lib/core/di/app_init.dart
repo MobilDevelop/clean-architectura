@@ -18,12 +18,15 @@ Future<void> initializeApp() async {
   await ScreenUtil.ensureScreenSize();
   await EasyLocalization.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  await LocalNotificationService.instance.init();
 
-  
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
   setupDependencies(await SharedPreferences.getInstance());
   _registerErrorHandlers();
+
+  // Nega DI dan keyin: bildirishnoma bosilganini `PushNotifications` ga
+  // uzatadi, ya'ni bog'liqligi bor (8.1). Ilgari u statik singleton edi va
+  // shuning uchun DI dan oldin ishga tushirilardi.
+  await getIt<LocalNotificationService>().init();
 
   await getIt<AuthNotifier>().load();
 }

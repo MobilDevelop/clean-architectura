@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/shared/option_sheet.dart';
+import 'package:colloborator_v3/core/widgets/sheets/option_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -104,14 +104,7 @@ final class TermEditor extends StatelessWidget {
     );
   }
 
-  Widget _field({
-    required IconData icon,
-    required Color accent,
-    required String label,
-    required String value,
-    required VoidCallback? onTap,
-    bool isEmpty = false,
-  }) {
+  Widget _field({required IconData icon,required Color accent,required String label,required String value,required VoidCallback? onTap,bool isEmpty = false}) {
     final Color tone = onTap == null ? AppTheme.colors.grey1 : accent;
 
     return InkWell(

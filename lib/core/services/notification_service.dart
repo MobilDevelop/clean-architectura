@@ -1,103 +1,110 @@
-import 'dart:io';
-
+import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-class LocalNotificationService {
-  static final LocalNotificationService instance = LocalNotificationService._();
-  LocalNotificationService._();
+/// Tizim bildirishnomasini chizadi va bosilganini `PushNotifications` ga
+/// uzatadi.
+///
+/// Nega `static` emas: obyekt DI da yaratiladi va bog'liqliklari
+/// konstruktordan kiradi (8.1). Ilgari u `instance` singletoni edi va
+/// `FirebaseService` uni statik chaqirardi — testda almashtirib bo'lmasdi.
+final class LocalNotificationService {
+  const LocalNotificationService({required this.plugin, required this._push});
 
-  final FlutterLocalNotificationsPlugin localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin plugin;
+  final PushNotifications _push;
+
+  static const AndroidNotificationDetails _android = AndroidNotificationDetails(
+    'default_channel',
+    'Default Notifications',
+    channelDescription: 'Default Notifications',
+    importance: Importance.max,
+    priority: Priority.high,
+    playSound: true,
+    enableVibration: true,
+    icon: '@mipmap/ic_launcher',
+  );
+
+  static const DarwinNotificationDetails _ios = DarwinNotificationDetails(
+    presentAlert: true,
+    presentBadge: true,
+    presentSound: true,
+  );
 
   Future<void> init() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+    const InitializationSettings settings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      ),
     );
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-     );
-
-    await localNotifications.initialize(
-      settings: initSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        await openDownloadsFolder();
-      },
+    await plugin.initialize(
+      settings: settings,
+      // Ilgari bu yerda payloadga qaramasdan Android "Yuklanmalar" papkasi
+      // ochilardi — shartnoma bildirishnomasi bosilganda ham. Endi payload
+      // xabarning o'zini olib keladi.
+      onDidReceiveNotificationResponse: (NotificationResponse response) =>
+          _push.open(PushMessage.fromPayload(response.payload)),
     );
 
-    // Android permission
-    final androidPlugin = localNotifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-    await androidPlugin?.requestNotificationsPermission();
+    // Ilova aynan shu bildirishnoma bosilgani uchun ochilgan bo'lishi mumkin:
+    // u holda `onDidReceiveNotificationResponse` chaqirilmaydi.
+    final NotificationAppLaunchDetails? launch = await plugin.getNotificationAppLaunchDetails();
+    final NotificationResponse? response = launch?.notificationResponse;
 
-    // iOS permission
-    final iosPlugin = localNotifications
-        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
-  }
-
-  /// Yuklab olingan fayllar papkasini ochadi.
-  ///
-  /// Faqat Android: quyidagi URI'lar Android fayl tizimiga tegishli.
-  /// iOS uchun alohida yo'l kerak — yuklab olish funksiyasi ko'chirilganda qo'shiladi.
-  static Future<void> openDownloadsFolder() async {
-    if (!Platform.isAndroid) return;
-
-    try {
-      final uri = Uri.parse(
-          'content://com.android.externalstorage.documents/document/primary:Download');
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      }
-    } catch (e) {
-      try {
-        final uri = Uri.parse('file:///storage/emulated/0/Download');
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } catch (_) {
-        // Nega jim: papkani ochish — qo'shimcha qulaylik. Ikkala urinish ham
-        // muvaffaqiyatsiz bo'lsa, fayl baribir yuklab olingan va foydalanuvchi
-        // uni o'zi topa oladi. Bu oqimni to'xtatmaydi.
-      }
+    if ((launch?.didNotificationLaunchApp ?? false) && response != null) {
+      _push.open(PushMessage.fromPayload(response.payload));
     }
+
+    await plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+
+    await plugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
-  static Future<void> show({
-    required String title,
-    required String subtitle,
-  }) async {
-    const androidDetails = AndroidNotificationDetails(
-      'default_channel',
-      'Default Notifications',
-      channelDescription: 'Default Notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: true,
-      enableVibration: true,
-      icon: '@mipmap/ic_launcher',
-    );
+  /// Bildirishnoma chizadi. `id` o'zgarmas: yangi xabar eskisining o'rnini
+  /// egallaydi, ya'ni panelda o'nlab takror to'planmaydi.
+  Future<void> show(PushMessage message) => plugin.show(
+    id: 77,
+    title: message.text,
+    body: '',
+    notificationDetails: const NotificationDetails(android: _android, iOS: _ios),
+    payload: message.payload,
+  );
+}
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
+/// Fon izolyati uchun bildirishnoma. DI ko'rinmaydi, shuning uchun plagin
+/// nusxasi shu yerda yaratiladi.
+Future<void> showBackgroundNotification(PushMessage message) async {
+  final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
 
-    const notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
+  await plugin.initialize(
+    settings: const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: DarwinInitializationSettings(),
+    ),
+  );
 
-    await instance.localNotifications.show(
-      id: 77,
-      title: title,
-      body: subtitle,
-      notificationDetails: notificationDetails,
-      payload: 'open_downloads',
-    );
-  }
+  await plugin.show(
+    id: 77,
+    title: message.text,
+    body: '',
+    notificationDetails: const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'default_channel',
+        'Default Notifications',
+        channelDescription: 'Default Notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      ),
+      iOS: DarwinNotificationDetails(),
+    ),
+    payload: message.payload,
+  );
 }

@@ -10,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'manager_bonus_event.dart';
 part 'manager_bonus_state.dart';
 
-
 /// Filial rahbari bonusi: tasdiqlash yoki rad etish.
 ///
 /// Flex bu chaqiruvni yuklanish belgisisiz va xatosiz yuborardi — tugma
@@ -29,14 +28,11 @@ final class ManagerBonusBloc extends Bloc<ManagerBonusEvent, ManagerBonusState>
 
   final SendBonusUsecase _send;
 
-  void _decisionChanged(BonusDecisionChanged event, Emitter<ManagerBonusState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(decision: event.decision), issue: BonusIssue.none));
+  void _decisionChanged(BonusDecisionChanged event, Emitter<ManagerBonusState> emit) => emit(state.copyWith(form: state.form.copyWith(decision: event.decision),issue: BonusIssue.none));
 
-  void _amountChanged(BonusAmountChanged event, Emitter<ManagerBonusState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(amount: event.amount), issue: BonusIssue.none));
+  void _amountChanged(BonusAmountChanged event, Emitter<ManagerBonusState> emit) => emit(state.copyWith(form: state.form.copyWith(amount: event.amount),issue: BonusIssue.none));
 
-  void _commentChanged(BonusCommentChanged event, Emitter<ManagerBonusState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(comment: event.comment), issue: BonusIssue.none));
+  void _commentChanged(BonusCommentChanged event, Emitter<ManagerBonusState> emit) => emit(state.copyWith(form: state.form.copyWith(comment: event.comment),issue: BonusIssue.none));
 
   Future<void> _submitted(BonusSubmitted event, Emitter<ManagerBonusState> emit) async {
     final BonusIssue issue = state.form.issueAt(availableAmount: state.benefit.availableAmount);
@@ -56,8 +52,7 @@ final class ManagerBonusBloc extends Bloc<ManagerBonusEvent, ManagerBonusState>
     );
   }
 
-  void _failureHandled(FailureHandled event, Emitter<ManagerBonusState> emit) =>
-      emit(state.copyWith(clearFailure: true));
+  void _failureHandled(FailureHandled event, Emitter<ManagerBonusState> emit) => emit(state.copyWith(clearFailure: true));
 
   Future<void> _retried(Retried event, Emitter<ManagerBonusState> emit) async {
     emit(state.copyWith(clearFailure: true));

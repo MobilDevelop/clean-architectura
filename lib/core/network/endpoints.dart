@@ -70,6 +70,13 @@ abstract final class Endpoints {
   static const String skipReasonCategories = "${_prefix}underwriter/skip-reason-categories";
   static const String managerBonus = "${_prefix}contract/benefit";
 
+  // underwriter feature — daromad hujjatlari
+  static const String underwriters = "${_prefix}underwriters";
+  static const String uploadS3Url = "${_prefix}upload-s3-url";
+  static const String militaryPositions = "${_prefix}military-positions";
+  static const String carBrands = "${_prefix}car-brands";
+  static const String carModels = "${_prefix}car-models";
+
   // imzolash
   static const String electronicContract = "${_prefix}electronic_contract";
   static const String electronicFlexContract = "${_prefix}electronic_flex_contract";

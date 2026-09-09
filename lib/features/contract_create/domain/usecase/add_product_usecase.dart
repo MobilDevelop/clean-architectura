@@ -40,3 +40,13 @@ final class CreateDraftUsecase implements UseCase<int, int> {
   @override
   Future<Result<int>> call(int params) => _repository.createDraft(params);
 }
+
+/// IMEI'ni rasmdan o'qiydi.
+final class ScanImeiUsecase implements UseCase<List<String>, ScanImeiParams> {
+  const ScanImeiUsecase(this._repository);
+
+  final ContractCreateRepository _repository;
+
+  @override
+  Future<Result<List<String>>> call(ScanImeiParams params) => _repository.scanImei(params);
+}

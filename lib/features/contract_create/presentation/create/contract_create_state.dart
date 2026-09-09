@@ -43,12 +43,10 @@ final class ContractCreateState extends Equatable {
   final Failure? failure;
 
   /// Qo'shimcha ekranlar: qaysi biri ko'rinadi va qaysi biri hali ochilmaydi.
-  ContractExtras get extras =>
-      ContractExtras.of(details: details, form: form, canSkipKatm: args.canSkipKatm);
+  ContractExtras get extras => ContractExtras.of(details: details, form: form, canSkipKatm: args.canSkipKatm);
 
   /// Yuborishga to'sqinlik qilayotgan birinchi kamchilik.
-  ContractFormIssue get currentIssue =>
-      form.issueAt(productCount: productCount, hasCard: hasCard);
+  ContractFormIssue get currentIssue => form.issueAt(productCount: productCount, hasCard: hasCard);
 
   bool get hasCard => !(details?.card.isEmpty ?? true);
 
@@ -64,7 +62,8 @@ final class ContractCreateState extends Equatable {
 
   /// Muddat va to'lov kuni faqat "Yuborish" da serverga ketadi — shu paytgacha
   /// ular mahalliy. Foydalanuvchi buni bilishi kerak (5.8).
-  bool get hasUnsavedTerms => details != null && (details?.termMonths != form.termMonths || details?.paymentDay != form.paymentDay);
+  bool get hasUnsavedTerms =>
+      details != null && (details?.termMonths != form.termMonths || details?.paymentDay != form.paymentDay);
 
   ContractCreateState copyWith({
     int? contractId,
@@ -89,15 +88,5 @@ final class ContractCreateState extends Equatable {
   );
 
   @override
-  List<Object?> get props => <Object?>[
-    args,
-    contractId,
-    details,
-    form,
-    issue,
-    isLoading,
-    isSubmitting,
-    isSubmitted,
-    failure,
-  ];
+  List<Object?> get props => <Object?>[args,contractId,details,form,issue,isLoading,isSubmitting,isSubmitted,failure];
 }

@@ -68,14 +68,5 @@ final class ContractGuarantorsState extends Equatable {
   );
 
   @override
-  List<Object?> get props => <Object?>[
-    contractId,
-    clientId,
-    guarantors,
-    isAdding,
-    issue,
-    revision,
-    busyId,
-    failure,
-  ];
+  List<Object?> get props => <Object?>[contractId,clientId,guarantors,isAdding,issue,revision,busyId,failure];
 }

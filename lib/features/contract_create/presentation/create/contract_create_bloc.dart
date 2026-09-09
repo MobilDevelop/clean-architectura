@@ -1,5 +1,6 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/usecase/usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
@@ -30,6 +31,7 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
     required this._getPaymentDays,
     required this._getOccupations,
     required this._submit,
+    required this._changes,
   }) : super(ContractCreateState.initial(args)) {
     on<ContractRequested>(_requested, transformer: droppable());
     on<ContractIdReceived>(_contractIdReceived);
@@ -50,6 +52,10 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
   final GetOccupationsUsecase _getOccupations;
   final SubmitContractUsecase _submit;
 
+  /// Yuborilgan shartnoma ro'yxatning boshida paydo bo'ladi — ro'yxatni
+  /// ko'rsatayotgan ekran buni o'zi bilmaydi.
+  final ContractChanges _changes;
+
   /// Skoringga birinchi yuborishda `POST`, keyingilarida `PUT`.
   ///
   /// Mezon — marshrut argumenti emas, shartnoma statusi: qoralama status 1 da
@@ -64,10 +70,8 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
     if (emit.isDone) return;
 
     switch (catalog) {
-      case Ok(: final OccupationCatalog value):
-        emit(state.copyWith(form: state.form.copyWith(catalog: value)));
-      case Err(: final Failure failure):
-        emit(state.copyWith(isLoading: false, failure: failure));
+      case Ok(:final OccupationCatalog value): emit(state.copyWith(form: state.form.copyWith(catalog: value)));
+      case Err(:final Failure failure): emit(state.copyWith(isLoading: false, failure: failure));
         return;
     }
 
@@ -83,36 +87,18 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
     final ContractDetails loaded;
 
     switch (details) {
-      case Ok(: final ContractDetails value):
+      case Ok(:final ContractDetails value):
         loaded = value;
-        emit(
-          state.copyWith(
-            details: value,
-            form: state.form.copyWith(
-              termMonths: value.termMonths == 0 ? ContractForm.defaultTerm : value.termMonths,
-              basis: IncomeBasis.of(isFormal: value.isFormal),
-              hasCarIncome: value.hasCarIncome,
-            ),
-          ),
-        );
-      case Err(: final Failure failure):
-        emit(state.copyWith(isLoading: false, failure: failure));
-        return;
+        emit(state.copyWith(details: value,form: state.form.copyWith(termMonths: value.termMonths == 0 ? ContractForm.defaultTerm : value.termMonths,basis: IncomeBasis.of(isFormal: value.isFormal), hasCarIncome: value.hasCarIncome)));
+      case Err(:final Failure failure): emit(state.copyWith(isLoading: false, failure: failure)); return;
     }
 
     final Result<List<int>> days = await _getPaymentDays(id);
     if (emit.isDone) return;
 
     switch (days) {
-      case Ok(: final List<int> value):
-        emit(
-          state.copyWith(
-            isLoading: false,
-            form: state.form.withPaymentDays(value, preferredDay: loaded.paymentDay),
-          ),
-        );
-      case Err(: final Failure failure):
-        emit(state.copyWith(isLoading: false, failure: failure));
+      case Ok(:final List<int> value): emit(state.copyWith(isLoading: false,form: state.form.withPaymentDays(value, preferredDay: loaded.paymentDay)));
+      case Err(:final Failure failure): emit(state.copyWith(isLoading: false, failure: failure));
     }
   }
 
@@ -123,27 +109,21 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
     emit(state.copyWith(contractId: event.contractId));
   }
 
-  void _termChanged(TermChanged event, Emitter<ContractCreateState> emit) =>
-      emit(state.copyWith(form: state.form.withTerm(event.value)));
+  void _termChanged(TermChanged event, Emitter<ContractCreateState> emit) => emit(state.copyWith(form: state.form.withTerm(event.value)));
 
-  void _paymentDaySelected(PaymentDaySelected event, Emitter<ContractCreateState> emit) => emit(
-    state.copyWith(form: state.form.copyWith(paymentDayIndex: event.index), issue: ContractFormIssue.none),
-  );
+  void _paymentDaySelected(PaymentDaySelected event, Emitter<ContractCreateState> emit) => emit(state.copyWith(form: state.form.copyWith(paymentDayIndex: event.index),issue: ContractFormIssue.none));
 
   /// Karta biriktirilgan bo'lsa daromad asosi o'zgarmaydi: karta aylanmasi
   /// rasmiy daromadning dalili.
   void _basisChanged(BasisChanged event, Emitter<ContractCreateState> emit) {
     if (state.hasCard) return;
 
-    emit(state.copyWith(form: state.form.copyWith(basis: event.basis), issue: ContractFormIssue.none));
+    emit(state.copyWith(form: state.form.copyWith(basis: event.basis),issue: ContractFormIssue.none));
   }
 
-  void _carToggled(CarIncomeToggled event, Emitter<ContractCreateState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(hasCarIncome: !state.form.hasCarIncome)));
+  void _carToggled(CarIncomeToggled event, Emitter<ContractCreateState> emit) => emit(state.copyWith(form: state.form.copyWith(hasCarIncome: !state.form.hasCarIncome)));
 
-  void _occupationSelected(OccupationSelected event, Emitter<ContractCreateState> emit) => emit(
-    state.copyWith(form: state.form.copyWith(occupation: event.occupation), issue: ContractFormIssue.none),
-  );
+  void _occupationSelected(OccupationSelected event, Emitter<ContractCreateState> emit) => emit(state.copyWith(form: state.form.copyWith(occupation: event.occupation),issue: ContractFormIssue.none));
 
   Future<void> _submitRequested(SubmitRequested event, Emitter<ContractCreateState> emit) async {
     if (state.isSubmitted || state.isSubmitting || state.isLoading) return;
@@ -158,6 +138,8 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
 
     emit(state.copyWith(isSubmitting: true, clearFailure: true));
 
+    final bool isEdit = (state.details?.statusCode ?? draftStatus) != draftStatus;
+
     final Result<void> result = await _submit(
       SubmitContractParams(
         contractId: contractId,
@@ -166,24 +148,27 @@ final class ContractCreateBloc extends Bloc<ContractCreateEvent, ContractCreateS
         isFormal: state.form.basis.isFormal,
         hasCarIncome: state.form.hasCarIncome,
         // Kasb turi server so'ragan holatdagina yuboriladi.
-        occupationTypeId: state.form.isOccupationNeeded(hasCard: state.hasCard)
-            ? state.form.occupation.id
-            : 0,
-        isEdit: (state.details?.statusCode ?? draftStatus) != draftStatus,
+        occupationTypeId: state.form.isOccupationNeeded(hasCard: state.hasCard) ? state.form.occupation.id : 0,
+        isEdit: isEdit,
       ),
     );
     if (emit.isDone) return;
 
     switch (result) {
+      // Ro'yxat shu payt eskiradi. Bu UI ta'siri emas (6.2): bloc na
+      // navigatsiya qiladi, na oyna ochadi — faqat "eskirdi" deb qo'yadi.
+      //
+      // Yangi va tahrirlangan ajratiladi: yangisi ro'yxatga qator qo'shadi,
+      // tahrir esa yo'q. Ro'yxat shunga qarab sana filtriga tegadi yoki
+      // tegmaydi.
       case Ok():
+        _changes.mark(isEdit ? ContractChange.updated : ContractChange.created);
         emit(state.copyWith(isSubmitting: false, isSubmitted: true));
-      case Err(: final Failure failure):
-        emit(state.copyWith(isSubmitting: false, failure: failure));
+      case Err(:final Failure failure): emit(state.copyWith(isSubmitting: false, failure: failure));
     }
   }
 
-  void _failureHandled(FailureHandled event, Emitter<ContractCreateState> emit) =>
-      emit(state.copyWith(clearFailure: true));
+  void _failureHandled(FailureHandled event, Emitter<ContractCreateState> emit) => emit(state.copyWith(clearFailure: true));
 
   Future<void> _retried(Retried event, Emitter<ContractCreateState> emit) async {
     emit(state.copyWith(clearFailure: true));

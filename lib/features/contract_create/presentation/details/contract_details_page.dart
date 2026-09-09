@@ -90,8 +90,16 @@ final class ContractDetailsPage extends StatelessWidget {
             icon: AppIcons.product,
             count: details.products.length,
             child: details.products.isEmpty
-                ? const EmptyPlaceholder(icon: AppIcons.product, title: "Tovar yo'q", message: "Shartnomada tovar qo'shilmagan")
-                : Column(children: details.products.map((ContractProduct e) => ContractProductCard(product: e)).toList()),
+                ? const EmptyPlaceholder(
+                    icon: AppIcons.product,
+                   title: "Tovar yo'q",
+                    message: "Shartnomada tovar qo'shilmagan",
+                  )
+                : Column(
+                    children: details.products
+                        .map((ContractProduct e) => ContractProductCard(product: e))
+                        .toList(),
+                  ),
           ),
 
           ContractSection(

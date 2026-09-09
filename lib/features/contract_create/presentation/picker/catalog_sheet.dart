@@ -27,7 +27,8 @@ Future<void> showCatalogSheet<T>({
 }) => showAppSheet(
   context: context,
   child: BlocProvider<CatalogBloc<T>>(
-    create: (BuildContext context) => CatalogBloc<T>(load: load)..add(const CatalogSearched('', debounce: false)),
+    create: (BuildContext context) =>
+        CatalogBloc<T>(load: load)..add(const CatalogSearched('', debounce: false)),
     child: _CatalogSheet<T>(
       title: title,
       hint: hint,

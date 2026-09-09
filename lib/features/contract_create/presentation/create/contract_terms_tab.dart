@@ -10,10 +10,10 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/income.
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_extra_style.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/extra_entry_row.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/section_card.dart';
+import 'package:colloborator_v3/core/widgets/cards/section_card.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/income/card_section.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/income/income_chips.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/shared/option_sheet.dart';
+import 'package:colloborator_v3/core/widgets/sheets/option_sheet.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/term_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -76,14 +76,8 @@ final class ContractTermsTab extends StatelessWidget {
               child: IncomeChips(
                 isInformal: state.form.basis == IncomeBasis.informal,
                 hasCarIncome: state.form.hasCarIncome,
-                lockedReason: state.canChangeBasis
-                    ? null
-                    : "Karta biriktirilgan — daromad rasmiy hisoblanadi",
-                basisPressed: () => bloc.add(
-                  BasisChanged(
-                    state.form.basis == IncomeBasis.informal ? IncomeBasis.formal : IncomeBasis.informal,
-                  ),
-                ),
+                lockedReason: state.canChangeBasis ? null : "Karta biriktirilgan — daromad rasmiy hisoblanadi",
+                basisPressed: () => bloc.add(BasisChanged( state.form.basis == IncomeBasis.informal ? IncomeBasis.formal : IncomeBasis.informal)),
                 carPressed: () => bloc.add(const CarIncomeToggled()),
               ),
             ),
@@ -95,9 +89,7 @@ final class ContractTermsTab extends StatelessWidget {
                   title: "Qo'shimcha daromad turi",
                   hint: "Tanlang",
                   value: state.form.occupation.name,
-                  errorText: state.issue == ContractFormIssue.occupationMissing
-                      ? "Qo'shimcha daromad turini tanlang"
-                      : null,
+                  errorText: state.issue == ContractFormIssue.occupationMissing ? "Qo'shimcha daromad turini tanlang" : null,
                   onTap: () => unawaited(_pickOccupation(context)),
                 ),
               ),

@@ -2,7 +2,6 @@ import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/widgets/states/route_error_view.dart';
-import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_extras.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
@@ -20,10 +19,11 @@ import 'package:colloborator_v3/features/contract_create/presentation/schedule/p
 import 'package:colloborator_v3/features/contract_create/presentation/schedule/payment_schedule_page.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/tariff/special_tariff_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/tariff/special_tariff_page.dart';
-import 'package:colloborator_v3/features/contracts/presentation/styles/contract_tap_text.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
+import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/pages/underwriter_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/guarantor_picker_page.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -86,13 +86,51 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
       child: BlocProvider(
         create: (context) => getIt<CustomersBloc>(),
         child: GuarantorPickerPage(
-          faceCheckOpener: (BuildContext context, FaceIdPrefill? prefill) =>
-              context.push<CustomerInfo>(Routes.faceId.path, extra: prefill),
+          verifyOpener: (BuildContext context, CustomerInfo customer) => context.push<CustomerInfo>(
+            Routes.clientVerify.path,
+            extra: (customer: customer, reason: "Kafil qo'shish"),
+          ),
+          newClientOpener: (BuildContext context) => context.push<CustomerInfo>(Routes.faceId.path),
           formOpener: (BuildContext context, CustomerInfo customer) =>
               context.push<bool>(Routes.addCustomer.path, extra: (info: customer, isEdit: false)),
         ),
       ),
     ),
+  ),
+
+  GoRoute(
+    name: Routes.underwriter.name,
+    path: Routes.underwriter.path,
+    pageBuilder: (context, state) {
+      final extra = state.extra;
+
+      // Argument oddiy yozuv: `underwriter` na `contract_create` ni, na
+      // `contracts` ni import qiladi (1.3).
+      if (extra is! ({int contractId, int clientId, int workplaceCategoryId, bool isFormal, bool hasCard})) {
+        return buildScaleTransitionPage<bool>(
+          context: context,
+          state: state,
+          child: RouteErrorView(location: state.uri.toString(), onBack: () => context.pop()),
+        );
+      }
+
+      final args = UnderwriterArgs(
+        contractId: extra.contractId,
+        clientId: extra.clientId,
+        workplaceCategoryId: extra.workplaceCategoryId,
+        isFormal: extra.isFormal,
+        hasCard: extra.hasCard,
+      );
+
+      return buildScaleTransitionPage<bool>(
+        context: context,
+        state: state,
+        child: BlocProvider(
+          create: (context) => getIt<UnderwriterBloc>(param1: args)..add(const UnderwriterRequested()),
+          child: const UnderwriterPage(),
+        ),
+      );
+    },
   ),
 
   GoRoute(
@@ -254,10 +292,15 @@ Future<bool?> _openExtra(
       );
 
     case ContractExtra.underwriter:
-      // Anderrayter alohida feature sifatida yozilmoqda. Tugma jimgina
-      // turmasligi uchun holat ochiq aytiladi (5.8).
-      await CustomAnimatedToast.showInfo(ContractTapText.underwriter);
-
-      return null;
+      return context.push<bool>(
+        Routes.underwriter.path,
+        extra: (
+          contractId: contractId,
+          clientId: state.args.clientId,
+          workplaceCategoryId: details?.workplaceCategoryId ?? 0,
+          isFormal: state.form.basis == IncomeBasis.formal,
+          hasCard: state.hasCard,
+        ),
+      );
   }
 }

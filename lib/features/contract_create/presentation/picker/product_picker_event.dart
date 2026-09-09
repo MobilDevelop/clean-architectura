@@ -61,24 +61,35 @@ final class CountChanged extends ProductPickerEvent {
   List<Object> get props => [value];
 }
 
-final class ImeiAdded extends ProductPickerEvent {
-  const ImeiAdded(this.value);
-
-  final String value;
-
-  @override
-  List<Object> get props => [value];
-}
-
-final class ImeiRemoved extends ProductPickerEvent {
-  const ImeiRemoved(this.value);
-
-  final String value;
-
-  @override
-  List<Object> get props => [value];
-}
-
 final class SubmitRequested extends ProductPickerEvent {
   const SubmitRequested();
+}
+
+/// Sahifa suratni oldi. Kamera ochish — UI ta'siri, u bloc ichida emas (6.2).
+final class ImeiScanned extends ProductPickerEvent {
+  const ImeiScanned(this.image);
+
+  final File image;
+
+  @override
+  List<Object> get props => [image.path];
+}
+
+/// Kamera ochilmadi — sahifa sababini aytadi.
+final class CameraRefused extends ProductPickerEvent {
+  const CameraRefused(this.issue);
+
+  final CameraIssue issue;
+
+  @override
+  List<Object> get props => [issue];
+}
+
+/// Aloqa xatosidan keyin oxirgi suratni qayta yuborish.
+final class ScanRetried extends ProductPickerEvent {
+  const ScanRetried();
+}
+
+final class FailureHandled extends ProductPickerEvent {
+  const FailureHandled();
 }

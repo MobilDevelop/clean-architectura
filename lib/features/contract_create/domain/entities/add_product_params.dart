@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 
 /// Shartnomaga tovar qo'shish so'rovi.
@@ -33,4 +35,17 @@ final class AddProductParams extends Equatable {
 
   @override
   List<Object?> get props => [contractId, supplierId, categoryId, brandId, variantId, price, count, imeis];
+}
+
+/// IMEI'ni qurilma yorlig'ining rasmidan o'qish.
+final class ScanImeiParams extends Equatable {
+  const ScanImeiParams({required this.variantId, required this.image});
+
+  /// Qaysi tovar ekani serverga aytiladi — u shunga qarab qidiradi.
+  final int variantId;
+
+  final File image;
+
+  @override
+  List<Object?> get props => [variantId, image.path];
 }

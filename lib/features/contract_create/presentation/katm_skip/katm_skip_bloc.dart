@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'katm_skip_event.dart';
 part 'katm_skip_state.dart';
 
-
 /// KATM/MIB tekshiruvini o'tkazib yuborish.
 ///
 /// Server HTTP 200 bilan `success: false` qaytarishi mumkin — u repositoryda
@@ -49,19 +48,27 @@ final class KatmSkipBloc extends Bloc<KatmSkipEvent, KatmSkipState>
     if (emit.isDone) return;
 
     switch (result) {
-      case Ok(: final List<SkipReason> value):
+      case Ok(:final List<SkipReason> value):
         emit(state.copyWith(isLoading: false, isLoaded: true, reasons: value));
       // Flex bu xatoni butunlay yutardi va foydalanuvchi bo'sh ro'yxat ko'rardi.
-      case Err(: final Failure failure):
+      case Err(:final Failure failure):
         emit(state.copyWith(isLoading: false, failure: failure));
     }
   }
 
-  void _reasonSelected(ReasonSelected event, Emitter<KatmSkipState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(reason: event.reason), issue: KatmSkipIssue.none));
+  void _reasonSelected(ReasonSelected event, Emitter<KatmSkipState> emit) => emit(
+    state.copyWith(
+      form: state.form.copyWith(reason: event.reason),
+      issue: KatmSkipIssue.none,
+    ),
+  );
 
-  void _commentChanged(CommentChanged event, Emitter<KatmSkipState> emit) =>
-      emit(state.copyWith(form: state.form.copyWith(comment: event.comment), issue: KatmSkipIssue.none));
+  void _commentChanged(CommentChanged event, Emitter<KatmSkipState> emit) => emit(
+    state.copyWith(
+      form: state.form.copyWith(comment: event.comment),
+      issue: KatmSkipIssue.none,
+    ),
+  );
 
   Future<void> _submitted(SkipSubmitted event, Emitter<KatmSkipState> emit) async {
     final KatmSkipIssue issue = state.form.issue;

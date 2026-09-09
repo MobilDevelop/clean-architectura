@@ -29,9 +29,7 @@ final class ContractTabBar extends StatelessWidget {
         splashBorderRadius: BorderRadius.circular(ScreenSize.r12),
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(ScreenSize.r12),
-          gradient: LinearGradient(
-            colors: <Color>[AppTheme.colors.primary, AppTheme.colors.primarySoft],
-          ),
+          gradient: LinearGradient(colors: <Color>[AppTheme.colors.primary, AppTheme.colors.primarySoft]),
         ),
         labelColor: AppTheme.colors.white,
         unselectedLabelColor: AppTheme.colors.grey,

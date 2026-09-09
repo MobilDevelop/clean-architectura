@@ -33,44 +33,11 @@ const int _yearSpan = 100;
 
 
 /// Oldindan to'ldiriladigan pasport ma'lumoti.
-typedef FaceIdPrefill = ({String series, String number, String birthday});
-
-/// Mavjud mijozning pasportidan formani oldindan to'ldirish.
-///
-/// Nega shu yerda: uni ikkita ekran ishlatadi — kafil tanlash va shartnoma
-/// tuzishdan oldingi tekshiruv. Ikki joyda takrorlansa, sana formati vaqt
-/// o'tib bir-biridan uzoqlashadi.
-FaceIdPrefill faceIdPrefillOf(CustomerInfo customer) {
-  final String passport = customer.passportNumber;
-  final bool isFull = passport.length > 2;
-
-  return (
-    series: isFull ? passport.substring(0, 2) : '',
-    number: isFull ? passport.substring(2) : '',
-    birthday: _birthdayOf(customer.birthDay),
-  );
-}
-
-/// `2026-04-17` yoki `17.04.2026` → `dd.MM.yyyy`. Tanib bo'lmasa bo'sh
-/// qoldiriladi: noto'g'ri formatdagi sana to'ldirilgandek ko'rinib, aslida
-/// xato bo'lardi.
-String _birthdayOf(String raw) {
-  final DateTime? date = DateTime.tryParse(raw);
-  if (date == null) return raw.contains('.') ? raw : '';
-
-  final String day = date.day.toString().padLeft(2, '0');
-  final String month = date.month.toString().padLeft(2, '0');
-
-  return "$day.$month.${date.year}";
-}
-
 final class FaceIdPage extends StatefulWidget {
-  const FaceIdPage({super.key, this.prefill});
+  const FaceIdPage({super.key});
 
   /// Ma'lum mijozni tekshirishda maydonlar oldindan to'ldiriladi — kafil
   /// ro'yxatdan tanlanganda pasportni qayta terish shart emas.
-  final FaceIdPrefill? prefill;
-
   @override
   State<FaceIdPage> createState() => _FaceIdPageState();
 }
@@ -90,18 +57,6 @@ final class _FaceIdPageState extends State<FaceIdPage> {
     _birthdayController = TextEditingController();
     _numberFocus = FocusNode();
     _bloc = context.read<FaceIdBloc>();
-
-    final FaceIdPrefill? prefill = widget.prefill;
-    if (prefill == null) return;
-
-    _seriesController.text = prefill.series;
-    _numberController.text = prefill.number;
-    _birthdayController.text = prefill.birthday;
-
-    _bloc
-      ..add(SeriesChanged(prefill.series))
-      ..add(NumberChanged(prefill.number))
-      ..add(BirthdayChanged(prefill.birthday));
   }
 
   @override

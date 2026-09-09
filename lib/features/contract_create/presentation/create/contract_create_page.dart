@@ -82,16 +82,16 @@ final class ContractCreatePage extends StatelessWidget {
       ),
 
       if (state.isLoading && state.details == null)
-        Expanded(child: Center(child: CircularProgressIndicator(color: AppTheme.colors.primary)))
+        Expanded(
+          child: Center(child: CircularProgressIndicator(color: AppTheme.colors.primary)),
+        )
       else ...<Widget>[
         Padding(
           padding: EdgeInsets.fromLTRB(ScreenSize.h16, ScreenSize.h12, ScreenSize.h16, ScreenSize.h12),
           child: ContractSummaryCard(
             clientName: state.details?.clientName ?? '',
             contractNumber: state.contractId == null ? '' : "${state.contractId}",
-            statusLabel: state.details == null
-                ? ''
-                : ContractStatusStyle.label(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
+            statusLabel: state.details == null ? '' : ContractStatusStyle.label(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
             statusColor: ContractStatusStyle.color(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
           ),
         ),

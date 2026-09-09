@@ -53,8 +53,7 @@ final class ContractCardBloc extends Bloc<ContractCardEvent, ContractCardState>
       event: event,
       emit: emit,
       busy: state.copyWith(write: CardWrite.adding, clearFailure: true),
-      run: () =>
-          _addCard(AddCardParams(contractId: state.contractId, clientId: state.clientId, form: state.form)),
+      run: () => _addCard(AddCardParams(contractId: state.contractId, clientId: state.clientId, form: state.form)),
       // Karta faqat server id bergandan keyin ko'rinadi.
       onOk: (int id) => state.copyWith(
         write: CardWrite.none,

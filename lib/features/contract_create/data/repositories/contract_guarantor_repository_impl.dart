@@ -1,6 +1,6 @@
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_guarantor_remote_datasource.dart';
-import 'package:colloborator_v3/features/contract_create/data/repositories/result_guard.dart';
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/guarantor_params.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_guarantor_repository.dart';
 

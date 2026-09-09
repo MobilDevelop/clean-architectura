@@ -1,7 +1,12 @@
 # colloborator_v3 — arxitektura qoidalari
 
 KATM/MIB kredit hisoboti mijoz ilovasi. `colloborator_flex` dan Clean Architecture'ga qayta yozilyapti.
-Bu hujjat — loyihaning majburiy qoidalari. Yangi kod shu qoidalarga bo'ysunadi, mavjud kod shu qoidalar bo'yicha tekshiriladi.
+Bu hujjat — loyihaning **majburiy qoidalari**. Yangi kod shu qoidalarga bo'ysunadi, mavjud kod
+shu qoidalar bo'yicha tekshiriladi. Qoidalar qat'iy: ular o'zgartirilmaydi va ularga zid kod
+yozilmaydi.
+
+Bu yerda faqat qoidalar turadi. O'zgaradigan hamma narsa — holat, ochiq ishlar, backendga
+savollar, kelajakdagi eslatmalar — **`ESLATMALAR.md`** da.
 
 ---
 
@@ -330,202 +335,57 @@ grep -rn "getIt<" lib/features
 flutter test
 ```
 
-`analysis_options.yaml` da `strict-casts`, `strict-inference`, `strict-raw-types` yoqilgan. `flutter analyze` toza bo'lishi shart.
-
----
-
-## 15. Hozirgi holat
-
-*Yangilangan: 2026-09-03*
-
-**Ish uslubi:** UI (`presentation/`, `core/widgets/`, `core/theme/`) — Claude yozadi. `bloc/`, `data/`, `domain/` va `core/` ning qolgani — loyiha egasi yozadi, Claude tekshiradi va birma-bir kamchilik ko'rsatadi.
-
-**Nazorat majburiy va so'rashsiz bajariladi.** Har safar kod ko'rsatilganda yoki tegib o'tilganda quyidagilar tekshiriladi va topilgani **so'ralmasa ham** aytiladi:
-
-1. Faqat berilgan savolga javob berish yetarli emas — yondosh fayllarda ko'ringan qoida buzilishi ham o'sha javobda aytiladi.
-2. "Ishlayapti" degani "to'g'ri" degani emas. Jimgina yiqiladigan har bir yo'l ko'rsatiladi: zaxira qiymat, bo'sh `catch`, ulanmagan mexanizm, ko'rsatilmaydigan state maydoni.
-3. Tekshiruv ro'yxati (12-bo'lim taqiqlari + quyidagilar): majburiy maydonga `?? ''`/`?? 0`/`?? {}`/`?? []`; `!` operatori; `print`/`debugPrint`; klass ichida `getIt<>`; datasource'da `try/catch`; repositorydan yuqorida `try/catch`; repository metodida oxirgi `catch (_)` yo'qligi; bloc'da matn to'qish; nomi ishiga zid metod; o'lik kod va hech qayerdan chaqirilmaydigan mexanizm; state'ga yozilib ekranga chiqmaydigan maydon; o'tgan zamonda bo'lmagan event nomi.
-4. **Flex odatlari alohida nazoratda** (13.4): `Map<String,dynamic>` parametr, `static` servis, o'z `Dio` nusxasi, bo'sh xabarli `Failure`, sehrli satr/raqam, widget ichida qaror, bitta klassda bir nechta mas'uliyat.
-5. Tekshiruv natijasi yumshatilmaydi. Xato bo'lsa — xato deyiladi, sababi va oqibati bilan.
-
----
-
-### Tugallangan tizimlar
-
-**Xatolar (5.x) — to'liq.** `FailureGroup` va `Failure.group` / `Failure.isReportable` getterlari `core/error` da. Barcha bloclar `Failure?` saqlaydi, birortasi matn to'qimaydi. `FailureView` guruhga qarab yo'naltiradi: `session` → dialog + chiqish, `connection` → banner + "Qayta urinish", `input` → maydon tagida, `internal` → umumiy matn. Foydalanuvchiga ko'rinadigan matn `FailureText` da — yagona manba. To'rtala ekran ham ulangan: mijozlar, shartnomalar, login, registratsiya.
-
-**Telegram bot (5.7) — ishlayapti.** `TelegramErrorReporter` + `ErrorReportInterceptor`, `injection.dart` da ulangan. `JsonParser.reporter` ham shu kanalga ulandi — u loyiha boshidan beri o'lik turgan edi. Token va chat id `.env` da (git'da kuzatilmaydi). Takrorlar 10 daqiqalik oynada filtrlanadi.
-
-**Kiritish validatsiyasi (7.x).** Qoida domainda (`CustomerSearchIssue`) yoki presentationda (`LoginFieldIssue`), holat bloc'da, matn sahifada. Bloc'da birorta foydalanuvchi matni qolmagan.
-
-**Featurelar.** Login, registratsiya, mijozlar, shartnomalar — to'liq zanjir bilan. Shartnomalarda `ContractStatus` enum, `ContractsFilter`, sana filtri va amal oynasi bor.
-
-**face_id (mijozlar ichida) — to'liq.** Forma (`FaceCheckForm`: seriya, raqam, sana; 16 yosh qoidasi) → oferta tasdig'i → kamera → avtomatik surat → `checkClient`. Kamera qismi uchga bo'lingan: `FacePlacementRule` va `FaceHold` domainda va kamerasiz testlanadi, `FaceScanner` aylantirish va ko'zguni hisoblaydi, `FaceCameraController` kamera hayotini boshqaradi. Flex'ning platformaga bog'liq chegaralari, bir martalik barqarorlik taymeri va bo'sh `catch` lari takrorlanmagan. Rasm har doim 720px ga siqiladi, base64 `Isolate.run` da kodlanadi.
-
-**Mijoz qo'shish / tahrirlash — to'liq.** `CustomerForm` (validatsiya domainda), manzil ma'lumotnomasi 24 soatlik kesh bilan (`LocalCache` + `SharedPrefsCache`), ish joyi qidiruvi (serverda, `restartable` + 350 ms kutish), `PUT update_client_data`. Qarindosh izohi `RelativeKind` enumida: `title` — backend shartnomasi, ekran matni tarjimadan keyin undan ajraladi.
-
-**Mijoz amallari.** Skoring natijasi, to'liq ma'lumot oynasi va tahrirlash ulangan. `pressContract` ochiq — u mahsulotlarga olib boradi.
-
-**Shartnoma natijasi — uchala tab to'liq.** Shartnomalar ro'yxatidagi "Batafsil" ochadi.
-
-- **Skoring:** `scoring-result/{id}` ro'yxat qaytaradi — har ishtirokchi (mijoz va kafillar) uchun bitta yozuv. Limit kartasi, ichki 4 tekshiruv, tashqi 8 manba. Flex shartnomalarida `flex-contracts/{id}/error-messages` qo'shiladi.
-- **MIB:** `credit-reports` ishtirokchilarni beradi, `mib?client_id=` hisobotni. `state: not_checked` — xato emas, qonuniy holat.
-- **KATM:** `katm?client_id=`, javob 1.7 MB gacha — `ResponseType.plain` bilan olinib `Isolate.run` da ochiladi. Ball gauge'i va dinamika grafigi `CustomPainter` bilan (grafik kutubxonasi qo'shilmagan). Jadvallar backend maketiga (`layout`) qarab chiziladi, shartnoma qatori bosilganda tafsilot oynasi va oltita ichki ro'yxat ochiladi.
-
-Har uch tabning **o'z xatosi va o'z "Qayta urinish"** i bor: bir tabning nosozligi ikkinchisining ma'lumotini o'chirmaydi.
-
-**KATM summalari bo'linmaydi.** Javob so'mda keladi (DEV-4085). Flex'da model ularni 100 ga bo'lgan, bu xato deb topilib olib tashlangan — lekin `katm_fields.dart:41` da yetim izoh qolgan va u o'chirilgan metodga havola qiladi. Shu izohga ishonib bo'lmaydi; flex'ning `test/helper_money_test.dart` i haqiqiy qoidani qulflaydi. v3 da ham `katm_money_fields_test.dart` shuni qulflaydi.
-
-**UI.** Mijozlar va shartnomalar ekranlari qurilgan; umumiy komponentlar `core/widgets/` da (`sheets/`, `states/`, `feedback/`, `dialogs/`, `backgrounds/`). `!` operatori UI'da **nol**, eskirgan API va `ignore_for_file` yo'q, barcha UI klasslari `final`.
-
----
-
-**Shartnoma tuzish — uch tabli ekran.** `lib/features/contract_create/`. `presentation/` ekran papkalariga bo'lingan (1.1a).
-
-Flex'ning shakli saqlangan — **Shartnoma / Tovarlar / Kafillar** — chunki eng ko'p ishlatiladigan uchta narsa orasida o'tish uchun orqaga qaytish shart emas. Flex'ning nuqsoni esa saqlanmagan: **birinchi tab scroll qiladi.** Flex'da u `Column(spaceBetween)` da turadi va 360×780 da ~160px toshadi (ko'rish rejimida ham).
-
-Tabga tiqilmaydigan narsalar — **kam ishlatiladigan va shartli** bo'lganlar: to'lov jadvali, maxsus tarif, anderrayter, menejer bonusi, KATM skip. Ular «Qo'shimcha» qatorlaridan alohida ekran bo'lib ochiladi. Aks holda birinchi tab flex'dagidek cheksiz o'sadi.
-
-| Ekran | Egallaydigan server resursi |
-|---|---|
-| `ContractCreatePage` — uch tab | `GET loans/{id}`, `contract_payment_days`, `occupation-types`, `POST/PUT loans` |
-| ↳ tab «Shartnoma» | muddat, to'lov kuni, daromad asosi, kasb turi (yuborishda saqlanadi) |
-| ↳ tab «Tovarlar» | `loans/draft`, `add/update/delete_loan_product` |
-| ↳ tab «Kafillar» | `add/delete_loan_guarantor` |
-| `CardSection` (1-tab ichida) | `add/delete_loan_plastic_card` |
-| `ProductPickerPage` | katalog kaskadi |
-| `GuarantorPickerPage` (mijozlar ichida) | `client-search`, `check_client_by_myid` |
-| `PaymentSchedulePage` | `generate_graphic` |
-| `SpecialTariffPage` | `contracts/{id}/special-tariff` |
-| `ManagerBonusPage` | `contract/benefit` |
-| `KatmSkipPage` | `underwriter/turn-off-katm`, `skip-reason-categories` |
-| `ContractDetailsPage` | status 11 — faqat o'qish, alohida ekran |
-
-**Qulflangan qarorlar:**
-
-1. **Qoralama birinchi tovar qo'shilganda yaratiladi.** Uni yaratadigan yagona bloc — `ContractProductsBloc`. `contractId` paydo bo'lishi alohida signal: tovar qo'shish undan keyin yiqilsa ham karta va kafil bo'limlari ochiladi.
-2. **Har bir resurs o'z bloci.** `ContractCreateBloc` shartnoma yozuvini (muddat, kun, daromad asosi, kasb) va yuborishni egallaydi; tovar, kafil va karta — alohida. Ular bir-birini bilmaydi: muvaffaqiyatli yozuvdan keyin `revision` oshadi va ekran shartnomani qayta o'qiydi. **Yopishqoq bayroq emas, hisoblagich** — aks holda ikkinchi o'zgarish tinglovchini uyg'otmaydi.
-3. **`ContractWriteMixin`** har bir yozuvda ikkita qoidani qulflaydi: mahalliy holat faqat `Ok` dan keyin o'zgaradi, va muvaffaqiyatsiz amal eslab qolinadi ("Qayta urinish" aynan shuni takrorlaydi).
-4. **`SpokeScaffold`** — `failure` konstruktor parametri, ya'ni xato yuzasisiz yangi qo'shimcha ekran yozib bo'lmaydi (5.8).
-5. **`ContractExtras` — sof Dart obyekt.** Qaysi qo'shimcha ekran ko'rinishi va nega ochilmasligi shu yerda; widget faqat chizadi.
-6. **`ContractDetailsPage` alohida qoladi**, `mode: readOnly` bayrog'iga aylantirilmaydi. Flex'ning `showAction` bayrog'i ikki joyda unutilgan va ko'rish rejimida karta ham, kafil ham o'chirib yuboriladi.
-7. **`POST` va `PUT` mezoni — status, marshrut argumenti emas.** Qoralama status 1 da turadi va aynan shunda `POST` kutiladi.
-8. **Repository iste'molchi bo'yicha bo'lingan** (ISP): `ContractCreate`, `ContractIncome`, `ContractGuarantor`, `PaymentSchedule`, `SpecialTariff`, `ManagerBonus`, `KatmSkip`. `guard()` — istisnodan `Failure` ga o'girishning yagona joyi, shuning uchun 5.5 dagi oxirgi `catch (_)` ni unutib bo'lmaydi.
-9. **`IncomeBasis { formal, informal }`** — flex'ning `isFormal: state.isInformal` teskari nomlanishi tip darajasida yopildi.
-10. **"Yuborish" tugmasi hech qachon o'chirilmaydi.** Tovar yo'q bo'lsa ekran o'zi «Tovarlar» tabiga o'tadi — aks holda tugma bosiladi va hech nima ko'rinmasdi.
-
-**Flex nuqsonlari takrorlanmadi:** birinchi tabning toshib ketishi; bo'sh shartnomani rangga (`color != grey`) tayangan holda to'sish; ko'rish rejimida o'chirish tugmalarining ochiq qolishi; `occupation-types` xatosining butunlay yutilishi; grafikda bo'sh javob bilan tarmoq xatosining farqlanmasligi; bonus so'rovining yuklanish belgisisiz ketishi; KATM `success: false` ning e'tiborsiz qolishi.
-
-**Ochiq qolgani:** anderrayter (alohida feature bo'ladi), imzolash, avto-to'lov, IMEI ni rasmdan o'qish. «Qo'shimcha» dagi anderrayter qatori holatini toast bilan aytadi.
-
-**Shartnomalar ro'yxati tortib yangilanadi.** `PullRefresh` — `RefreshIndicator` ning `onRefresh` i yuklash tugagunicha kutadigan `Future` talab qiladi; bloc bilan bu o'z-o'zidan bajarilmaydi va indikator aylanmasdan yo'qoladi. Widget buni bloc oqimidan kutadi (30 soniya chegara bilan — javob kelmasa indikator abadiy aylanib qolmaydi). Skelet endi faqat **birinchi** yuklashda chiziladi: yangilashda ro'yxat ekranda qoladi.
-
-Shartnoma tuzish ekranidan qaytilganda ro'yxat **har qanday holatda** yangilanadi — ekran yuborilmasa ham tovar, kafil yoki kartani serverga yozgan bo'lishi mumkin.
-
-### Ochiq ishlar
-
-*A — ulanmagan tugmalar (5.8 buzilishi)*
-
-Bosiladi, lekin hech nima qilmaydi — foydalanuvchi uchun bu jimgina yiqilish. 2026-09-03 holatiga **bitta**:
-
-1. Menyu tugmasi — `customer_page.dart:101` va `contracts_page.dart:81` (`drawerPress: () {}`). Menyuning o'zi hali yo'q.
-
-Ochiq, lekin holatini aytadigan to'rt joy qoldi (`ContractTapText`): daromad turini tanlash, SMS tasdiqlash, imzolash va markazdagi anderrayter plitkasi.
-
-Oldingi A ro'yxatidagilar — `cache_data.dart`, `debugPrint`, `workpalce` imlosi, `FirebaseService` singletoni, face_id natijasi, mijoz amallari, shartnoma tafsiloti, `pressContract`, shartnoma amallari va tahrirlash — **yopilgan**.
-
-*A2 — backenddan javob kutayotganlar*
-
-5. **`is_edit` har doim `true` ketadi.** Flex'da map literalida kalit ikki marta yozilgan va oxirgisi shartsiz `true` edi — ya'ni yangi mijozda ham `true` ketgan. v3 shu xatti-harakatni saqlaydi: backend `false` yo'lida sinalmagan. **So'ralishi kerak:** `is_edit` nima uchun kerak va yangi mijozda `false` bo'lishi kerakmi?
-6. **`data:image/png;base64,`** — yuborilayotgan baytlar JPEG. Prefiks o'qiladimi?
-7. **`client-search` `page: 1` da qotgan.** Flex sahifalash qilardi; 30 tadan ko'p natija jimgina kesiladi.
-8. **Skoring DTO'sida 13 ta qat'iy tip.** Flex hammasiga zaxira qiymat qo'ygan. Bitta maydon kelmasa `ParseFailure` chiqadi va botga aynan qaysi maydon ekani yoziladi — shundan keyin aniq hal qilinadi.
-
-*B — qaror kutayotganlar*
-
-5. **Lokalizatsiya — ongli ravishda kechiktirilgan.** Uch til rejalashtirilgan: lotin o'zbek, kiril o'zbek va rus tili. `easy_localization` shuning uchun qoladi, lekin `tr()` ga o'tish **featurelar tugagandan keyin**, bitta o'tishda qilinadi — hozir har yangi ekran kalitlarni ikki marta yozishga majbur qiladi.
-
-   O'sha ishni boshlaganda:
-   - `main.dart` dagi `useOnlyLangCode: true` → **`false`** bo'lishi shart. U faqat til kodiga qaraydi, lotin va kiril o'zbek esa ikkalasi ham `uz` — bitta faylga tushib, bir-birini bosib ketadi.
-   - Qo'lda ikkita fayl yoziladi (lotin o'zbek, rus). Kiril o'zbek — **transliteratsiya**, u skript bilan lotindan yaratiladi.
-
-   Shu qaror tufayli UI'da hozirdan amal qiladigan qoida: matn qat'iy kenglikka bog'lanmaydi (`Flexible`/`Expanded`, bir qatorlida `maxLines: 1` + `ellipsis`), va foydalanuvchi matnlari har feature uchun bitta faylga yig'iladi. Kiril va rus matnlari lotindan 15–30% uzunroq.
-   - **Ommaviy oferta ham tilga qarab tanlanadi.** `assets/offer/` da `offerUZ.html` va `offerRU.html` bor, `AppIcons.offerUz` / `AppIcons.offerRu` sifatida yozilgan. Hozir `OfferSheet` faqat o'zbekchasini ochadi — `offerRu` shu ishgacha chaqirilmaydi. Kiril o'zbek uchun uchinchi fayl kerak bo'ladi (transliteratsiya HTML ustida ishlamaydi — teglarni ham o'zgartirib yuboradi).
-9. Contracts DTO'sida 25 + 8 zaxira qiymat — backend qaysi maydonlar `null` bo'lishi mumkinligini aytgach hal qilinadi.
-10. Registratsiyadagi `successMessage` backenddan keladi va ekranga chiqadi. Backend har xil holatda har xil matn yuborsa, matn emas `code` kerak bo'ladi.
-
-*C — ataylab qoldirilgan*
-
-8. `auth_remote_datasource.dart` dagi qattiq yozilgan `device_id` — turli qurilmalarda sinov uchun. **Eslatilmaydi.** Relizdan oldin `AppConstants.isStaging` bilan ajratish tavsiya etilgan.
-
-### Shartnoma tuzish — ko'chirish rejasi
-
-*Belgilangan: 2026-09-03. Flex to'liq skanerlangan (13 agent, 871 fayl o'qish).*
-
-**Qabul qilingan ikkita qaror:**
-
-1. **Qoralama birinchi tovar qo'shilganda yaratiladi**, ekran ochilganda emas. Flex'dan farq qiladi: u `POST loans/draft` ni darhol yuboradi va har bir tashlab ketilgan urinish ro'yxatda status 1 bilan axlat qator qoldiradi.
-2. **Tartib: 0 → 1 → 2.** Avval poydevor, keyin faqat ko'rish ekrani (eng katta DTO yozuvsiz sinaladi), keyin yaratish.
-
-**Bosqichlar** (har biri alohida ishga tushadi):
-
-| # | Bosqich | Nima ochiladi |
-|---|---|---|
-| 0 | Poydevor: sessiya do'koni, endpointlar, qidiruvli tanlagich, tasdiq dialogi | hammasi |
-| 1 | Shartnomani ko'rish (status 11) — **tugadi** | `ContractTap.viewProduct` |
-| 2 | Yaratish: mahsulot tanlash + qoralama + yuborish — **tugadi** | `pressContract`, `pressEdit` |
-| 3 | Kafillar — **tugadi** | |
-| 4 | Daromad bloki (norasmiy, avto, karta, kasb) — **tugadi** | status 40 |
-| 5 | To'lov jadvali — **tugadi** | 2 va 8 ishlatadi |
-| 6 | Maxsus tarif — **tugadi** | |
-| 7 | KATM skip + menejer bonusi — **tugadi** | |
-| 8 | Imzolash | `onSigningRequested` |
-| 9 | Avto-to'lov | status 24/25 |
-| T1 | Anderrayter (mustaqil, alohida feature) | |
-
-Yangi papka: `lib/features/contract_create/`. Marshrut argumentlari — oddiy `int` (clientId, contractId, rejim), shuning uchun u `features/contracts` ni ham, `features/customers` ni ham import qilmaydi (1.3). Imzolash ekrani `features/contracts/` da qoladi — u `ContractInfo` ni iste'mol qiladi.
-
-**Eng katta xavf.** Oqim — tranzaksiyasiz 12 ta server yozuvi zanjiri. Flex'da ularning har bir xatosi data qatlamidan otilgan toast bilan yashiringan (14 ta joy). v3 toastlarni taqiqlaydi, ya'ni ularni o'chirgan zahoti 12 amal jimgina yiqiladigan bo'ladi. Ikkitasi HTTP **200** bilan keladi — `loans/draft` → `contract_id: null`, `turn-off-katm` → `success: false` — ya'ni `ErrorMapper` ularni ko'rmaydi va repositoryда `Err(ClientFailure)` ga aylantirilishi shart.
-
-Shuning uchun: avval **bitta** amal ("mahsulot qo'shish") to'liq yoziladi va tekshiriladi, qolgan 11 tasi shu qolipda ketadi.
-
-### Shartnoma tuzish — backendga savollar
-
-Ko'chirishni boshlashdan oldin javob kerak:
-
-1. `GET loans/{id}` da maxsus tarif kaliti `special_tariff` mi yoki `specialTariff`? (Flex ikki joyda ikki xil o'qiydi. Xato bo'lsa qayta ochilgan shartnomada tarif jimgina yo'qoladi.)
-2. `POST add_loan_guarantor` mijoz id sini qaytaradimi yoki qator id sini? `DELETE` qaysinisini kutadi?
-3. `POST /loans` tanasida `contract_id` bo'lsa u upsert bo'ladimi?
-4. `count` va `price` ni satr emas, son sifatida qabul qiladimi?
-5. `confirm_client_face` da `front` (base64) yoki `client_face` (multipart) — qaysi biri o'qiladi? Bittasini yuborsa bo'ladimi? (Hozir bir xil baytlar ikki marta ketadi.)
-6. `add_loan_guarantor` ataylab tanasiz query-params bilanmi? `delete_loan_plastic_card` ataylab PUT mi?
-7. `client-search` tekis `workplace_category_id` qaytaradimi va u `workplace.category.id` bilan bir xilmi?
-8. `POST loans/draft` HTTP 200 va `contract_id: null` qaytarsa — bu doim "mijozda ochiq shartnoma bor" degani mi? Matn o'rniga kod bormi?
-9. `turn-off-katm` `success: false` qaytarsa sabab maydoni bormi?
-10. `POST contract/benefit` da `contract_id` qayerdan olinadi?
-11. Tarif biriktirilgach muddat o'zgarsa, server uni bekor qiladimi?
-12. `sign_*_contract` da HTTP 201 — shartnoma to'liq imzolanganining yagona belgisimi, yoki javob tanasida maydon bormi?
-13. KATM skip tugmasi uchun status 5 + `elma_katm_check_failed` yetarlimi, yoki `permissions.scoring['turn-off-katm']` ham tekshirilishi kerakmi?
-14. **IMEI'li toifada `count` nima bo'lishi kerak?** Flex `amount: "1"` yuboradi — IMEI soni qancha bo'lishidan qat'i nazar (`products_state.dart:151`). v3 `count = imeis.length` yuboradi. Uchta IMEI, dona narxi 5 mln bo'lsa flex 5 mln, v3 15 mln deb yozadi. Backend `count` ni IMEI'li toifada o'qiydimi yoki `devices` uzunligidan o'zi hisoblaydimi?
-15. **`PUT loans/{id}` qisman tanani qabul qiladimi?** Ha bo'lsa muddat, to'lov kuni va daromad asosi o'z ekranida darhol saqlanadi va "saqlanmagan qiymat" holati butunlay yo'qoladi.
-16. **`GET loans/{id}` `occupation_type_id` ni qaytarmaydi.** Shu sababli shartnoma qayta ochilganda tanlangan kasb turi ko'rinmaydi va qayta so'raladi. Javobga qo'shish mumkinmi?
-17. **`add_loan_guarantor` qaytaradigan `id` — mijoz id simi yoki qator id si?** `DELETE delete_loan_guarantor/{id}` qaysinisini kutadi? Hozir server qaytargani o'zgartirilmasdan saqlanadi va o'chirishda ishlatiladi (flex ham shunday).
-
-*D — hali boshlanmagan*
-
-9. `invoices` va `outputs` — sahifalari `Center(Text(...))`, bloclari bo'sh shablon (`// TODO: implement event handler`).
-10. **Testlar — ongli ravishda loyiha oxiriga qoldirilgan.** Hozircha 64 ta: `error_mapper`, `face_check_form`, `face_placement`, formatterlar. Ular qoida yozilganda birga yozilgan, alohida ish sifatida emas. Qolgan qamrov featurelar tugagandan keyin. **Eslatilmaydi.**
-
----
-
-### Tekshirish buyruqlari
-
 ```bash
-flutter analyze                                   # toza bo'lishi shart
-grep -rn "import.*data/\|package:dio\|package:flutter/" lib/features/*/domain lib/features/*/*/domain
-grep -rn "getIt<" lib/features                    # faqat BlocProvider.create da
-flutter test                                      # 216 ta test
-dart run tool/bot_test.dart                       # bot ulanishini tekshirish
+dart run tool/bot_test.dart
 ```
 
-`tool/` dagi skriptlar faqat sof Dart bo'ladi. Flutterga tegadigan tekshiruv (formatter, widget) `test/` ga yoziladi — `dart run` Flutter kutubxonalarini ko'tara olmaydi.
+`analysis_options.yaml` da `strict-casts`, `strict-inference`, `strict-raw-types` yoqilgan. `flutter analyze` toza bo'lishi shart, `flutter test` to'liq o'tishi shart.
+
+**14.1** `grep` natijalari bo'sh bo'lishi shart. `getIt<` faqat `BlocProvider.create` ichida
+uchraydi (8.2).
+
+**14.2** `tool/` dagi skriptlar faqat sof Dart bo'ladi. Flutterga tegadigan tekshiruv
+(formatter, widget) `test/` ga yoziladi — `dart run` Flutter kutubxonalarini ko'tara olmaydi.
+
+---
+
+## 15. Nazorat
+
+Nazorat **majburiy va so'rashsiz** bajariladi. Har safar kod ko'rsatilganda yoki tegib
+o'tilganda quyidagilar tekshiriladi va topilgani **so'ralmasa ham** aytiladi.
+
+**15.1** Faqat berilgan savolga javob berish yetarli emas — yondosh fayllarda ko'ringan
+qoida buzilishi ham o'sha javobda aytiladi.
+
+**15.2** "Ishlayapti" degani "to'g'ri" degani emas. Jimgina yiqiladigan har bir yo'l
+ko'rsatiladi: zaxira qiymat, bo'sh `catch`, ulanmagan mexanizm, ko'rsatilmaydigan state
+maydoni.
+
+**15.3** Tekshiruv ro'yxati (12-bo'lim taqiqlari + quyidagilar): majburiy maydonga
+`?? ''` / `?? 0` / `?? {}` / `?? []`; `!` operatori; `print` / `debugPrint`; klass ichida
+`getIt<>`; datasource'da `try/catch`; repositorydan yuqorida `try/catch`; repository
+metodida oxirgi `catch (_)` yo'qligi; bloc'da matn to'qish; nomi ishiga zid metod; o'lik
+kod va hech qayerdan chaqirilmaydigan mexanizm; state'ga yozilib ekranga chiqmaydigan
+maydon; o'tgan zamonda bo'lmagan event nomi.
+
+**15.4** Flex odatlari alohida nazoratda (13.4): `Map<String,dynamic>` parametr, `static`
+servis, o'z `Dio` nusxasi, bo'sh xabarli `Failure`, sehrli satr/raqam, widget ichida qaror,
+bitta klassda bir nechta mas'uliyat.
+
+**15.5** Tekshiruv natijasi yumshatilmaydi. Xato bo'lsa — xato deyiladi, sababi va oqibati
+bilan.
+
+**15.6** Flex "ishlayapti" degani uning kodi to'g'ri degani emas. Flex xatoni yutadigan
+joylar bilan to'la (`(failure) => null`, bo'sh `catch`, data qatlamidan otilgan toast).
+Ko'chirishdan oldin flex'ning o'sha oqimi **haqiqatan** ishlaydimi — shu tekshiriladi.
+
+---
+
+## 16. Bu fayldan tashqarida
+
+Bu fayl faqat **qat'iy qoidalarni** saqlaydi. Ular o'zgartirilmaydi va ularga zid kod
+yozilmaydi.
+
+Loyihaning hozirgi holati, tugallangan va ochiq ishlar, backendga savollar, qabul qilingan
+qarorlar va kelajakdagi eslatmalar — **`ESLATMALAR.md`** da. O'zgaradigan hamma narsa o'sha
+faylga yoziladi, bu yerga emas.

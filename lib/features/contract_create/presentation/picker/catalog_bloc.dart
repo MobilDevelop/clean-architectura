@@ -11,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'catalog_event.dart';
 part 'catalog_state.dart';
 
-
 /// Bitta ma'lumotnoma ro'yxati: yetkazib beruvchi, toifa, brend yoki tovar.
 ///
 /// Nega umumiy: to'rttasi ham bir xil ishlaydi — qidiruv, sahifalash, xato.
@@ -34,7 +33,15 @@ final class CatalogBloc<T> extends Bloc<CatalogEvent, CatalogState<T>> {
       if (emit.isDone) return;
     }
 
-    emit(state.copyWith(search: event.query, isLoading: true, items: const <Never>[], page: 1, clearFailure: true));
+    emit(
+      state.copyWith(
+        search: event.query,
+        isLoading: true,
+        items: const <Never>[],
+        page: 1,
+        clearFailure: true,
+      ),
+    );
 
     await _fetch(CatalogQuery(search: event.query, page: 1), emit, reset: true);
   }
@@ -52,7 +59,7 @@ final class CatalogBloc<T> extends Bloc<CatalogEvent, CatalogState<T>> {
     if (emit.isDone) return;
 
     switch (result) {
-      case Ok(: final Paged<T> value):
+      case Ok(:final Paged<T> value):
         emit(
           state.copyWith(
             isLoading: false,
@@ -61,7 +68,7 @@ final class CatalogBloc<T> extends Bloc<CatalogEvent, CatalogState<T>> {
             items: reset ? value.items : <T>[...state.items, ...value.items],
           ),
         );
-      case Err(: final Failure failure):
+      case Err(:final Failure failure):
         emit(state.copyWith(isLoading: false, failure: failure));
     }
   }

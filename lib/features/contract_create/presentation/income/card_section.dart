@@ -148,8 +148,7 @@ final class _CardSheet extends StatelessWidget {
             phoneFocus: phoneFocus,
             numberFocus: numberFocus,
             expiryFocus: expiryFocus,
-            fieldChanged: ({String? phone, String? number, String? expiry}) =>
-                bloc.add(CardFieldChanged(phone: phone, number: number, expiry: expiry)),
+            fieldChanged: ({String? phone, String? number, String? expiry}) => bloc.add(CardFieldChanged(phone: phone, number: number, expiry: expiry)),
             submitPress: () => bloc.add(const CardSubmitted()),
             removePress: () => bloc.add(const CardRemoved()),
           ),
