@@ -46,16 +46,26 @@ final class MainButton extends StatelessWidget {
       current = Lottie.asset(AppIcons.loading,height: ScreenSize.h45,delegates: LottieDelegates(values: [ValueDelegate.colorFilter(const ['**'],value: ColorFilter.mode(textColor ?? AppTheme.colors.white,BlendMode.srcIn))]));
     } else if (icon != null) {
       current = Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(icon,colorFilter: ColorFilter.mode(textColor ?? AppTheme.colors.white, BlendMode.srcIn)),
-          
+
           Gap(ScreenSize.w10),
-          Text(text,style: style ?? AppTheme.data.textTheme.titleLarge?.copyWith(color: textColor?? AppTheme.colors.white))
+          // `Flexible`: ikonka bilan birga uzun yozuv qatorga sig'masdi va
+          // tugma chetidan toshib ketardi. Endi yozuv ikkinchi qatorga
+          // tushadi, tugma esa balandlashadi.
+          Flexible(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: style ?? AppTheme.data.textTheme.titleLarge?.copyWith(color: textColor?? AppTheme.colors.white),
+            ),
+          ),
         ],
       );
     } else {
-      current = Text(text,style: style ?? AppTheme.data.textTheme.titleLarge?.copyWith(color: textColor?? AppTheme.colors.white),
+      current = Text(text,textAlign: TextAlign.center,style: style ?? AppTheme.data.textTheme.titleLarge?.copyWith(color: textColor?? AppTheme.colors.white),
       );
     }
 
@@ -66,7 +76,10 @@ final class MainButton extends StatelessWidget {
       tilt: (color == AppTheme.colors.grey || showLoading)?false:true,
       child: Container(
         width:  double.maxFinite,
-        height: height??ScreenSize.h45,
+        // Balandlik eng kichik chegara: qat'iy balandlikda ikkinchi qatorga
+        // tushgan yozuv tugmaning ichida kesilib, jimgina ko'rinmay qolardi
+        // (5.8). Tizim shrifti kattalashtirilganda ham shu holat edi.
+        constraints: BoxConstraints(minHeight: height ?? ScreenSize.h45),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: ScreenSize.w15,vertical: showLoading?0:ScreenSize.h8),
         decoration: BoxDecoration(

@@ -72,7 +72,15 @@ final class _ClientVerifyPageState extends State<ClientVerifyPage> {
     return "$day.$month.${date.year}";
   }
 
-  Future<void> _openOffer() => showOfferSheet(
+  /// Tekshiruv ketayotganda oyna ochilmaydi: javob kelganda `context.pop`
+  /// sahifani emas, o'sha oynani yopardi va tasdiqlangan mijoz yo'qolardi.
+  Future<void> _openOffer() {
+    if (_bloc.state.isLoading) return Future<void>.value();
+
+    return _showOffer();
+  }
+
+  Future<void> _showOffer() => showOfferSheet(
     context: context,
     onAccepted: () => _bloc.add(const OfferAccepted(true)),
   );

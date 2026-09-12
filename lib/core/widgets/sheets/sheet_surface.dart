@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 ///
 /// Nega alohida: oynaning ramkasi — burchak radiusi, foni, tutqichi va pastki
 /// xavfsiz maydoni — barcha oynalarda bir xil bo'lishi kerak.
-Future<void> showAppSheet({required BuildContext context, required Widget child}) => showModalBottomSheet<void>(
+/// Natija qaytarish uchun `T` beriladi: oyna ichidagi `context.pop(value)`
+/// shu tipda qaytadi.
+Future<T?> showAppSheet<T>({required BuildContext context, required Widget child}) => showModalBottomSheet<T>(
   context: context,
   useSafeArea: true,
   isScrollControlled: true,

@@ -77,11 +77,23 @@ abstract final class Endpoints {
   static const String carBrands = "${_prefix}car-brands";
   static const String carModels = "${_prefix}car-models";
 
+  // outputs feature — chiqim tovarlar
+  static const String outputContracts = "${_prefix}output_contracts";
+  static const String outputProducts = "${_prefix}get_products_for_cancelled/";
+  static const String outputSmsConfirm = "${_prefix}contract/sms_confirm";
+  static const String productReturned = "${_prefix}product_returned";
+  static const String icloudRequirements = "${_prefix}icloud-contracts/requirements";
+  static const String icloudContracts = "${_prefix}icloud-contracts";
+
   // imzolash
   static const String electronicContract = "${_prefix}electronic_contract";
   static const String electronicFlexContract = "${_prefix}electronic_flex_contract";
   static const String confirmClientFace = "${_prefix}confirm_client_face";
   static const String confirmGuarantorFace = "${_prefix}confirm_guarantor_face";
+  // shartnomaga qo'shilgan kartani tasdiqlash (ELMA OTP)
+  static const String smsForCardConfirmation = "${_prefix}get_sms_for_card_confirmation/";
+  static const String giveSmsCodeToElma = "${_prefix}give_sms_code_to_elma";
+
   static const String signClientContract = "${_prefix}sign_client_contract";
   static const String signGuarantorContract = "${_prefix}sign_guarantor_contract";
 }

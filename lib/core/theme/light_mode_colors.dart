@@ -6,40 +6,51 @@ class LightModeColors extends BaseColors {
   const LightModeColors();
 
   @override
-  Color get primary => const Color.fromRGBO(0,187,49,1);
+  /// Figma «Primary» — yashil ramp 700 (#18B83C)
+  Color get primary => const Color.fromARGB(255, 0x18, 0xB8, 0x3C);
   
   @override
-  Color get secondary => const Color.fromRGBO(33, 150, 243, 1);
+  /// Ko'k urg'u rangi.
+  ///
+  /// Figma'dagi «Secondary» — oq (brend juftligi), ya'ni boshqa rol. Bu yerda
+  /// `secondary` ekrandagi ikkinchi darajali urg'u sifatida ishlatiladi
+  /// (bo'lim ikonkalari, havolalar) va Figma'ning «Info» rangi bilan bir xil.
+  Color get secondary => const Color.fromARGB(255, 0x21, 0x96, 0xF3);
 
   @override
-  Color get green => const Color.fromRGBO(0,179,41,1);
+  /// Figma «Success» — yashil ramp 800 (#01B329)
+  Color get green => const Color.fromARGB(255, 0x01, 0xB3, 0x29);
 
   @override
-  Color get blue => const Color.fromRGBO(33, 150, 243, 1);
+  /// Figma «Info» — ko'k ramp 800 (#2196F3)
+  Color get blue => const Color.fromARGB(255, 0x21, 0x96, 0xF3);
   
   @override
-  Color get red => const Color.fromRGBO(244, 67, 54, 1);
+  /// Figma «Error» — qizil ramp 800 (#F44336)
+  Color get red => const Color.fromARGB(255, 0xF4, 0x43, 0x36);
   
-  @override
-  Color get redSoft => const Color.fromRGBO(244, 243, 249, 1);
 
   @override
-  Color get yellow => const Color.fromRGBO(255, 152, 0, 1);
+  /// Figma «Warning» — sariq ramp 800 (#E7BD06). Ilgari bu #FF9800 (Material to'q sariq) edi
+  Color get yellow => const Color.fromARGB(255, 0xE7, 0xBD, 0x06);
 
   @override
   Color get white => const Color.fromRGBO(255, 255, 255, 1);
 
   @override
-  Color get grey => const Color.fromRGBO(121,129,121, 1);
+  /// Figma kulrang ramp 600 (#888888). Ilgari #798179 — yashilga moyil kulrang edi
+  Color get grey => const Color.fromARGB(255, 0x88, 0x88, 0x88);
   
   @override
-  Color get grey1 => const Color.fromRGBO(204,213,205, 1);
+  /// Figma kulrang ramp 300 (#D3D3D3). Ilgari #CCD5CD — yashilga moyil edi
+  Color get grey1 => const Color.fromARGB(255, 0xD3, 0xD3, 0xD3);
   
   @override
   Color get black => const Color.fromRGBO(0, 0, 0, 1);
 
   @override
-  Color get blackSoft => const Color.fromRGBO(33, 33,33, 1);
+  /// Figma kulrang ramp 800 (#212121)
+  Color get blackSoft => const Color.fromARGB(255, 0x21, 0x21, 0x21);
   
   @override
   // Nega 0.55: 0.38 da matn oq fonda 2.68:1 kontrastga ega edi — WCAG AA
@@ -47,7 +58,8 @@ class LightModeColors extends BaseColors {
   Color get textGraySoft => const Color.fromRGBO(0, 0, 0, 0.55);
   
   @override
-  Color get textBlack => const Color.fromRGBO(19, 19, 19, 1);
+  /// Figma kulrang ramp 900 (#111111)
+  Color get textBlack => const Color.fromARGB(255, 0x11, 0x11, 0x11);
   
   @override
   Color get successToast => const Color.fromRGBO(97, 191, 57, 1);
@@ -62,36 +74,21 @@ class LightModeColors extends BaseColors {
   Color get background => const Color.fromRGBO(244, 243, 249, 1);
 
   @override
-  Color get btnBackcolor => const Color.fromRGBO(241, 242, 246, 1);
+  /// Figma kulrang ramp 100 (#F1F1F1)
+  Color get btnBackcolor => const Color.fromARGB(255, 0xF1, 0xF1, 0xF1);
 
   @override
-  Color get backcolor => const Color.fromRGBO(241, 242, 246, 1);
+  /// Figma «Background / Primary» (#F4F3F9). Ilgari #F1F2F6 edi
+  Color get backcolor => const Color.fromARGB(255, 0xF4, 0xF3, 0xF9);
 
   @override
-  Color get stroke => const Color.fromRGBO(229, 229, 229, 1);
+  /// Figma kulrang ramp 200 (#E2E2E2)
+  Color get stroke => const Color.fromARGB(255, 0xE2, 0xE2, 0xE2);
 
-  @override
-  Color get iconColor => const Color.fromRGBO(33, 33, 33, 1);
   
-  @override
-  Color get greenSoft => const Color.fromRGBO(101, 196, 102, 1);
 
   @override
-  Color get lineColor => const Color.fromRGBO(229, 229, 229, 1);
-
-  @override
-  Color get primarySoft => const Color.fromRGBO(1, 192, 0, 1);
-
-  @override
-  Color get chartColor1 => const Color.fromRGBO(255, 209, 102, .9);
-
-  @override
-  Color get chartColor2 => const Color.fromRGBO(0, 187, 49, 1);
-
-  @override
-  Color get chartColor3 => const Color.fromRGBO(72, 207, 169, 1);
-
-  @override
-  Color get chartColor4 => const Color.fromRGBO(50, 152, 77, .9);
+  /// Figma yashil ramp 600 (#4DCA69) — `primary` bilan gradiyent juftligi
+  Color get primarySoft => const Color.fromARGB(255, 0x4D, 0xCA, 0x69);
 
 }

@@ -83,7 +83,7 @@ final class ContractDetailsDto {
       paymentDay: _json['payment_day'] as int? ?? 0,
       isFormal: _json['formal'] as bool? ?? false,
       hasCarIncome: _json['checked_car_income'] as bool? ?? false,
-      fileUrl: _json['file_url'] as String? ?? '',
+      fileUrl: _json['file_url']?.toString() ?? '',
       products: JsonParser.list(
         _json['contract_products'],
         fromJson: ContractProductDto.fromJson,

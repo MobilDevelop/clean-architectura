@@ -9,7 +9,6 @@ abstract class BaseColors {
   Color get green;
   Color get blue;
   Color get red;
-  Color get redSoft;
   Color get yellow;
 
   // UI colors
@@ -21,9 +20,6 @@ abstract class BaseColors {
   Color get grey1;
   Color get black;
   Color get blackSoft;
-  Color get iconColor;
-  Color get greenSoft;
-  Color get lineColor;
   Color get primarySoft;
 
   // Text colors
@@ -36,10 +32,6 @@ abstract class BaseColors {
   Color get errorToast;
 
   // Chart colors
-  Color get chartColor1;
-  Color get chartColor2;
-  Color get chartColor3;
-  Color get chartColor4;
 
   // Background
   Color get background;

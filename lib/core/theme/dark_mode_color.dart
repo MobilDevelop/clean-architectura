@@ -20,9 +20,6 @@ class DarkModeColor extends BaseColors {
   Color get red => const Color.fromRGBO(244, 67, 54, 1);
 
   @override
-  Color get redSoft => const Color.fromRGBO(244, 243, 249, 1);
-
-  @override
   Color get yellow => const Color.fromRGBO(255, 152, 0, 1);
 
   @override
@@ -67,27 +64,9 @@ class DarkModeColor extends BaseColors {
   @override
   Color get background => const Color.fromRGBO(18, 18, 18, 1);
 
-  @override
-  Color get iconColor => const Color.fromRGBO(33, 33, 33, 1);
-
-  @override
-  Color get chartColor1 => const Color.fromRGBO(205, 209, 102, .9);
-
-  @override
-  Color get chartColor2 => const Color.fromRGBO(0, 187, 49, 1);
-
-  @override
-  Color get chartColor3 => const Color.fromRGBO(72, 207, 169, 1);
-
-  @override
-  Color get chartColor4 => const Color.fromRGBO(50, 152, 77, .9);
   
-  @override
-  Color get lineColor => const Color.fromRGBO(229, 229, 229, 1);
   
   @override
   Color get primarySoft => const Color.fromRGBO(1, 192, 0, 1);
   
-  @override
-  Color get greenSoft => const Color.fromRGBO(101, 196, 102, 1);
 }

@@ -1,6 +1,7 @@
 import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
+import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
@@ -12,10 +13,11 @@ abstract interface class AppStartup {
 }
 
 final class AppStartupImpl implements AppStartup {
-  const AppStartupImpl(this._firebase, this._offer);
+  const AppStartupImpl(this._firebase, this._offer, this._info);
 
   final FirebaseService _firebase;
   final OfferDocument _offer;
+  final AppInfo _info;
 
   @override
 Future<Result<String>> prepare() async {
@@ -29,6 +31,9 @@ Future<Result<String>> prepare() async {
     await _offer.warmUp(AppIcons.offerUz);
 
     final info = await PackageInfo.fromPlatform();
+
+    // Versiya bir marta o'qiladi va ilova bo'ylab shu yerdan olinadi.
+    _info.save(info.version);
 
     return Ok(info.version);
   } catch (_) {

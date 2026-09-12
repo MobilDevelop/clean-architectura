@@ -129,14 +129,23 @@ final class _FaceIdPageState extends State<FaceIdPage> {
                           ),
 
                           Gap(ScreenSize.h20),
-                          BlocSelector<FaceIdBloc, FaceIdState, bool>(
-                            selector: (FaceIdState state) => state.isOfferAccepted,
-                            builder: (BuildContext context, bool isAccepted) => OfferCheck(
-                              isAccepted: isAccepted,
+                          // Tekshiruv ketayotganda oferta oynasi ochilmaydi:
+                          // javob kelganda `context.pop` sahifani emas, o'sha
+                          // oynani yopardi va tasdiqlangan mijoz yo'qolardi.
+                          BlocSelector<FaceIdBloc, FaceIdState, ({bool isAccepted, bool isLoading})>(
+                            selector: (FaceIdState state) =>
+                                (isAccepted: state.isOfferAccepted, isLoading: state.isLoading),
+                            builder: (BuildContext context, ({bool isAccepted, bool isLoading}) data) => OfferCheck(
+                              isAccepted: data.isAccepted,
                               errorText: FaceCheckIssueText.offer(issue),
-                              onOpen: () => unawaited(
-                                showOfferSheet(context: context, onAccepted: () => _bloc.add(const OfferAccepted(true))),
-                              ),
+                              onOpen: () => data.isLoading
+                                  ? null
+                                  : unawaited(
+                                      showOfferSheet(
+                                        context: context,
+                                        onAccepted: () => _bloc.add(const OfferAccepted(true)),
+                                      ),
+                                    ),
                               onCancel: () => _bloc.add(const OfferAccepted(false)),
                             ),
                           ),

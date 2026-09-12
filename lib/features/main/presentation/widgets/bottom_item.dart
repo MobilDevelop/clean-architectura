@@ -50,7 +50,15 @@ final class BottomItem extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTheme.data.textTheme.bodySmall?.copyWith(color: color,fontWeight: isSelect ? FontWeight.w600 : FontWeight.w500),
+              // Panel balandligi qat'iy (80px), shuning uchun yozuv
+              // cheksiz kattalasha olmaydi: tizim shrifti 1.3× bo'lganda u
+              // paneldan toshib ketardi. Chegara 1.1 — kattalashtirish
+              // butunlay o'chirilmaydi, faqat panelga sig'adigan darajada.
+              textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.1),
+              // Pastki navigatsiya yozuvi dizaynda 13px (`labelSmall`) —
+              // `bodySmall` (14) bu yerda panelning qat'iy balandligiga
+              // siqilardi.
+              style: AppTheme.data.textTheme.labelSmall?.copyWith(color: color, fontWeight: isSelect ? FontWeight.w600 : FontWeight.w500),
             ),
           ],
         ),

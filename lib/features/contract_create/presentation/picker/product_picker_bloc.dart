@@ -10,7 +10,7 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/product
 import 'package:colloborator_v3/features/contract_create/domain/entities/add_product_params.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/camera_issue.dart';
+import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

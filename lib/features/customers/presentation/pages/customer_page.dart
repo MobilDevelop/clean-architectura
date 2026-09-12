@@ -17,6 +17,7 @@ import 'package:colloborator_v3/features/customers/presentation/widgets/customer
 import 'package:colloborator_v3/features/customers/presentation/widgets/scoring_sheet.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customer_info.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
+import 'package:colloborator_v3/core/widgets/drawer/app_drawer_scope.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customers_header.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/states/results_header.dart';
@@ -96,7 +97,7 @@ final class _CustomerPageState extends State<CustomerPage> {
                       showSearch: showSearch,
                       errorText: CustomerSearchIssueText.of(issue),
                       controller: _searchController,
-                      drawerPress: () {},
+                      drawerPress: () => AppDrawerScope.of(context)?.call(),
                       searchPress: () => _bloc.add(const ShowSearch()),
                       onChanged: (String value) => _bloc.add(SearchQueryChanged(value)),
                       onSubmitted: (String _) => _bloc.add(const SearchSubmitted()),

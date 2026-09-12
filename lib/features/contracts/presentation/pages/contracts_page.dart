@@ -4,15 +4,17 @@ import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
+import 'package:colloborator_v3/core/widgets/drawer/app_drawer_scope.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/states/results_header.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
-import 'package:colloborator_v3/features/contracts/presentation/widgets/pull_refresh.dart';
+import 'package:colloborator_v3/core/widgets/states/pull_refresh.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/widgets/card_confirm_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_action_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_card.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_header.dart';
@@ -106,7 +108,7 @@ final class _ContractsPageState extends State<ContractsPage> {
                     builder: (BuildContext context, DateTime? date) => ContractsHeader(
                       topInset: topInset,
                       date: date,
-                      drawerPress: () {},
+                      drawerPress: () => AppDrawerScope.of(context)?.call(),
                       filterPress: () => unawaited(_openFilter(date)),
                       clearDate: () => _bloc.add(const DateCleared()),
                     ),
@@ -177,13 +179,24 @@ final class _ContractsPageState extends State<ContractsPage> {
       case ContractTap.selectIncome:
         await CustomAnimatedToast.showInfo(ContractTapText.selectIncome);
       case ContractTap.confirmSms:
-        await CustomAnimatedToast.showInfo(ContractTapText.confirmSms);
+        await _openCardConfirm(contract);
       case ContractTap.viewProduct:
         await context.push(Routes.contractDetails.path, extra: contract.id);
       case ContractTap.showActions:
         await _openActions(contract);
     }
   }
+
+  /// Kartani tasdiqlash (ELMA OTP) — status 24 va 25.
+  ///
+  /// Karta boshqa shaxsniki bo'lsa yagona yo'l shartnomani bekor qilish, u esa
+  /// amallar oynasida: tasdiq dialogi va xato yuzasi bir joyda tursin.
+  Future<void> _openCardConfirm(ContractInfo contract) => showCardConfirmSheet(
+    context: context,
+    contractId: contract.id,
+    onConfirmed: () => _bloc.add(const ContractsGet()),
+    onCancelRequested: () => unawaited(_openActions(contract)),
+  );
 
   /// Shartnomani tahrirlash. Argument oddiy yozuv — sahifa `contract_create`
   /// ni import qilmaydi (1.3).
@@ -214,8 +227,18 @@ final class _ContractsPageState extends State<ContractsPage> {
     pressEdit: () => unawaited(_openEdit(contract)),
     // Amal bajarilgach ro'yxatdagi holat eskiradi.
     onChanged: () => _bloc.add(const ContractsGet()),
-    onSigningRequested: () => unawaited(CustomAnimatedToast.showInfo(ContractTapText.signing)),
+    onSigningRequested: () => unawaited(_openSigning(contract)),
   );
+
+  /// Imzolash ekrani. Qaytgach ro'yxat yangilanadi: bitta imzo qo'yilgan
+  /// bo'lsa ham shartnomaning holati o'zgargan.
+  Future<void> _openSigning(ContractInfo contract) async {
+    final bool? isChanged = await context.push<bool>(Routes.contractSigning.path, extra: contract);
+
+    if (!mounted || !(isChanged ?? false)) return;
+
+    _bloc.add(const ContractsGet());
+  }
 
   Widget _content({
     required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,

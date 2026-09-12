@@ -6,6 +6,16 @@ class Routes implements Coordinate {
   final String name;
   final String path;
 
+  static const contractSigning = Routes._(
+    name: 'contract_signing_page',
+    path: '/contract-signing',
+  );
+
+  static const signature = Routes._(
+    name: 'signature_page',
+    path: '/signature',
+  );
+
   static const contracts = Routes._(
     name: 'contracts_page',
     path: '/contracts',
@@ -49,11 +59,6 @@ class Routes implements Coordinate {
   static const underwriter = Routes._(
     name: 'underwriter_page',
     path: '/underwriter',
-  );
-
-  static const outputsProducts = Routes._(
-    name: 'outputs_products_page',
-    path: '/outputs_products',
   );
 
   static const faceId = Routes._(
@@ -157,14 +162,15 @@ class Routes implements Coordinate {
     path: '/questionarie',
   );
 
-  static const requirementPage = Routes._(
-    name: 'requirement_page',
-    path: '/requirement_page',
+  // Chiqimdan oldingi iCloud talablari.
+  static const icloudRequirements = Routes._(
+    name: 'icloud_requirements_page',
+    path: '/icloud_requirements',
   );
 
-  static const iosCredentialPage = Routes._(
-    name: 'ios_credential_page',
-    path: '/ios_credential_page',
+  static const icloudCredential = Routes._(
+    name: 'icloud_credential_page',
+    path: '/icloud_credential',
   );
 
   @override

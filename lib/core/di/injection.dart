@@ -11,6 +11,7 @@ import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
 import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/contract/contract_changes.dart';
+import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/core/services/notification_service.dart';
@@ -38,6 +39,17 @@ import 'package:colloborator_v3/features/contracts/data/repositories/contracts_r
 import 'package:colloborator_v3/features/contracts/domain/repositories/contracts_repository.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_contract_scoring_usecase.dart';
+import 'package:colloborator_v3/features/contracts/data/datasources/contract_signing_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/datasources/card_confirm_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/repositories/card_confirm_repository_impl.dart';
+import 'package:colloborator_v3/features/contracts/domain/repositories/card_confirm_repository.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/card_confirm_usecases.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm_bloc.dart';
+import 'package:colloborator_v3/features/contracts/data/repositories/contract_signing_repository_impl.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
+import 'package:colloborator_v3/features/contracts/domain/repositories/contract_signing_repository.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/signing_usecases.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_bloc.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_flex_messages_usecase.dart';
 import 'package:colloborator_v3/features/underwriter/data/datasources/underwriter_remote_datasource.dart';
 import 'package:colloborator_v3/features/underwriter/data/repositories/underwriter_repository_impl.dart';
@@ -46,6 +58,10 @@ import 'package:colloborator_v3/features/underwriter/domain/repositories/underwr
 import 'package:colloborator_v3/features/underwriter/domain/usecase/underwriter_usecases.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_create_remote_datasource.dart';
+import 'package:colloborator_v3/features/contract_create/data/datasources/contract_file_remote_datasource.dart';
+import 'package:colloborator_v3/features/contract_create/data/repositories/contract_file_repository_impl.dart';
+import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_file_repository.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/download_contract_file_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_create_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
@@ -121,7 +137,24 @@ import 'package:colloborator_v3/features/customers/presentation/bloc/customers_b
 import 'package:colloborator_v3/features/customers/presentation/bloc/scoring_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/data/datasources/outputs_remote_datasource.dart';
+import 'package:colloborator_v3/features/outputs/data/repositories/outputs_repository_impl.dart';
+import 'package:colloborator_v3/features/outputs/domain/repositories/outputs_repository.dart';
+import 'package:colloborator_v3/features/outputs/domain/usecase/outputs_usecases.dart';
+import 'package:colloborator_v3/features/outputs/data/datasources/icloud_remote_datasource.dart';
+import 'package:colloborator_v3/features/outputs/data/datasources/output_release_remote_datasource.dart';
+import 'package:colloborator_v3/features/outputs/data/repositories/icloud_repository_impl.dart';
+import 'package:colloborator_v3/features/outputs/data/repositories/output_release_repository_impl.dart';
+import 'package:colloborator_v3/features/outputs/domain/entities/icloud_requirement.dart';
+import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
+import 'package:colloborator_v3/features/outputs/domain/repositories/icloud_repository.dart';
+import 'package:colloborator_v3/features/outputs/domain/repositories/output_release_repository.dart';
+import 'package:colloborator_v3/features/outputs/domain/usecase/icloud_usecases.dart';
+import 'package:colloborator_v3/features/outputs/domain/usecase/release_usecases.dart';
+import 'package:colloborator_v3/features/outputs/presentation/credential/credential_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/release/release_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/requirements/requirements_bloc.dart';
 import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -163,6 +196,7 @@ void _registerPlatform(SharedPreferences prefs) {
   getIt
     ..registerLazySingleton(PushNotifications.new)
     ..registerLazySingleton(ContractChanges.new)
+    ..registerLazySingleton(AppInfo.new)
     ..registerLazySingleton(() => OfferDocument(rootBundle))
     ..registerLazySingleton(FlutterLocalNotificationsPlugin.new)
     ..registerLazySingleton(() => LocalNotificationService(plugin: getIt(), push: getIt()))
@@ -197,7 +231,7 @@ void _registerApp() {
   getIt
     ..registerLazySingleton(() => AuthNotifier(getIt(), getIt(), getIt()))
     ..registerLazySingleton(() => AppRouter(getIt(), getIt()))
-    ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt(), getIt()));
+    ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt(), getIt(), getIt()));
 }
 
 /// features/auth/login — data → domain → presentation
@@ -264,6 +298,28 @@ void _registerContracts() {
   ..registerLazySingleton<ContractRepository>(() => ContractsRepositoryImpl(remote: getIt()))
   ..registerLazySingleton(() => ContractsUsecase(getIt()))
   ..registerFactory(() => ContractsBloc(contractsUsecase: getIt(), push: getIt(), changes: getIt()))
+  ..registerLazySingleton(() => CardConfirmRemoteDatasource(dio: getIt()))
+  ..registerLazySingleton<CardConfirmRepository>(() => CardConfirmRepositoryImpl(remote: getIt()))
+  ..registerLazySingleton(() => GetCardConfirmationUsecase(getIt()))
+  ..registerLazySingleton(() => SubmitCardConfirmationUsecase(getIt()))
+  ..registerFactoryParam<CardConfirmBloc, int, void>(
+    (int contractId, void _) =>
+        CardConfirmBloc(contractId: contractId, get: getIt(), submit: getIt(), changes: getIt()),
+  )
+  ..registerLazySingleton(() => ContractSigningRemoteDatasource(dio: getIt()))
+  ..registerLazySingleton<ContractSigningRepository>(() => ContractSigningRepositoryImpl(remote: getIt()))
+  ..registerLazySingleton(() => GetContractFileUsecase(getIt()))
+  ..registerLazySingleton(() => ConfirmParticipantFaceUsecase(getIt()))
+  ..registerLazySingleton(() => SignContractUsecase(getIt()))
+  ..registerFactoryParam<ContractSigningBloc, ContractSigning, void>(
+    (ContractSigning signing, void _) => ContractSigningBloc(
+      signing: signing,
+      getFile: getIt(),
+      confirmFace: getIt(),
+      sign: getIt(),
+      changes: getIt(),
+    ),
+  )
   ..registerLazySingleton(() => GetContractScoringUsecase(getIt()))
   ..registerLazySingleton(() => GetFlexMessagesUsecase(getIt()))
   ..registerLazySingleton(() => GetParticipantsUsecase(getIt()))
@@ -356,8 +412,14 @@ void _registerContractCreate() {
         scanImei: getIt(),
       ),
     )
+    // Fayl imzolangan S3 havolasidan olinadi — bizning `Authorization`
+    // sarlavhamiz unga kerak emas, shuning uchun interceptorsiz klient.
+    ..registerLazySingleton(() => ContractFileRemoteDatasource(dio: getIt<UploadClient>().dio))
+    ..registerLazySingleton<ContractFileRepository>(() => ContractFileRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => DownloadContractFileUsecase(getIt()))
     ..registerFactoryParam<ContractDetailsBloc, int, void>(
-      (int contractId, void _) => ContractDetailsBloc(contractId: contractId, getDetails: getIt()),
+      (int contractId, void _) =>
+          ContractDetailsBloc(contractId: contractId, getDetails: getIt(), downloadFile: getIt()),
     )
     ..registerFactoryParam<ContractCreateBloc, ContractCreateArgs, void>(
       (ContractCreateArgs args, void _) => ContractCreateBloc(
@@ -452,8 +514,51 @@ void _registerUnderwriter() {
     );
 }
 
+/// Chiqim tovarlar. Tartib: datasource → repository → usecase → bloc (8.5).
 void _registerOutputs() {
-  getIt.registerFactory(() => OutputsBloc());
+  getIt
+    ..registerLazySingleton(() => OutputsRemoteDatasource(dio: getIt(), now: DateTime.now))
+    ..registerLazySingleton(() => OutputReleaseRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton(() => IcloudRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<OutputsRepository>(() => OutputsRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton<OutputReleaseRepository>(() => OutputReleaseRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton<IcloudRepository>(() => IcloudRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetOutputContractsUsecase(getIt()))
+    ..registerLazySingleton(() => GetOutputProductsUsecase(getIt()))
+    ..registerLazySingleton(() => ConfirmReleaseUsecase(getIt()))
+    ..registerLazySingleton(() => ReturnProductsUsecase(getIt()))
+    ..registerLazySingleton(() => GetIcloudRequirementsUsecase(getIt()))
+    ..registerLazySingleton(() => SaveIcloudCredentialUsecase(getIt()))
+    ..registerFactory(
+      () => OutputsBloc(
+        getContracts: getIt(),
+        getProducts: getIt(),
+        returnProducts: getIt(),
+        changes: getIt(),
+      ),
+    )
+    ..registerFactoryParam<ReleaseBloc, OutputContract, void>(
+      (OutputContract contract, _) =>
+          ReleaseBloc(
+            contract: contract,
+            getRequirements: getIt(),
+            confirmRelease: getIt(),
+            changes: getIt(),
+          ),
+    )
+    ..registerFactoryParam<RequirementsBloc, int, void>(
+      (int contractId, _) => RequirementsBloc(contractId: contractId, getRequirements: getIt()),
+    )
+    // Forma bitta qurilmaga bog'lanadi: qurilma, mijoz ismi va shartnoma
+    // birga keladi.
+    ..registerFactoryParam<CredentialBloc, ({int contractId, String clientName, IcloudDevice device}), void>(
+      (({int contractId, String clientName, IcloudDevice device}) args, _) => CredentialBloc(
+        device: args.device,
+        clientName: args.clientName,
+        contractId: args.contractId,
+        save: getIt(),
+      ),
+    );
 }
 
 void _registerInvoices() {

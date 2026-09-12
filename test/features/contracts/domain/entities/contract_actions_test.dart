@@ -45,6 +45,9 @@ void main() {
     test('24 → SMS', () => expect(ContractActions.tapOf(24), ContractTap.confirmSms));
     test('25 → SMS', () => expect(ContractActions.tapOf(25), ContractTap.confirmSms));
     test('11 → mahsulot', () => expect(ContractActions.tapOf(11), ContractTap.viewProduct));
+    // Imzolangan shartnomani tahrirlash mumkin emas, ya'ni amal oynasini
+    // ochish foydalanuvchini «Batafsil» ni qidirishga majbur qilardi.
+    test('10 → mahsulot (imzolangan)', () => expect(ContractActions.tapOf(10), ContractTap.viewProduct));
     test('qolgani → amallar', () => expect(ContractActions.tapOf(8), ContractTap.showActions));
   });
 

@@ -16,7 +16,7 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/product
 import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/picker/product_draft_issue_text.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/picker/catalog_sheet.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/camera_issue.dart';
+import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/picker/imei_scanner.dart';
 import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:flutter/material.dart';

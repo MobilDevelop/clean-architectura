@@ -111,10 +111,14 @@ final class ContractActions extends Equatable {
       !contract.isSentForApproval;
 
   /// Shartnoma bosilganda nima ochilishi — statusga qarab.
+  ///
+  /// `10` (imzolangan) va `11` (tasdiqlangan) — faqat ko'rish. Ikkalasida ham
+  /// tahrirlash mumkin emas (`_editStatuses` da yo'q), amal oynasini ochish
+  /// esa foydalanuvchini «Batafsil» ni qidirishga majbur qilardi.
   static ContractTap tapOf(int statusCode) => switch (statusCode) {
     40 => ContractTap.selectIncome,
     24 || 25 => ContractTap.confirmSms,
-    11 => ContractTap.viewProduct,
+    10 || 11 => ContractTap.viewProduct,
     _ => ContractTap.showActions,
   };
 

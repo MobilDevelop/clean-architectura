@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
@@ -20,8 +21,8 @@ final class FaceIdBloc extends Bloc<FaceIdEvent, FaceIdState> {
     on<OfferAccepted>(_offerAccepted);
     on<CaptureRequested>(_captureRequested);
     on<CaptureCancelled>(_captureCancelled);
-    on<PhotoCaptured>(_photoCaptured);
-    on<CheckRetried>(_checkRetried);
+    on<PhotoCaptured>(_photoCaptured, transformer: droppable());
+    on<CheckRetried>(_checkRetried, transformer: droppable());
     on<FailureHandled>(_failureHandled);
   }
 
@@ -37,12 +38,24 @@ final class FaceIdBloc extends Bloc<FaceIdEvent, FaceIdState> {
 
   void _birthdayChanged(BirthdayChanged event, Emitter<FaceIdState> emit) => emit(state.copyWith(form: state.form.copyWith(birthday: event.value), issue: FaceCheckIssue.none));
 
-  void _offerAccepted(OfferAccepted event, Emitter<FaceIdState> emit) =>
-      emit(state.copyWith(isOfferAccepted: event.value, issue: FaceCheckIssue.none));
+  /// Tekshiruv ketayotganda rozilik o'zgartirilmaydi.
+  ///
+  /// Nega: ofertani qayta ochish yo'li shu maydondan boshlanadi va oyna ochiq
+  /// turganda javob kelsa, sahifaning `context.pop(...)` i **oynani** yopardi.
+  /// Tasdiqlangan mijoz shu bilan yo'qolib, oqim to'xtab qolardi. Buni
+  /// tugmaning rangi emas, qoida ushlab turishi kerak (6.7).
+  void _offerAccepted(OfferAccepted event, Emitter<FaceIdState> emit) {
+    if (state.isLoading) return;
+
+    emit(state.copyWith(isOfferAccepted: event.value, issue: FaceCheckIssue.none));
+  }
 
   /// Xato bo'lsa kamera ochilmaydi — aks holda rasm olinib, keyin "pasport
   /// to'liq emas" deyilardi.
   void _captureRequested(CaptureRequested event, Emitter<FaceIdState> emit) {
+    // Tekshiruv ketayotganda ikkinchi kamera ochilmaydi.
+    if (state.isLoading) return;
+
     // Rozilik yozuvisiz kamera ochilmaydi. Buni tugmaning rangi emas, qoida
     // ushlab turishi kerak (6.7).
     if (!state.isOfferAccepted) {

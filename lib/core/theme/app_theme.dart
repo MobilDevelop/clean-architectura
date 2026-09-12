@@ -16,86 +16,124 @@ class AppTheme {
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 
+    // Shkala Figma'dan olingan (`Ishonch Сollaborator - app` → Cover →
+    // Typography, va uchta tayyor ekrandagi haqiqiy ishlatilish).
+    //
+    // Dizayndagi o'lchamlar: 24 / 20 / 16 / 15 / 14 / 13. Ilgari bu yerda
+    // 18 / 15 / 14 / 12 / 10 turardi — ya'ni butun ilova dizayndan 1–3px
+    // kichik chizilardi.
+    //
+    // Og'irliklar ham to'g'rilandi: dizayn urg'u uchun **600** ni ishlatadi
+    // (uchta ekranda 26 marta), 700 esa faqat sahifa sarlavhalarida. Mavzuda
+    // 600 umuman yo'q edi va 500 dan to'g'ri 700 ga sakrardi.
+    //
+    // Qator balandligi dizayn nisbatlariga ko'ra: ≥20px da 1.4, ≤18px da 1.5.
+    // Ilgari u umuman berilmagan va shriftning o'z qiymati ishlatilardi.
     final textTheme = TextTheme(
+      // Dialog sarlavhalari va yirik raqamlar — 24.
       displayLarge: TextStyle(
-        fontSize: 18.sp,
+        fontSize: 20.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w700,
       ),
       displayMedium: TextStyle(
-        fontSize: 18.sp,
+        fontSize: 20.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
       ),
       displaySmall: TextStyle(
-        fontSize: 18.sp,
+        fontSize: 20.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w400,
       ),
+      // Karta sarlavhasi, mijoz ismi — 16.
       headlineLarge: TextStyle(
-        fontSize: 15.sp,
+        fontSize: 16.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
       ),
       headlineMedium: TextStyle(
-        fontSize: 15.sp,
+        fontSize: 16.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w500,
       ),
       headlineSmall: TextStyle(
-        fontSize: 15.sp,
+        fontSize: 16.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w400,
       ),
+      // Bo'lim sarlavhasi va amal matni — 15.
       titleLarge: TextStyle(
-        fontSize: 14.sp,
+        fontSize: 15.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
       ),
       titleMedium: TextStyle(
-        fontSize: 14.sp,
+        fontSize: 15.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w500,
       ),
       titleSmall: TextStyle(
-        fontSize: 14.sp,
+        fontSize: 15.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w400,
       ),
+      // Asosiy matn — 14.
       bodyLarge: TextStyle(
-        fontSize: 12.sp,
+        fontSize: 14.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
       ),
       bodyMedium: TextStyle(
-        fontSize: 12.sp,
+        fontSize: 14.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w500,
       ),
       bodySmall: TextStyle(
-        fontSize: 12.sp,
+        fontSize: 14.sp,
+        height: 1.5,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w400,
       ),
+      // Izoh va pastki navigatsiya — 13.
       labelLarge: TextStyle(
-        fontSize: 10.sp,
+        fontSize: 13.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w600,
       ),
       labelMedium: TextStyle(
-        fontSize: 10.sp,
+        fontSize: 13.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w500,
       ),
       labelSmall: TextStyle(
-        fontSize: 10.sp,
+        fontSize: 13.sp,
+        height: 1.4,
         color: AppTheme.colors.textGraySoft,
         fontWeight: FontWeight.w400,
       ),
     );
 
     data = ThemeData(
-      fontFamily: 'BetaniaPatmos-Regular',
+      // Oila `pubspec.yaml` dagi `fonts:` bo'limida e'lon qilingan nom bilan
+      // yoziladi. Ilgari bu yerda `BetaniaPatmos-Regular` turardi — u oila
+      // sifatida umuman e'lon qilinmagan, shuning uchun Flutter uni topa
+      // olmay tizim shriftiga tushib ketardi va ilova Figma shriftida ham,
+      // NotoSans'da ham chizilmasdi.
+      fontFamily: 'NotoSans',
       textTheme: textTheme,
       scaffoldBackgroundColor: colors.background,
       brightness: themeMode == ThemeMode.light ? Brightness.light : Brightness.dark,

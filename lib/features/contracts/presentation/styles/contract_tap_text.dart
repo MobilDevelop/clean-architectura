@@ -2,8 +2,6 @@
 /// aytiladi (5.8).
 abstract final class ContractTapText {
   static const String selectIncome = "Daromad turini tanlash hali ulanmagan";
-  static const String confirmSms = "SMS tasdiqlash hali ulanmagan";
-  static const String signing = "Imzolash sahifasi hali yozilmagan";
 
   /// Bildirishnoma bosildi, lekin shartnoma yangilangan ro'yxatda yo'q.
   /// Sabab aytiladi — bosish jimgina yo'qolmaydi (5.8).

@@ -4,9 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Ro'yxatni tortib yangilash.
 ///
-/// Hozircha faqat shartnomalar ro'yxati ishlatadi, shuning uchun feature
-/// ichida turadi (1.2). Ikkinchi ekran kerak qilganda `core/widgets/` ga
-/// ko'chadi.
+/// Shartnomalar va chiqim tovarlar ro'yxatlari ishlatadi (1.2).
 ///
 /// Nega alohida: `RefreshIndicator` ning `onRefresh` i **yuklash tugagunicha
 /// kutadigan** `Future` talab qiladi. Bloc bilan bu shart o'z-o'zidan

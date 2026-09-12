@@ -19,6 +19,11 @@ import 'package:colloborator_v3/features/contracts/domain/entities/contract_info
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contract_result_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/contract_signing_page.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/signature_page.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer_bloc.dart';
@@ -30,8 +35,10 @@ import 'package:colloborator_v3/features/customers/presentation/pages/face_id_pa
 import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
 import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
 import 'package:colloborator_v3/features/invoices/presentation/pages/invoices_page.dart';
-import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/pages/outputs_page.dart';
+import 'package:colloborator_v3/core/router/outputs_routes.dart';
+import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
+import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/list/outputs_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
@@ -126,8 +133,16 @@ class AppRouter {
                 name: Routes.outputs.name,
                 path: Routes.outputs.path,
                 builder: (context, state) => BlocProvider(
-                  create: (context) => getIt<OutputsBloc>(),
-                  child: const OutputsPage(),
+                  create: (context) => getIt<OutputsBloc>()..add(const OutputsRequested()),
+                  child: OutputsPage(
+                    // Talablar oynasi marshrut orqali ochiladi; sahifa
+                    // marshrut nomini bilmaydi (1.3).
+                    requirementsOpener: (BuildContext context, OutputContract contract) =>
+                        context.push<void>(
+                          Routes.icloudRequirements.path,
+                          extra: (contractId: contract.id, clientName: contract.clientName),
+                        ),
+                  ),
                 ),
               ),
             ]
@@ -189,6 +204,8 @@ class AppRouter {
 
       ...contractCreateRoutes(),
 
+      ...outputsRoutes(),
+
       GoRoute(
         name: Routes.contractDetails.name,
         path: Routes.contractDetails.path,
@@ -236,6 +253,48 @@ class AppRouter {
                   getIt<ContractResultBloc>(param1: extra.id, param2: extra.flex)..add(const ScoringRequested()),
               child: const ContractResultPage(),
             ),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: Routes.contractSigning.name,
+        path: Routes.contractSigning.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          if (extra is! ContractInfo) {
+            return buildScaleTransitionPage<bool>(
+              context: context,
+              state: state,
+              child: RouteErrorView(location: state.uri.toString(), onBack: () => context.go(Routes.contracts.path)),
+            );
+          }
+
+          return buildScaleTransitionPage<bool>(
+            context: context,
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<ContractSigningBloc>(param1: ContractSigning.of(extra))
+                ..add(const ContractFileRequested()),
+              child: const ContractSigningPage(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: Routes.signature.name,
+        path: Routes.signature.path,
+        pageBuilder: (context, state) {
+          final extra = state.extra;
+
+          return buildScaleTransitionPage<SignatureDraw>(
+            context: context,
+            state: state,
+            // Ekran serverga murojaat qilmaydi, shuning uchun bloc ham yo'q:
+            // u faqat imzo baytlarini va izohni qaytaradi.
+            child: SignaturePage(participantName: extra is String ? extra : ''),
           );
         },
       ),
