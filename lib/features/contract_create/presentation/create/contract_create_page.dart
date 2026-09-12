@@ -8,7 +8,7 @@ import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_extras.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_summary_card.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_tab_bar.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_tabs.dart';
@@ -91,7 +91,7 @@ final class ContractCreatePage extends StatelessWidget {
           child: ContractSummaryCard(
             clientName: state.details?.clientName ?? '',
             contractNumber: state.contractId == null ? '' : "${state.contractId}",
-            statusLabel: state.details == null ? '' : ContractStatusStyle.label(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
+            statusLabel: state.details?.statusCode == null ? '' : ContractStatusStyle.label(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
             statusColor: ContractStatusStyle.color(ContractStatus.fromCode(state.details?.statusCode ?? 0)),
           ),
         ),

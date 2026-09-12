@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:colloborator_v3/core/theme/base_colors.dart';
 
-class LightModeColors extends BaseColors {
+final class LightModeColors extends BaseColors {
   const LightModeColors();
 
   @override

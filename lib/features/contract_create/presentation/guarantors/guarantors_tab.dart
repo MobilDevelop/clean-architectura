@@ -5,7 +5,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/dialogs/app_dialog.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/guarantors/contract_guarantors_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_guarantors/contract_guarantors_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/guarantors/guarantor_card.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/guarantors/guarantor_issue_text.dart';
 import 'package:flutter/material.dart';

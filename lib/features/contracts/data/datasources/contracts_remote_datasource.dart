@@ -3,15 +3,15 @@ import 'dart:isolate';
 
 import 'package:colloborator_v3/core/network/endpoints.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
-import 'package:colloborator_v3/features/contracts/data/models/contract_info_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/contract_authority_dto.dart';
+import 'package:colloborator_v3/features/contracts/data/models/contract_info_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/contract_scoring_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/credit_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/katm_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/mib_report_dto.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/mib_report.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 
@@ -27,18 +27,18 @@ final class ContractsRemoteDatasource {
   final DateTime date = filter.date ?? _now();
   final String formatDate = _formatter.format(date);
 
-   final result = await _dio.get<Map<String, dynamic>>(Endpoints.getContracts,queryParameters: {"page": filter.page,"date":formatDate,'per_page': filter.perPage,"is_mobile" : true});
+   final result = await _dio.get<dynamic>(Endpoints.getContracts,queryParameters: {"page": filter.page,"date":formatDate,'per_page': filter.perPage,"is_mobile" : true});
 
-   return JsonParser.list(result.data?['data'], fromJson: ContractInfoDto.fromJson);
+   return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: ContractInfoDto.fromJson);
   }
 
   /// Server har bir ishtirokchi uchun bitta yozuv qaytaradi: mijoz va kafillar.
   Future<List<ContractScoringDto>> getScoring(int contractId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.contractScoring}$contractId',
     );
 
-    return JsonParser.list(result.data?['data'], fromJson: ContractScoringDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: ContractScoringDto.fromJson);
   }
 
   /// Flex shartnomalarida ro'yxat tepasida ko'rsatiladigan xabarlar.
@@ -52,7 +52,7 @@ final class ContractsRemoteDatasource {
 
   /// Kimda qaysi hisobot borligini aytadi — hisobotning o'zini emas.
   Future<CreditReportsDto?> getCreditReports(int contractId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.contractScoring}$contractId/credit-reports',
     );
 
@@ -60,7 +60,7 @@ final class ContractsRemoteDatasource {
   }
 
   Future<MibReportDto?> getMib(MibParams params) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.contractScoring}${params.contractId}/mib',
       queryParameters: <String, dynamic>{'client_id': params.clientId},
     );
@@ -77,7 +77,7 @@ final class ContractsRemoteDatasource {
   /// Amallar oynasi ochilganda qaysi tugma faol ekanini serverdan o'qiydi.
   /// Faqat `matrix` dvijogidagi shartnomalar uchun chaqiriladi.
   Future<ContractAuthorityDto?> getAuthority(int contractId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.authorityCheck}$contractId',
     );
 
@@ -86,18 +86,18 @@ final class ContractsRemoteDatasource {
 
   /// O'ziga eskalatsiya qilingan shartnomaga ruxsat berish.
   Future<void> confirmAuthority(int contractId) =>
-      _dio.post<Map<String, dynamic>>(Endpoints.authorityConfirm, data: <String, dynamic>{'contract_id': contractId});
+      _dio.post<dynamic>(Endpoints.authorityConfirm, data: <String, dynamic>{'contract_id': contractId});
 
   /// Shartnomani matritsa ko'rsatgan darajaga yo'naltirish.
   Future<void> escalateAuthority(int contractId) =>
-      _dio.post<Map<String, dynamic>>(Endpoints.authorityEscalate, data: <String, dynamic>{'contract_id': contractId});
+      _dio.post<dynamic>(Endpoints.authorityEscalate, data: <String, dynamic>{'contract_id': contractId});
 
   /// Eski dvijokda ruxsat berish ham, yuborish ham shu bitta so'rov.
   Future<void> allowConfirmation(int contractId) =>
-      _dio.post<Map<String, dynamic>>('${Endpoints.contractsBase}$contractId/allow-confirmation');
+      _dio.post<dynamic>('${Endpoints.contractsBase}$contractId/allow-confirmation');
 
   Future<void> cancelContract(int contractId) =>
-      _dio.put<Map<String, dynamic>>('${Endpoints.cancelContract}$contractId');
+      _dio.put<dynamic>('${Endpoints.cancelContract}$contractId');
 
   /// Javob 1.7 MB gacha yetadi. `ResponseType.plain` bilan olib, JSON ni alohida
   /// izolyatda ochamiz — asosiy oqimda bu ekranni bir necha yuz millisekundga

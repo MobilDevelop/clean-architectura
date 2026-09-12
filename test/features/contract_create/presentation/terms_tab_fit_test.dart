@@ -9,11 +9,11 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/contrac
 import 'package:colloborator_v3/features/contract_create/domain/usecase/contract_write_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_card/contract_card_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_summary_card.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_tab_bar.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_terms_tab.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/income/contract_card_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -105,6 +105,8 @@ ContractDetails _leanDetails() => ContractDetails(
   workplaceCategoryId: 4,
 );
 
+DateTime _fixedNow() => DateTime(2026, 9, 12);
+
 void main() {
 
   /// Sahifaning haqiqiy tuzilishi: sarlavha, xulosa kartasi, tab paneli,
@@ -153,6 +155,7 @@ void main() {
       card: isFull ? _card : const ContractCard(id: 0, number: '', phone: '', month: 0, year: 0),
       addCard: AddCardUsecase(income),
       removeCard: RemoveCardUsecase(income),
+      now: _fixedNow,
     );
 
     await tester.pumpWidget(

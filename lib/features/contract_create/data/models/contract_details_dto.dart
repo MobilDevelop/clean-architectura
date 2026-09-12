@@ -75,9 +75,15 @@ final class ContractDetailsDto {
         ? tariffRaw
         : const <String, dynamic>{};
 
+    final int benefitContractId = benefit['contract_id'] as int? ?? 0;
+
     return ContractDetails(
       id: _json['id'] as int? ?? 0,
-      statusCode: _json['status_id'] as int? ?? 0,
+      // `null` — status kelmagan. Ilgari u `0` ga tushardi va `0 != draft`
+      // bo'lgani uchun yangi shartnoma «tahrirlangan» deb hisoblanib `PUT`
+      // bilan yuborilardi. `null` esa bloc'dagi `?? draftStatus` himoyasini
+      // haqiqatan ishga soladi (4.6).
+      statusCode: _json['status_id'] as int?,
       clientName: client['fio'] as String? ?? client['name'] as String? ?? '',
       termMonths: _json['term'] as int? ?? 0,
       paymentDay: _json['payment_day'] as int? ?? 0,
@@ -105,11 +111,13 @@ final class ContractDetailsDto {
         isActive: tariff['active'] as bool? ?? false,
       ),
       // Bonus yo'q bo'lsa `null` — nol summali bonus bilan bir xil emas.
-      benefit: (_json['has_benefit'] as bool? ?? false)
+      // `contract_id` siz bonus ham yasalmaydi: `?? 0` bo'lsa menejer qarori
+      // 0-shartnomaga ketardi (4.6).
+      benefit: (_json['has_benefit'] as bool? ?? false) && benefitContractId != 0
           ? ContractBenefit(
               // `contract_id` aynan bonus obyektining ichida keladi va
               // `POST contract/benefit` shuni kutadi.
-              contractId: benefit['contract_id'] as int? ?? 0,
+              contractId: benefitContractId,
               requiredAmount: _amount(benefit['required_amount']),
               availableAmount: _amount(benefit['available_amount']),
               usedAmount: _amount(benefit['used_amount']),

@@ -54,6 +54,6 @@ abstract final class CredentialText {
     IcloudIssue.appleLoginMissing => "Apple ID loginni tanlang",
     IcloudIssue.applePasswordMissing => "Apple ID parolni tanlang",
     IcloudIssue.restrictionShort => "Cheklov kodi ${IcloudCredential.restrictionLength} ta raqam",
-    IcloudIssue.phoneShort => "Raqamni to'liq kiriting",
+    IcloudIssue.phoneShort => "Raqamni to'liq va to'g'ri kiriting",
   };
 }

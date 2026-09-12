@@ -1,6 +1,6 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:colloborator_v3/features/contracts/data/models/katm_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

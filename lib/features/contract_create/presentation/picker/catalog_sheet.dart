@@ -5,7 +5,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/sheets/paged_pick_sheet.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/catalog_query.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/catalog_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/catalog/catalog_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';

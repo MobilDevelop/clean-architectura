@@ -85,6 +85,10 @@ abstract final class Endpoints {
   static const String icloudRequirements = "${_prefix}icloud-contracts/requirements";
   static const String icloudContracts = "${_prefix}icloud-contracts";
 
+  // invoices feature — fakturalar
+  static const String invoices = "${_prefix}invoices";
+  static const String waybills = "${_prefix}waybills/";
+
   // imzolash
   static const String electronicContract = "${_prefix}electronic_contract";
   static const String electronicFlexContract = "${_prefix}electronic_flex_contract";

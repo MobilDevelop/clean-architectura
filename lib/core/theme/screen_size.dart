@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 @immutable
-class ScreenSize {
+abstract final class ScreenSize {
   const ScreenSize._();
 
   // widthSize

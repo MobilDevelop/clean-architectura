@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
@@ -8,8 +9,7 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/income.
 import 'package:colloborator_v3/features/contract_create/domain/usecase/contract_write_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
-import 'package:colloborator_v3/core/contract/contract_changes.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_income_repository.dart';

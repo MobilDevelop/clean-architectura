@@ -1,8 +1,8 @@
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/usecase/usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_write_params.dart';
-import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/delete_product_params.dart';
+import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/special_tariff_repository.dart';
 
 final class UpdateProductUsecase implements UseCase<void, UpdateProductParams> {

@@ -1,4 +1,4 @@
-import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_state.dart';
+import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/login_state.dart';
 
 /// Kirish maydoni xatosining foydalanuvchiga ko'rinadigan matni.
 ///

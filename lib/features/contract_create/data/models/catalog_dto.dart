@@ -8,8 +8,8 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/product
 /// Backend Laravel uslubida `data` + `meta` yuboradi. `meta` kelmasa, bo'sh
 /// sahifa oxiri deb hisoblanadi — aks holda ro'yxat oxirida so'rov cheksiz
 /// takrorlanardi.
-Paged<T> pagedFrom<T>(Map<String, dynamic>? body, List<T> items) {
-  final Object? meta = body?['meta'];
+Paged<T> pagedFrom<T>(Object? body, List<T> items) {
+  final Object? meta = JsonParser.field(body, 'meta');
 
   if (meta is Map<String, dynamic>) {
     final int current = meta['current_page'] as int? ?? 0;
@@ -57,5 +57,5 @@ final class ProductCategoryDto {
 }
 
 /// Ro'yxat javobidan elementlarni oladi.
-List<T> catalogList<T>(Map<String, dynamic>? body, T Function(Map<String, dynamic>) fromJson) =>
-    JsonParser.list(body?['data'], fromJson: fromJson);
+List<T> catalogList<T>(Object? body, T Function(Map<String, dynamic>) fromJson) =>
+    JsonParser.list(JsonParser.field(body, 'data'), fromJson: fromJson);

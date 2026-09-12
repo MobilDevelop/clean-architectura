@@ -1,29 +1,29 @@
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/drawer/app_drawer_scope.dart';
-import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
-import 'package:colloborator_v3/core/widgets/states/results_header.dart';
-import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
+import 'package:colloborator_v3/core/widgets/headers/date_filter_header.dart';
+import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
+import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/states/pull_refresh.dart';
+import 'package:colloborator_v3/core/widgets/states/results_header.dart';
+import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_actions.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/styles/contract_tap_text.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/card_confirm_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_action_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_card.dart';
-import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_header.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contracts_skeleton.dart';
-import 'package:colloborator_v3/core/router/routes.dart';
-import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_actions.dart';
-import 'package:colloborator_v3/features/contracts/presentation/styles/contract_tap_text.dart';
-import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -105,7 +105,8 @@ final class _ContractsPageState extends State<ContractsPage> {
                   right: 0,
                   child: BlocSelector<ContractsBloc, ContractsState, DateTime?>(
                     selector: (ContractsState state) => state.filter.date,
-                    builder: (BuildContext context, DateTime? date) => ContractsHeader(
+                    builder: (BuildContext context, DateTime? date) => DateFilterHeader(
+                      title: "Shartnomalar",
                       topInset: topInset,
                       date: date,
                       drawerPress: () => AppDrawerScope.of(context)?.call(),

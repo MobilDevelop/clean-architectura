@@ -11,7 +11,7 @@ import 'package:colloborator_v3/features/outputs/domain/repositories/icloud_repo
 import 'package:colloborator_v3/features/outputs/domain/repositories/output_release_repository.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/icloud_usecases.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/release_usecases.dart';
-import 'package:colloborator_v3/features/outputs/presentation/release/release_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/release/release_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _FakeIcloudRepository implements IcloudRepository {

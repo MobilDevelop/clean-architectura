@@ -1,10 +1,7 @@
 import 'package:colloborator_v3/core/contract/contract_status.dart';
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
 import 'package:intl/intl.dart';
-
-int _int(Object? raw) => raw == null ? 0 : (num.tryParse(raw.toString()) ?? 0).toInt();
-
-String _digits(Object? raw) => raw?.toString().replaceAll(RegExp(r'\D'), '') ?? '';
 
 final DateFormat _day = DateFormat('dd.MM.yyyy');
 
@@ -39,13 +36,13 @@ final class OutputContractDto {
   final Map<String, dynamic> _json;
 
   OutputContract toEntity() => OutputContract(
-    id: _int(_json['id']),
-    clientId: _int(_json['client_id']),
+    id: JsonValue.toInt(_json['id']),
+    clientId: JsonValue.toInt(_json['client_id']),
     clientName: _json['client_fullname']?.toString() ?? '',
-    phone: _digits(_json['phone_number']),
+    phone: JsonValue.toDigits(_json['phone_number']),
     // Summa so'mda keladi va bo'linmaydi (KATM bilan bir xil qoida).
-    totalPrice: _int(_json['total_price']),
-    status: ContractStatus.fromCode(_int(_json['status_id'])),
+    totalPrice: JsonValue.toInt(_json['total_price']),
+    status: ContractStatus.fromCode(JsonValue.toInt(_json['status_id'])),
     createdAt: _date(_json['created_at']),
     smsSentAt: _moment(_json['updated_at']),
   );
@@ -60,13 +57,13 @@ final class OutputProductDto {
   final Map<String, dynamic> _json;
 
   OutputProduct toEntity() => OutputProduct(
-    id: _int(_json['id']),
+    id: JsonValue.toInt(_json['id']),
     name: _json['name']?.toString() ?? '',
     category: _json['category']?.toString() ?? '',
     // Zaxira qiymat yo'q: kelmagan miqdorni `1` qilib ko'rsatish shartnoma
     // buzilishini qonuniy qiymatga aylantirardi (4.6). Nol dona ekranda
     // ko'rinadi va nosozlik shu bilan bilinadi.
-    count: _int(_json['count']),
-    price: _int(_json['price']),
+    count: JsonValue.toInt(_json['count']),
+    price: JsonValue.toInt(_json['price']),
   );
 }

@@ -9,7 +9,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 abstract interface class AppStartup {
-  Future<Result<String>> prepare();
+  Future<Result<void>> prepare();
 }
 
 final class AppStartupImpl implements AppStartup {
@@ -20,7 +20,7 @@ final class AppStartupImpl implements AppStartup {
   final AppInfo _info;
 
   @override
-Future<Result<String>> prepare() async {
+Future<Result<void>> prepare() async {
   try {
     await AppTheme.init();
     ScreenSize.setSizes();
@@ -32,10 +32,11 @@ Future<Result<String>> prepare() async {
 
     final info = await PackageInfo.fromPlatform();
 
-    // Versiya bir marta o'qiladi va ilova bo'ylab shu yerdan olinadi.
+    // Versiya bir marta o'qiladi va ilova bo'ylab shu yerdan — `AppInfo` dan —
+    // olinadi. Uni holatga ham qo'shish ikkinchi manba yaratardi.
     _info.save(info.version);
 
-    return Ok(info.version);
+    return const Ok<void>(null);
   } catch (_) {
     return const Err(UnknownFailure('Ilovani ishga tushirib bo\'lmadi'));
   }

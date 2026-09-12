@@ -4,27 +4,27 @@ import 'dart:io';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:colloborator_v3/core/utils/formatter/thousand_separator_formatter.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
+import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_draft_issue_text.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/product_picker/product_picker_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/picker/catalog_sheet.dart';
-import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/picker/imei_scanner.dart';
-import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/picker/product_draft_issue_text.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 /// Tovar tanlash. Natijani `ProductDraft` sifatida qaytaradi — yozuvni
 /// shartnoma ekrani bajaradi.

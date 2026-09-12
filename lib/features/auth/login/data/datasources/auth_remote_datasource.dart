@@ -25,7 +25,7 @@ final class AuthRemoteDataSource {
   Future<AuthResponseDto?> login(LoginParams params) async {
     final device = await _deviceInfo.get();
 
-    final response = await _dio.post<Map<String, dynamic>>(
+    final response = await _dio.post<dynamic>(
       Endpoints.login,
       data: {
         'username': params.username,

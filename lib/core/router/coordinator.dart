@@ -1,57 +1,55 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/router/contract_create_routes.dart';
-import 'package:colloborator_v3/core/router/routes.dart';
-import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_bloc.dart';
-import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_event.dart';
-import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration_bloc.dart';
-import 'package:colloborator_v3/features/auth/registration/presentation/pages/registration_page.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
-import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
-
-import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_page.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_page.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/pages/contract_result_page.dart';
-import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_event.dart';
-import 'package:colloborator_v3/features/contracts/presentation/pages/contract_signing_page.dart';
-import 'package:colloborator_v3/features/contracts/presentation/pages/signature_page.dart';
-import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/add_customer_page.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/face_camera_page.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/client_verify_page.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
-import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
-import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
-import 'package:colloborator_v3/features/invoices/presentation/pages/invoices_page.dart';
 import 'package:colloborator_v3/core/router/outputs_routes.dart';
-import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_page.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'dart:async';
-
+import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/core/widgets/states/route_error_view.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
+import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/login_bloc.dart';
+import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/login_event.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/pages/login_page.dart';
+import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration/registration_bloc.dart';
+import 'package:colloborator_v3/features/auth/registration/presentation/pages/registration_page.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/product_picker/product_picker_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_page.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_page.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/contract_result_page.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/contract_signing_page.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
+import 'package:colloborator_v3/features/contracts/presentation/pages/signature_page.dart';
+import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer/add_customer_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/add_customer_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/client_verify_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/customer_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/face_camera_page.dart';
+import 'package:colloborator_v3/features/customers/presentation/pages/face_id_page.dart';
+import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices/invoices_bloc.dart';
+import 'package:colloborator_v3/features/invoices/presentation/pages/invoices_page.dart';
 import 'package:colloborator_v3/features/main/presentation/pages/main_page.dart';
+import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/list/outputs_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-class AppRouter {
+final class AppRouter {
   AppRouter(this._auth, this._push) {
     // Bildirishnoma bosildi — foydalanuvchi qaysi ekranda bo'lishidan qat'i
     // nazar shartnomalar ro'yxatiga o'tiladi. Xabarning o'zini `ContractsBloc`
@@ -154,7 +152,7 @@ class AppRouter {
                 name: Routes.invoices.name,
                 path: Routes.invoices.path,
                 builder: (context, state) => BlocProvider(
-                  create: (context) => getIt<InvoicesBloc>(),
+                  create: (context) => getIt<InvoicesBloc>()..add(const InvoicesRequested()),
                   child: const InvoicesPage(),
                 ),
               ),

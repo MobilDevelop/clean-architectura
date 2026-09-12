@@ -6,7 +6,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/scoring_info.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/scoring_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/scoring/scoring_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/scoring_check_row.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/scoring_contract_card.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/scoring_header.dart';

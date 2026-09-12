@@ -25,23 +25,23 @@ final class CustomerRemoteDatasource {
       CustomerSearchKind.fullName => 'fio',
     };
 
-    final result = await _dio.get<Map<String, dynamic>>(Endpoints.getCustomer,queryParameters: {key: params.query, 'page': 1, 'per_page': 30});
+    final result = await _dio.get<dynamic>(Endpoints.getCustomer,queryParameters: {key: params.query, 'page': 1, 'per_page': 30});
   
-    return JsonParser.list(result.data?['data'], fromJson: CustomerInfoDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: CustomerInfoDto.fromJson);
   }
 
   Future<CustomerInfoDto?> checkClient(FaceCheckParams params)async{
-      final result = await _dio.post<Map<String, dynamic>>(Endpoints.checkClient,data: {
+      final result = await _dio.post<dynamic>(Endpoints.checkClient,data: {
         "passport_series_number": params.passport,
         "birth_date": params.birthday,
         "front": "data:image/png;base64,${await _encodedImage(params.image.path)}"
       });
 
-    return JsonParser.object(result.data?['client'], fromJson: CustomerInfoDto.fromJson);
+    return JsonParser.object(JsonParser.field(result.data, 'client'), fromJson: CustomerInfoDto.fromJson);
   }
 
   Future<ScoringInfoDto?> getScoring(int customerId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.scoringResult}$customerId',
     );
 
@@ -49,7 +49,7 @@ final class CustomerRemoteDatasource {
   }
 
   Future<void> updateCustomer(CustomerUpdateParams params) =>
-      _dio.put<Map<String, dynamic>>(Endpoints.updateClient, data: CustomerUpdateDto(params).toJson());
+      _dio.put<dynamic>(Endpoints.updateClient, data: CustomerUpdateDto(params).toJson());
 }
 
 /// Rasmni o'qish va base64 ga o'girish alohida izolyatda bajariladi — asosiy

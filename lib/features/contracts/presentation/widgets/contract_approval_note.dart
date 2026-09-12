@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
-import 'package:colloborator_v3/core/constants/app_icons.dart';
 
 /// Ekranda vaqt shu ko'rinishda yoziladi. Backend formati emas — bu
 /// foydalanuvchi o'qiydigan shakl, shuning uchun presentationda turadi.

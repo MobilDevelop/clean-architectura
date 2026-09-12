@@ -1,8 +1,8 @@
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_event.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_state.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_event.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class CustomersBloc extends Bloc<CustomersEvent, CustomersState> {

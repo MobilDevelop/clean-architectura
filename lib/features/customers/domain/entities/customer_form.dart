@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/utils/uz_phone.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_update_params.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/phone_number.dart';
@@ -77,9 +78,11 @@ final class CustomerForm extends Equatable {
   final String friendPhone;
 
   /// `+998 90 123-45-67` — 12 ta raqam.
-  static const int phoneDigits = 12;
+  static const int phoneDigits = UzPhone.digits;
 
-  static bool isPhoneComplete(String value) => value.replaceAll(RegExp(r'\D'), '').length == phoneDigits;
+  /// Uzunlik ham, operator kodi ham tekshiriladi. Ilgari operator kodini
+  /// `PhoneFormatter` kiritish paytida tekshirib toast chiqarardi (6.2, 7.5).
+  static bool isPhoneComplete(String value) => UzPhone.isValid(value.replaceAll(RegExp(r'\D'), ''));
 
   CustomerFormIssue get issue {
     if (province == null) return CustomerFormIssue.provinceMissing;

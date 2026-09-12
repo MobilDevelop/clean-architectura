@@ -1,24 +1,26 @@
-
-import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_alice/alice.dart';
 
+/// Tarmoq so'rovlarini ko'rish tugmasi (faqat staging'da).
+///
+/// Inspektorni o'zi ochmaydi — ochish amalini tashqaridan oladi (8.1).
+/// Ilgari bu yerda `getIt<Alice>()` turardi: klass ichidagi `getIt` testda
+/// o'rniga soxta obyekt qo'yishga imkon bermaydi va widgetni tashxis
+/// kutubxonasiga bog'lab qo'yadi.
 final class ChuckButton extends StatefulWidget {
-  const ChuckButton({super.key});
+  const ChuckButton({super.key, required this.inspectPress});
+
+  final VoidCallback inspectPress;
 
   @override
   State<ChuckButton> createState() => _ChuckButtonState();
 }
 
-final class _ChuckButtonState
-    extends State<ChuckButton> {
+final class _ChuckButtonState extends State<ChuckButton> {
   late double _top;
-  double _right = 20;
+  double _right = ScreenSize.h20;
   bool _placed = false;
-
-  final alice = getIt<Alice>();
 
   @override
   void didChangeDependencies() {
@@ -35,21 +37,21 @@ final class _ChuckButtonState
     return Positioned(
       top: _top,
       right: _right,
-      child:GestureDetector(
-        onPanUpdate: (details) {
+      child: GestureDetector(
+        onPanUpdate: (DragUpdateDetails details) {
           setState(() {
             _top += details.delta.dy;
             _right -= details.delta.dx;
           });
         },
-        onTap: ()=>alice.showInspector(),
+        onTap: widget.inspectPress,
         child: Material(
           elevation: 4,
           shape: const CircleBorder(),
           color: AppTheme.colors.primary,
-          child: const Padding(
-            padding: EdgeInsets.all(12),
-            child: Icon(Icons.http,color: Colors.white,size: 28),
+          child: Padding(
+            padding: EdgeInsets.all(ScreenSize.h12),
+            child: Icon(Icons.http, color: AppTheme.colors.white, size: ScreenSize.h28),
           ),
         ),
       ),

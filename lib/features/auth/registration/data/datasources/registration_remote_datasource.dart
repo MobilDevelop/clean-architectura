@@ -17,15 +17,15 @@ final class RegistrationRemoteDatasource {
    
   Future<List<PartnerDto>> getPartners(String search)async{
 
-    final response = await _dio.get<Map<String, dynamic>>(Endpoints.partners,queryParameters: {'search': search});
+    final response = await _dio.get<dynamic>(Endpoints.partners,queryParameters: {'search': search});
 
-    return JsonParser.list(response.data?['data'], fromJson: PartnerDto.fromJson);
+    return JsonParser.list(JsonParser.field(response.data, 'data'), fromJson: PartnerDto.fromJson);
   }
 
   Future<String> registration(RegistrationParam param)async{
     final device = await _deviceInfo.get();
 
-    final response = await _dio.post<Map<String, dynamic>>(Endpoints.registration,
+    final response = await _dio.post<dynamic>(Endpoints.registration,
     data: {
       'partner_id':param.partnerId,
       'fio':param.username,
@@ -38,6 +38,6 @@ final class RegistrationRemoteDatasource {
       'device_id':device.uniqueId, 
     });
 
-    return  response.data?['message'] as String;
+    return JsonParser.field(response.data, 'message')?.toString() ?? '';
   }
 }

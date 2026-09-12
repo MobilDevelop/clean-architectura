@@ -1,6 +1,6 @@
 import 'package:colloborator_v3/core/contract/contract_status.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:equatable/equatable.dart';
 
 final class ContractInfo extends Equatable {

@@ -9,26 +9,26 @@ final class AddressRemoteDatasource {
   final Dio _dio;
 
   Future<List<AddressItemDto>> getProvinces() async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(Endpoints.provinces);
+    final Response<dynamic> result = await _dio.get<dynamic>(Endpoints.provinces);
 
-    return JsonParser.list(result.data?['data'], fromJson: AddressItemDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: AddressItemDto.fromJson);
   }
 
   Future<List<AddressItemDto>> getRegions(int provinceId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.regions,
       queryParameters: <String, dynamic>{'province_id': provinceId},
     );
 
-    return JsonParser.list(result.data?['data'], fromJson: AddressItemDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: AddressItemDto.fromJson);
   }
 
   Future<List<AddressItemDto>> getVillages(int regionId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.villages,
       queryParameters: <String, dynamic>{'region_id': regionId},
     );
 
-    return JsonParser.list(result.data?['data'], fromJson: AddressItemDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: AddressItemDto.fromJson);
   }
 }

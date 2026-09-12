@@ -2,7 +2,7 @@ import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/special_tariff.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/tariff/special_tariff_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/special_tariff/special_tariff_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/shared/spoke_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

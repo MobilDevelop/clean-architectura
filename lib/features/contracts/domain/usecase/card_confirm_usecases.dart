@@ -20,9 +20,12 @@ final class GetCardConfirmationUsecase implements UseCase<CardConfirmation, int>
 /// o'chirib qo'yadi, lekin qoida ekranda emas — ikkinchi kirish yo'li paydo
 /// bo'lsa u ham shu tekshiruvdan o'tadi.
 final class SubmitCardConfirmationUsecase implements UseCase<void, CardConfirmParams> {
-  const SubmitCardConfirmationUsecase(this._repository);
+  const SubmitCardConfirmationUsecase(this._repository, this._now);
 
   final CardConfirmRepository _repository;
+
+  /// Muddat o'tganini tekshirish uchun bugungi sana (9.4).
+  final DateTime Function() _now;
 
   @override
   Future<Result<void>> call(CardConfirmParams params) async {
@@ -35,7 +38,7 @@ final class SubmitCardConfirmationUsecase implements UseCase<void, CardConfirmPa
       case CardConfirmAction.code:
         if (params.code.trim().isEmpty) return const Err<void>(ClientFailure('SMS kodni kiriting'));
       case CardConfirmAction.saveCard:
-        final CardConfirmIssue issue = params.entry.issue;
+        final CardConfirmIssue issue = params.entry.issueAt(_now());
         if (issue != CardConfirmIssue.none) return Err<void>(ClientFailure(_reason(issue)));
       case CardConfirmAction.resend:
       case CardConfirmAction.skipCard:

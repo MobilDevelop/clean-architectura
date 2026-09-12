@@ -1,19 +1,54 @@
-import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
-import 'package:flutter/material.dart';
+import 'package:colloborator_v3/core/utils/uz_phone.dart';
 import 'package:flutter/services.dart';
 
-class PhoneFormatter extends TextInputFormatter {
-  /// Tayyor raqamni ko'rsatish shakliga keltiradi: `998901234567` →
-  /// `+998 90 123-45-67`. Kiritish paytida emas — mavjud qiymatni maydonga
-  /// qo'yishda ishlatiladi, shuning uchun hech qanday UI ta'siri yo'q.
-  static String mask(String value) {
-    String digits = value.replaceAll(RegExp(r'\D'), '');
+/// Telefon raqamini ko'rsatish shakliga keltiradi: `998901234567` →
+/// `+998 90 123-45-67`.
+///
+/// **Faqat formatlaydi.** Ilgari bu yerda operator kodi ham tekshirilib,
+/// yaroqsiz bo'lsa kiritish rad etilar va toast chiqarilardi. Ikkalasi ham
+/// noto'g'ri edi: yordamchi UI ta'sirini bajarmaydi (6.2), kiritish xatosi
+/// esa maydonning tagida ko'rinishi kerak (7.5) — endi u entitylarning
+/// `issue` qoidalaridan keladi (`UzPhone.isValid`).
+final class PhoneFormatter extends TextInputFormatter {
+  /// Tayyor raqamni ko'rsatish shakliga keltiradi. Kiritish paytida emas —
+  /// mavjud qiymatni maydonga qo'yishda ishlatiladi.
+  static String mask(String value) => _format(_normalized(value));
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final int cursor = newValue.selection.end.clamp(0, newValue.text.length);
+    final int typedBeforeCursor = newValue.text.substring(0, cursor).replaceAll(_notDigit, '').length;
+
+    final String raw = newValue.text.replaceAll(_notDigit, '');
+    final bool prepended = !raw.startsWith('99');
+    final String digits = _normalized(newValue.text);
+
+    final String formatted = _format(digits);
+    final int digitsBeforeCursor = prepended ? typedBeforeCursor + 3 : typedBeforeCursor;
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: _offsetAfter(formatted, digitsBeforeCursor)),
+    );
+  }
+
+  static final RegExp _notDigit = RegExp(r'\D');
+  static final RegExp _digit = RegExp(r'\d');
+
+  /// Mamlakat kodi qo'shiladi va uzunlik chegaralanadi.
+  static String _normalized(String value) {
+    String digits = value.replaceAll(_notDigit, '');
     if (digits.isEmpty) return '';
 
-    if (!digits.startsWith('998')) digits = '998$digits';
-    if (digits.length > 12) digits = digits.substring(0, 12);
+    if (!digits.startsWith(UzPhone.countryCode)) digits = '${UzPhone.countryCode}$digits';
 
-    final StringBuffer result = StringBuffer('+998');
+    return digits.length > UzPhone.digits ? digits.substring(0, UzPhone.digits) : digits;
+  }
+
+  static String _format(String digits) {
+    if (digits.isEmpty) return '';
+
+    final StringBuffer result = StringBuffer('+${UzPhone.countryCode}');
     if (digits.length > 3) result.write(' ${digits.substring(3, digits.length.clamp(3, 5))}');
     if (digits.length > 5) result.write(' ${digits.substring(5, digits.length.clamp(5, 8))}');
     if (digits.length > 8) result.write('-${digits.substring(8, digits.length.clamp(8, 10))}');
@@ -22,73 +57,17 @@ class PhoneFormatter extends TextInputFormatter {
     return result.toString();
   }
 
-  @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
-    String digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+  /// Kursorni foydalanuvchi yozgan raqamdan keyin qoldiradi: maska belgilari
+  /// qo'shilgani uchun oddiy siljish joyini adashtiradi.
+  static int _offsetAfter(String formatted, int digitsBefore) {
+    int seen = 0;
 
-    final List<String> validOperators = ['90','91','93','94','55','97','88','95','99','77','33','98','92','20','50','87','70'];
-
-    final cursorPos = newValue.selection.end.clamp(0, newValue.text.length);
-    final rawDigitsBeforeCursor = newValue.text.substring(0, cursorPos).replaceAll(RegExp(r'\D'), '').length;
-
-    // +998 oldindan qo'yib yuboramiz
-    final bool prepended = !digits.startsWith("99");
-    if (prepended) {
-      digits = "998$digits";
-    }
-
-    final int digitsBeforeCursor = prepended ? rawDigitsBeforeCursor + 3 : rawDigitsBeforeCursor;
-
-    // Maksimal uzunlik 12 ta raqam: 998 + 9xx + 7 raqam
-    if (digits.length > 12) {
-      digits = digits.substring(0, 12);
-    }
-
-    if (digits.length >= 5) {
-      final op = digits.substring(3, 5);
-      if (!validOperators.contains(op)) {
-        CustomAnimatedToast.showError("Operator kodi yaroqsiz");
-        return oldValue;
-      }
-    }
-
-    if (digits.length == 12) {
-      FocusManager.instance.primaryFocus?.unfocus();
-    }
-
-    String formatted = "+998";
-
-    if (digits.length > 3) {
-      formatted += " ${digits.substring(3, digits.length.clamp(3, 5))}";
-    }
-
-    if (digits.length > 5) {
-      formatted += " ${digits.substring(5, digits.length.clamp(5, 8))}";
-    }
-
-    if (digits.length > 8) {
-      formatted += "-${digits.substring(8, digits.length.clamp(8, 10))}";
-    }
-
-    if (digits.length > 10) {
-      formatted += "-${digits.substring(10, digits.length)}";
-    }
-
-    int digitCount = 0;
-    int newCursorOffset = formatted.length;
     for (int i = 0; i < formatted.length; i++) {
-      if (RegExp(r'\d').hasMatch(formatted[i])) {
-        if (digitCount == digitsBeforeCursor) {
-          newCursorOffset = i;
-          break;
-        }
-        digitCount++;
-      }
+      if (!_digit.hasMatch(formatted[i])) continue;
+      if (seen == digitsBefore) return i;
+      seen++;
     }
 
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: newCursorOffset),
-    );
+    return formatted.length;
   }
 }

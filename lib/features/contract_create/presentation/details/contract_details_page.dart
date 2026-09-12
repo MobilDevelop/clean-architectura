@@ -5,13 +5,14 @@ import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/utils/external_file.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_sections.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/details/contract_file_bar.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/details/contract_product_card.dart';
@@ -20,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Tasdiqlangan shartnomani ko'rish. Hech nima o'zgartirilmaydi.
 final class ContractDetailsPage extends StatelessWidget {
@@ -158,16 +158,10 @@ final class ContractDetailsPage extends StatelessWidget {
 
   /// Fayl tashqi ilovada ochiladi.
   ///
-  /// Natija tekshiriladi: ochadigan ilova bo'lmasa `launchUrl` `false`
-  /// qaytaradi va bosish jimgina yo'qolardi (5.8).
+  /// Natija tekshiriladi: ochadigan ilova bo'lmasa bosish jimgina yo'qolardi
+  /// (5.8).
   Future<void> _openFile(BuildContext context, String url) async {
-    final Uri? uri = Uri.tryParse(url);
-
-    final bool isOpened = uri == null
-        ? false
-        : await launchUrl(uri, mode: LaunchMode.externalApplication);
-
-    if (isOpened) return;
+    if (await ExternalFile.open(url)) return;
 
     await CustomAnimatedToast.showInfo("Faylni ochadigan ilova topilmadi");
   }

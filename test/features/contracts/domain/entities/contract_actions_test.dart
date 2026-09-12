@@ -1,7 +1,7 @@
+import 'package:colloborator_v3/core/contract/contract_status.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_actions.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/core/contract/contract_status.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:flutter_test/flutter_test.dart';
 

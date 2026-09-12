@@ -34,7 +34,7 @@ final class DeviceInfo {
 /// Nega platform channel: backend qurilmani `Settings.Secure.ANDROID_ID`
 /// bo'yicha ro'yxatga oladi, uni esa hech bir Flutter paketi bermaydi
 /// (`device_info_plus` dan 4.0 versiyasida olib tashlangan).
-class DeviceInfoService {
+final class DeviceInfoService {
   DeviceInfoService(this._channel);
 
   final MethodChannel _channel;
@@ -47,7 +47,6 @@ class DeviceInfoService {
 
     final info = await _read();
     _cached = info;
-
 
     return info;
   }

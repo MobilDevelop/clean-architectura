@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
-import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_forms.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_file.dart';
+import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_forms.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
 import 'package:colloborator_v3/features/underwriter/domain/repositories/underwriter_repository.dart';
 

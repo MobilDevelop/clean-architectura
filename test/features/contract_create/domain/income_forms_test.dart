@@ -1,6 +1,6 @@
+import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/income.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/katm_skip.dart';
-import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/manager_bonus.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -8,22 +8,22 @@ void main() {
   group('CardForm', () {
     const CardForm full = CardForm(phone: '998901234567', number: '8600123412341234', expiry: '0930');
 
-    test('to‘liq forma xatosiz', () => expect(full.issue, CardFieldIssue.none));
+    test('to‘liq forma xatosiz', () => expect(full.issueAt(DateTime(2026, 9, 12)), CardFieldIssue.none));
 
     test('telefon 12 raqamdan kam bo‘lsa xato', () {
-      expect(full.copyWith(phone: '99890').issue, CardFieldIssue.phoneIncomplete);
+      expect(full.copyWith(phone: '99890').issueAt(DateTime(2026, 9, 12)), CardFieldIssue.phoneIncomplete);
     });
 
     test('karta 16 raqamdan kam bo‘lsa xato', () {
-      expect(full.copyWith(number: '86001234').issue, CardFieldIssue.numberIncomplete);
+      expect(full.copyWith(number: '86001234').issueAt(DateTime(2026, 9, 12)), CardFieldIssue.numberIncomplete);
     });
 
     test('muddat 4 raqamdan kam bo‘lsa xato', () {
-      expect(full.copyWith(expiry: '09').issue, CardFieldIssue.expiryIncomplete);
+      expect(full.copyWith(expiry: '09').issueAt(DateTime(2026, 9, 12)), CardFieldIssue.expiryIncomplete);
     });
 
     test('oy 12 dan katta bo‘lsa xato', () {
-      expect(full.copyWith(expiry: '1330').issue, CardFieldIssue.expiryInvalid);
+      expect(full.copyWith(expiry: '1330').issueAt(DateTime(2026, 9, 12)), CardFieldIssue.expiryInvalid);
     });
 
     test('oy va yil ajratiladi', () {

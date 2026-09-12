@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/utils/uz_phone.dart';
 import 'package:equatable/equatable.dart';
 
 /// Chiqimdan oldingi iCloud talablari.
@@ -146,7 +147,7 @@ final class IcloudCredential extends Equatable {
     if (appleLogin == null) return IcloudIssue.appleLoginMissing;
     if (applePassword == null) return IcloudIssue.applePasswordMissing;
     if (restrictionCode.trim().length < restrictionLength) return IcloudIssue.restrictionShort;
-    if (phone.length < phoneLength) return IcloudIssue.phoneShort;
+    if (!UzPhone.isValid(phone)) return IcloudIssue.phoneShort;
 
     return IcloudIssue.none;
   }

@@ -11,7 +11,7 @@ import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_forms.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
-import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter/underwriter_bloc.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/styles/underwriter_text.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/widgets/document_list.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/widgets/section_fields.dart';

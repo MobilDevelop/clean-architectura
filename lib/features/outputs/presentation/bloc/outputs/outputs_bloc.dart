@@ -122,7 +122,17 @@ final class OutputsBloc extends Bloc<OutputsEvent, OutputsState> {
   /// Qatorni ochadi va tovarlarni bir marta o'qiydi.
   Future<void> _toggled(ContractToggled event, Emitter<OutputsState> emit) async {
     if (state.openId == event.contractId) {
-      emit(state.copyWith(openId: 0, isProductsLoading: false, selected: const <int>{}));
+      // Xato ham tozalanadi: u shu qatorga tegishli edi. Aks holda banner
+      // ekranda qolib, «Qayta urinish» hech nima qilmasdi — `_returnRequested`
+      // ochiq qator yo'qligi uchun darhol qaytardi (5.8).
+      emit(
+        state.copyWith(
+          openId: 0,
+          isProductsLoading: false,
+          selected: const <int>{},
+          clearFailure: true,
+        ),
+      );
       return;
     }
 
@@ -204,6 +214,14 @@ final class OutputsBloc extends Bloc<OutputsEvent, OutputsState> {
       case _Attempt.products:
         if (_lastProductsId != 0) add(ContractToggled(_lastProductsId));
       case _Attempt.productReturn:
+        // Qator yopilgan yoki tanlov yo'qolgan bo'lsa takrorlash mumkin emas —
+        // buni jimgina o'tkazib yuborish «bosdim, hech nima bo'lmadi» degan
+        // holatni berardi (5.8).
+        if (state.openId == 0 || state.selected.isEmpty) {
+          emit(state.copyWith(failure: const ClientFailure('Qaytariladigan tovarni qaytadan belgilang')));
+          return;
+        }
+
         add(const ReturnRequested());
     }
   }

@@ -23,19 +23,19 @@ final class ContractCreateRemoteDatasource {
   final Dio _dio;
 
   Future<ContractDetailsDto?> getDetails(int contractId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.loanById}$contractId',
     );
 
     // Javob ba'zi endpointlarda `data` ichida keladi.
-    final Map<String, dynamic>? body = result.data;
-    final Object? payload = body?['data'] ?? body;
+    final Object? body = result.data;
+    final Object? payload = JsonParser.field(body, 'data') ?? body;
 
     return JsonParser.object(payload, fromJson: ContractDetailsDto.fromJson);
   }
 
   Future<Paged<CatalogItemDto>> getSuppliers(CatalogQuery query) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.suppliers,
       queryParameters: <String, dynamic>{'search': query.search, 'page': query.page},
     );
@@ -44,7 +44,7 @@ final class ContractCreateRemoteDatasource {
   }
 
   Future<Paged<ProductCategoryDto>> getCategories(CategoryQuery query) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.categories,
       queryParameters: <String, dynamic>{
         'search': query.query.search,
@@ -57,7 +57,7 @@ final class ContractCreateRemoteDatasource {
   }
 
   Future<Paged<CatalogItemDto>> getBrands(BrandQuery query) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.brands,
       queryParameters: <String, dynamic>{
         'search': query.query.search,
@@ -70,7 +70,7 @@ final class ContractCreateRemoteDatasource {
   }
 
   Future<Paged<CatalogItemDto>> getVariants(VariantQuery query) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.products,
       queryParameters: <String, dynamic>{
         'search': query.query.search,
@@ -88,14 +88,14 @@ final class ContractCreateRemoteDatasource {
   /// Server HTTP 200 bilan `contract_id: null` qaytarishi mumkin — bu xato,
   /// odatda mijozda ochiq shartnoma borligini bildiradi. Sabab javob matnida.
   Future<({int? contractId, String message})> createDraft(int clientId) async {
-    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.post<dynamic>(
       Endpoints.loanDraft,
       data: <String, dynamic>{'client_id': clientId},
     );
 
     return (
-      contractId: result.data?['contract_id'] as int?,
-      message: result.data?['message'] as String? ?? '',
+      contractId: JsonParser.field(result.data, 'contract_id') as int?,
+      message: JsonParser.field(result.data, 'message') as String? ?? '',
     );
   }
 
@@ -103,7 +103,7 @@ final class ContractCreateRemoteDatasource {
   Future<List<String>> scanImei(ScanImeiParams params) async {
     final String encoded = await _encodedImage(params.image.path);
 
-    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.post<dynamic>(
       Endpoints.imeiImage,
       data: <String, dynamic>{
         'product_variant_id': params.variantId,
@@ -112,7 +112,7 @@ final class ContractCreateRemoteDatasource {
       },
     );
 
-    final Object? raw = result.data?['imeis'];
+    final Object? raw = JsonParser.field(result.data, 'imeis');
     if (raw is! List) return const <String>[];
 
     return raw.map((Object? e) => e?.toString() ?? '').where((String e) => e.isNotEmpty).toList();
@@ -120,17 +120,17 @@ final class ContractCreateRemoteDatasource {
 
   /// Qo'shilgan qatorning id sini qaytaradi.
   Future<int?> addProduct(AddProductParams params) async {
-    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.post<dynamic>(
       Endpoints.addLoanProduct,
       data: AddProductDto(params).toJson(),
     );
 
-    final Object? data = result.data?['data'];
+    final Object? data = JsonParser.field(result.data, 'data');
 
-    return data is Map<String, dynamic> ? data['id'] as int? : result.data?['id'] as int?;
+    return data is Map<String, dynamic> ? data['id'] as int? : JsonParser.field(result.data, 'id') as int?;
   }
 
-  Future<void> updateProduct(UpdateProductParams params) => _dio.put<Map<String, dynamic>>(
+  Future<void> updateProduct(UpdateProductParams params) => _dio.put<dynamic>(
     '${Endpoints.updateLoanProduct}${params.productId}',
     data: <String, dynamic>{
       'partner_id': params.supplierId,
@@ -140,15 +140,15 @@ final class ContractCreateRemoteDatasource {
   );
 
   Future<void> deleteProduct(int productId) =>
-      _dio.delete<Map<String, dynamic>>('${Endpoints.deleteLoanProduct}$productId');
+      _dio.delete<dynamic>('${Endpoints.deleteLoanProduct}$productId');
 
   /// Serverdagi ruxsat etilgan to'lov kunlari.
   Future<List<int>> getPaymentDays(int contractId) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       '${Endpoints.paymentDays}$contractId',
     );
 
-    final Object? days = result.data?['payment_days'];
+    final Object? days = JsonParser.field(result.data, 'payment_days');
     if (days is! List) return const <int>[];
 
     return days.whereType<int>().toList();
@@ -167,7 +167,7 @@ final class ContractCreateRemoteDatasource {
     };
 
     return params.isEdit
-        ? _dio.put<Map<String, dynamic>>('${Endpoints.loans}/${params.contractId}', data: body)
-        : _dio.post<Map<String, dynamic>>(Endpoints.loans, data: body);
+        ? _dio.put<dynamic>('${Endpoints.loans}/${params.contractId}', data: body)
+        : _dio.post<dynamic>(Endpoints.loans, data: body);
   }
 }

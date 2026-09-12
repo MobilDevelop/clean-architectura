@@ -7,7 +7,7 @@ import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/manager_bonus.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/bonus/manager_bonus_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/manager_bonus/manager_bonus_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bonus/bonus_issue_text.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/shared/spoke_scaffold.dart';
 import 'package:flutter/material.dart';

@@ -1,7 +1,7 @@
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/special_tariff_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/models/special_tariff_dto.dart';
-import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/special_tariff.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/special_tariff_repository.dart';

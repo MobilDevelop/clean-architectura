@@ -4,8 +4,8 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/card_confirmation.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/card_confirm_usecases.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm_event.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm/card_confirm_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm/card_confirm_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Qaysi amal yiqildi. «Qayta urinish» aynan shuni takrorlaydi.

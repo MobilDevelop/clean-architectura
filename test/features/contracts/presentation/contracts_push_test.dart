@@ -1,20 +1,20 @@
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:colloborator_v3/core/contract/contract_status.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/credit_report.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/mib_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/repositories/contracts_repository.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
-import 'package:colloborator_v3/core/contract/contract_changes.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_event.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Push kelganda ro'yxat yangilanadi, bosilganda esa shartnoma ochiladi.

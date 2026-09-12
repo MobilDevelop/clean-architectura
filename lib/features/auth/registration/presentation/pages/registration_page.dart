@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
-import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
+import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
-import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration_bloc.dart';
+import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration/registration_bloc.dart';
 import 'package:colloborator_v3/features/auth/registration/presentation/widgets/select_partner.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

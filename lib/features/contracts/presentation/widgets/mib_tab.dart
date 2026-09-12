@@ -4,7 +4,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/mib_report.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/mib_debt_card.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/mib_summary_card.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/participant_select.dart';

@@ -1,80 +1,48 @@
 import 'package:colloborator_v3/core/constants/app_constants.dart';
+import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:colloborator_v3/core/di/app_startup.dart';
+import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/core/network/dio_client.dart';
 import 'package:colloborator_v3/core/network/interceptors/auth_interceptor.dart';
 import 'package:colloborator_v3/core/network/interceptors/error_report_interceptor.dart';
-import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
+import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/device_info_service.dart';
 import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_service.dart';
-import 'package:colloborator_v3/core/services/push_token_service.dart';
-import 'package:colloborator_v3/core/contract/contract_changes.dart';
-import 'package:colloborator_v3/core/services/app_info.dart';
+import 'package:colloborator_v3/core/services/local_cache.dart';
+import 'package:colloborator_v3/core/services/notification_service.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
-import 'package:colloborator_v3/core/services/notification_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:colloborator_v3/core/services/local_cache.dart';
-import 'package:colloborator_v3/core/session/session_store.dart';
+import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
 import 'package:colloborator_v3/core/services/shared_prefs_cache.dart';
 import 'package:colloborator_v3/core/services/telegram_error_reporter.dart';
+import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/data/datasources/auth_remote_datasource.dart';
 import 'package:colloborator_v3/features/auth/login/data/repositories/auth_repository_impl.dart';
 import 'package:colloborator_v3/features/auth/login/domain/repositories/auth_repository.dart';
 import 'package:colloborator_v3/features/auth/login/domain/usecase/login_usecase.dart';
-import 'package:colloborator_v3/features/auth/login/presentation/bloc/login_bloc.dart';
+import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/login_bloc.dart';
 import 'package:colloborator_v3/features/auth/registration/data/datasources/registration_remote_datasource.dart';
 import 'package:colloborator_v3/features/auth/registration/data/repositories/registration_repository_impl.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/repositories/registration_repository.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/usecase/partners_usecase.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/usecase/registration_usecase.dart';
-import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration_bloc.dart';
-import 'package:colloborator_v3/features/contracts/data/datasources/contracts_remote_datasource.dart';
-import 'package:colloborator_v3/features/contracts/data/repositories/contracts_repository_impl.dart';
-import 'package:colloborator_v3/features/contracts/domain/repositories/contracts_repository.dart';
-import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
-import 'package:colloborator_v3/features/contracts/domain/usecase/get_contract_scoring_usecase.dart';
-import 'package:colloborator_v3/features/contracts/data/datasources/contract_signing_remote_datasource.dart';
-import 'package:colloborator_v3/features/contracts/data/datasources/card_confirm_remote_datasource.dart';
-import 'package:colloborator_v3/features/contracts/data/repositories/card_confirm_repository_impl.dart';
-import 'package:colloborator_v3/features/contracts/domain/repositories/card_confirm_repository.dart';
-import 'package:colloborator_v3/features/contracts/domain/usecase/card_confirm_usecases.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm_bloc.dart';
-import 'package:colloborator_v3/features/contracts/data/repositories/contract_signing_repository_impl.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
-import 'package:colloborator_v3/features/contracts/domain/repositories/contract_signing_repository.dart';
-import 'package:colloborator_v3/features/contracts/domain/usecase/signing_usecases.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_bloc.dart';
-import 'package:colloborator_v3/features/contracts/domain/usecase/get_flex_messages_usecase.dart';
-import 'package:colloborator_v3/features/underwriter/data/datasources/underwriter_remote_datasource.dart';
-import 'package:colloborator_v3/features/underwriter/data/repositories/underwriter_repository_impl.dart';
-import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
-import 'package:colloborator_v3/features/underwriter/domain/repositories/underwriter_repository.dart';
-import 'package:colloborator_v3/features/underwriter/domain/usecase/underwriter_usecases.dart';
-import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
+import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration/registration_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_create_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_file_remote_datasource.dart';
-import 'package:colloborator_v3/features/contract_create/data/repositories/contract_file_repository_impl.dart';
-import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_file_repository.dart';
-import 'package:colloborator_v3/features/contract_create/domain/usecase/download_contract_file_usecase.dart';
-import 'package:colloborator_v3/features/contract_create/data/repositories/contract_create_repository_impl.dart';
-import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
-import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
-import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
-import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/domain/usecase/contract_write_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_guarantor_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_income_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/katm_skip_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/manager_bonus_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/payment_schedule_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/special_tariff_remote_datasource.dart';
+import 'package:colloborator_v3/features/contract_create/data/repositories/contract_create_repository_impl.dart';
+import 'package:colloborator_v3/features/contract_create/data/repositories/contract_file_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_guarantor_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_income_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/katm_skip_repository_impl.dart';
@@ -82,88 +50,124 @@ import 'package:colloborator_v3/features/contract_create/data/repositories/manag
 import 'package:colloborator_v3/features/contract_create/data/repositories/payment_schedule_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/special_tariff_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/payment_schedule.dart';
+import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
+import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_file_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_guarantor_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_income_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/katm_skip_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/manager_bonus_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/payment_schedule_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/special_tariff_repository.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_usecases.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/contract_write_usecases.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/download_contract_file_usecase.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/guarantor_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/katm_skip_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/manager_bonus_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/payment_schedule_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/special_tariff_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/guarantors/contract_guarantors_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/income/contract_card_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/products/contract_products_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/katm_skip/katm_skip_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/bonus/manager_bonus_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/schedule/payment_schedule_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/tariff/special_tariff_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_card/contract_card_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_guarantors/contract_guarantors_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_products/contract_products_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/katm_skip/katm_skip_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/manager_bonus/manager_bonus_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/payment_schedule/payment_schedule_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/product_picker/product_picker_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/special_tariff/special_tariff_bloc.dart';
+import 'package:colloborator_v3/features/contracts/data/datasources/card_confirm_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/datasources/contract_signing_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/datasources/contracts_remote_datasource.dart';
+import 'package:colloborator_v3/features/contracts/data/repositories/card_confirm_repository_impl.dart';
+import 'package:colloborator_v3/features/contracts/data/repositories/contract_signing_repository_impl.dart';
+import 'package:colloborator_v3/features/contracts/data/repositories/contracts_repository_impl.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
+import 'package:colloborator_v3/features/contracts/domain/repositories/card_confirm_repository.dart';
+import 'package:colloborator_v3/features/contracts/domain/repositories/contract_signing_repository.dart';
+import 'package:colloborator_v3/features/contracts/domain/repositories/contracts_repository.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/card_confirm_usecases.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/contract_authority_usecases.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_contract_scoring_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/get_flex_messages_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_katm_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_mib_usecase.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/get_participants_usecase.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_action_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_bloc.dart';
-import 'package:colloborator_v3/features/customers/data/datasources/customer_remote_datasource.dart';
-import 'package:colloborator_v3/features/customers/data/repositories/customer_repository_impl.dart';
-import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
-import 'package:colloborator_v3/features/customers/domain/usecase/check_client_usecase.dart';
-import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
+import 'package:colloborator_v3/features/contracts/domain/usecase/signing_usecases.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/card_confirm/card_confirm_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_action/contract_action_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/address_local_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/address_remote_datasource.dart';
+import 'package:colloborator_v3/features/customers/data/datasources/customer_remote_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/workplace_remote_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/repositories/address_repository_impl.dart';
+import 'package:colloborator_v3/features/customers/data/repositories/customer_repository_impl.dart';
 import 'package:colloborator_v3/features/customers/data/repositories/workplace_repository_impl.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/address_repository.dart';
+import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/workplace_repository.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/check_client_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/get_provinces_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/get_regions_usecase.dart';
-import 'package:colloborator_v3/features/customers/domain/usecase/get_villages_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/get_scoring_usecase.dart';
+import 'package:colloborator_v3/features/customers/domain/usecase/get_villages_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/search_workplaces_usecase.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/update_customer_usecase.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/scoring_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
-import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices_bloc.dart';
-import 'package:colloborator_v3/features/outputs/data/datasources/outputs_remote_datasource.dart';
-import 'package:colloborator_v3/features/outputs/data/repositories/outputs_repository_impl.dart';
-import 'package:colloborator_v3/features/outputs/domain/repositories/outputs_repository.dart';
-import 'package:colloborator_v3/features/outputs/domain/usecase/outputs_usecases.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer/add_customer_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/scoring/scoring_bloc.dart';
+import 'package:colloborator_v3/features/invoices/data/datasources/invoices_remote_datasource.dart';
+import 'package:colloborator_v3/features/invoices/data/repositories/invoices_repository_impl.dart';
+import 'package:colloborator_v3/features/invoices/domain/repositories/invoices_repository.dart';
+import 'package:colloborator_v3/features/invoices/domain/usecase/invoices_usecases.dart';
+import 'package:colloborator_v3/features/invoices/presentation/bloc/invoices/invoices_bloc.dart';
 import 'package:colloborator_v3/features/outputs/data/datasources/icloud_remote_datasource.dart';
 import 'package:colloborator_v3/features/outputs/data/datasources/output_release_remote_datasource.dart';
+import 'package:colloborator_v3/features/outputs/data/datasources/outputs_remote_datasource.dart';
 import 'package:colloborator_v3/features/outputs/data/repositories/icloud_repository_impl.dart';
 import 'package:colloborator_v3/features/outputs/data/repositories/output_release_repository_impl.dart';
+import 'package:colloborator_v3/features/outputs/data/repositories/outputs_repository_impl.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/icloud_requirement.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
 import 'package:colloborator_v3/features/outputs/domain/repositories/icloud_repository.dart';
 import 'package:colloborator_v3/features/outputs/domain/repositories/output_release_repository.dart';
+import 'package:colloborator_v3/features/outputs/domain/repositories/outputs_repository.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/icloud_usecases.dart';
+import 'package:colloborator_v3/features/outputs/domain/usecase/outputs_usecases.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/release_usecases.dart';
-import 'package:colloborator_v3/features/outputs/presentation/credential/credential_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/release/release_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/requirements/requirements_bloc.dart';
-import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/credential/credential_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/release/release_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/requirements/requirements_bloc.dart';
+import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager/app_manager_cubit.dart';
+import 'package:colloborator_v3/features/underwriter/data/datasources/underwriter_remote_datasource.dart';
+import 'package:colloborator_v3/features/underwriter/data/repositories/underwriter_repository_impl.dart';
+import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
+import 'package:colloborator_v3/features/underwriter/domain/repositories/underwriter_repository.dart';
+import 'package:colloborator_v3/features/underwriter/domain/usecase/underwriter_usecases.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter/underwriter_bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_alice/alice.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 
@@ -301,7 +305,7 @@ void _registerContracts() {
   ..registerLazySingleton(() => CardConfirmRemoteDatasource(dio: getIt()))
   ..registerLazySingleton<CardConfirmRepository>(() => CardConfirmRepositoryImpl(remote: getIt()))
   ..registerLazySingleton(() => GetCardConfirmationUsecase(getIt()))
-  ..registerLazySingleton(() => SubmitCardConfirmationUsecase(getIt()))
+  ..registerLazySingleton(() => SubmitCardConfirmationUsecase(getIt(), DateTime.now))
   ..registerFactoryParam<CardConfirmBloc, int, void>(
     (int contractId, void _) =>
         CardConfirmBloc(contractId: contractId, get: getIt(), submit: getIt(), changes: getIt()),
@@ -448,6 +452,7 @@ void _registerContractCreate() {
         card: card ?? const ContractCard(id: 0, number: '', phone: '', month: 0, year: 0),
         addCard: getIt(),
         removeCard: getIt(),
+        now: DateTime.now,
       ),
     )
     ..registerFactoryParam<ContractGuarantorsBloc, ({int contractId, int clientId}), List<ContractGuarantor>>(
@@ -491,7 +496,7 @@ void _registerContractCreate() {
 void _registerUnderwriter() {
   getIt
     // Imzolangan S3 havolasiga yozish uchun interceptorsiz klient.
-    ..registerLazySingleton(createUploadClient)
+    ..registerLazySingleton(() => createUploadClient(errorReporter: ErrorReportInterceptor(getIt())))
     ..registerLazySingleton(() => UnderwriterRemoteDatasource(dio: getIt(), upload: getIt()))
     ..registerLazySingleton<UnderwriterRepository>(() => UnderwriterRepositoryImpl(remote: getIt()))
     ..registerLazySingleton(() => LoadUnderwriterUsecase(getIt()))
@@ -561,6 +566,12 @@ void _registerOutputs() {
     );
 }
 
+/// Fakturalar. Tartib: datasource → repository → usecase → bloc (8.5).
 void _registerInvoices() {
-  getIt.registerFactory(() => InvoicesBloc());
+  getIt
+    ..registerLazySingleton(() => InvoicesRemoteDatasource(dio: getIt(), now: DateTime.now))
+    ..registerLazySingleton<InvoicesRepository>(() => InvoicesRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetInvoicesUsecase(getIt()))
+    ..registerLazySingleton(() => SendInvoiceUsecase(getIt()))
+    ..registerFactory(() => InvoicesBloc(getInvoices: getIt(), send: getIt()));
 }

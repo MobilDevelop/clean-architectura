@@ -5,8 +5,8 @@ import 'package:colloborator_v3/core/contract/contract_changes.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/contracts_usecase.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_event.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final class ContractsBloc extends Bloc<ContractsEvent, ContractsState> {

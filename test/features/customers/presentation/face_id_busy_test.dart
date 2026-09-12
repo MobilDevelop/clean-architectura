@@ -12,7 +12,7 @@ import 'package:colloborator_v3/features/customers/domain/entities/scoring_info.
 import 'package:colloborator_v3/features/customers/domain/entities/workplace_info.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/check_client_usecase.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id/face_id_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Yuz tekshiruvi ketayotganda ekran boshqa amalni qabul qilmaydi.

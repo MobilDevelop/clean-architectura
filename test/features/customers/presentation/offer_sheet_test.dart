@@ -1,10 +1,10 @@
+import 'dart:convert';
+
 import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_sheet.dart';
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

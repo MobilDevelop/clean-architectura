@@ -11,8 +11,8 @@ import 'package:colloborator_v3/features/customers/domain/entities/scoring_info.
 import 'package:colloborator_v3/features/customers/domain/entities/workplace_info.dart';
 import 'package:colloborator_v3/features/customers/domain/repositories/customer_repository.dart';
 import 'package:colloborator_v3/features/customers/domain/usecase/customer_usecase.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_bloc.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/customers_event.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_event.dart';
 import 'package:colloborator_v3/features/customers/presentation/pages/guarantor_picker_page.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/customer_info.dart';
 import 'package:flutter/material.dart';

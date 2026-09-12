@@ -1,11 +1,6 @@
 import 'package:colloborator_v3/core/utils/json_parser.dart';
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/icloud_requirement.dart';
-
-int _int(Object? raw) => raw == null ? 0 : (num.tryParse(raw.toString()) ?? 0).toInt();
-
-int? _nullableInt(Object? raw) => raw == null ? null : num.tryParse(raw.toString())?.toInt();
-
-String _text(Object? raw) => raw?.toString() ?? '';
 
 /// `GET icloud-contracts/requirements` javobi.
 final class IcloudRequirementsDto {
@@ -21,7 +16,7 @@ final class IcloudRequirementsDto {
   /// yuborardi, ya'ni tekshiruvni jimgina o'chirib qo'yardi. Yo'nalishi
   /// noto'g'ri zaxira qiymat — buzilishni qonuniy holatga aylantiradi (4.6).
   IcloudRequirements toEntity() => IcloudRequirements(
-    contractId: _int(_json['contract_id']),
+    contractId: JsonValue.toInt(_json['contract_id']),
     isSatisfied: _json['is_satisfied'] == true,
     devices: JsonParser.list(_json['items'], fromJson: IcloudDeviceDto.fromJson)
         .map((IcloudDeviceDto dto) => dto.toEntity())
@@ -38,13 +33,13 @@ final class IcloudDeviceDto {
   final Map<String, dynamic> _json;
 
   IcloudDevice toEntity() => IcloudDevice(
-    contractProductId: _int(_json['contract_product_id']),
-    productId: _int(_json['product_variant_id']),
-    name: _text(_json['name']),
-    fullName: _text(_json['full_name']),
-    imei: _text(_json['imei']),
-    imei2: _text(_json['imei2']),
-    missing: _nullableInt(_json['missing']),
+    contractProductId: JsonValue.toInt(_json['contract_product_id']),
+    productId: JsonValue.toInt(_json['product_variant_id']),
+    name: JsonValue.toText(_json['name']),
+    fullName: JsonValue.toText(_json['full_name']),
+    imei: JsonValue.toText(_json['imei']),
+    imei2: JsonValue.toText(_json['imei2']),
+    missing: JsonValue.toNullableInt(_json['missing']),
   );
 }
 

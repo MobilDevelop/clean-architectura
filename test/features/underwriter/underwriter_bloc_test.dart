@@ -6,7 +6,7 @@ import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_file.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
 import 'package:colloborator_v3/features/underwriter/domain/usecase/underwriter_usecases.dart';
-import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter/underwriter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_underwriter_repository.dart';

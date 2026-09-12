@@ -1,11 +1,11 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/styles/katm_labels.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/katm_chart.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/katm_fields.dart';

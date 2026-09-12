@@ -8,7 +8,7 @@ import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/core/widgets/sheets/option_sheet.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_forms.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
-import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter_bloc.dart';
+import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwriter/underwriter_bloc.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/styles/underwriter_text.dart';
 import 'package:colloborator_v3/features/underwriter/presentation/widgets/salary_section.dart';
 import 'package:flutter/material.dart';

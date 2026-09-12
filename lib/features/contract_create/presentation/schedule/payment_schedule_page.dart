@@ -3,7 +3,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/payment_schedule.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/schedule/payment_schedule_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/payment_schedule/payment_schedule_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/schedule/schedule_date_text.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/shared/spoke_scaffold.dart';
 import 'package:flutter/material.dart';

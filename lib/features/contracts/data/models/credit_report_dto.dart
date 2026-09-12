@@ -43,8 +43,8 @@ final class KatmSummaryDto {
     scoringGrade: json['scoring_grade'] as int? ?? 0,
     scoringClass: json['scoring_class'] as String? ?? '',
     scoringLevel: json['scoring_level'] as String? ?? '',
-    creditBan: json['credit_ban'] as bool? ?? false,
-    blacklisted: json['blacklisted'] as bool? ?? false,
+    creditBan: _flag(json['credit_ban']),
+    blacklisted: _flag(json['blacklisted']),
     allDebtSum: (json['all_debt_sum'] as num? ?? 0).toDouble(),
     allOverdueDebtSum: (json['all_overdue_debt_sum'] as num? ?? 0).toDouble(),
     contractsQty: json['contracts_qty'] as int? ?? 0,
@@ -118,4 +118,19 @@ final class CreditReportsDto {
   );
 
   final List<CreditParticipantDto> participants;
+}
+
+/// Xavf bayrog'i.
+///
+/// Kalit umuman kelmasa — «yo'q» deb qaraladi: backend salbiy bayroqni
+/// yubormasligi mumkin. Lekin kalit **kelib**, qiymati `bool` bo'lmasa
+/// (`"true"`, `1`, obyekt) — bu nosozlik va uni jimgina «toza» ga aylantirish
+/// mumkin emas: qora ro'yxatdagi mijozda ogohlantirish chizilmay qolardi va
+/// xodim kreditni tasdiqlardi. Istisno `guard` orqali `ParseFailure` ga
+/// aylanadi va botga ketadi (5.7).
+bool _flag(Object? raw) {
+  if (raw == null) return false;
+  if (raw is bool) return raw;
+
+  throw FormatException('xavf bayrog\'i bool emas: ${raw.runtimeType}');
 }

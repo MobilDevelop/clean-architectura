@@ -1,18 +1,19 @@
 import 'package:colloborator_v3/core/constants/app_constants.dart';
 import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
-import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
-import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/app_info.dart';
+import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/widgets/buttons/chuck_button.dart';
-import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; 
+import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
+import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager/app_manager_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_alice/alice.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,7 @@ final class SplashPage extends StatelessWidget {
       switch (state) {
       case AppManagerLoading(): return _buildLoadingWidget();
       case AppManagerError(:final failure): return _buildErrorWidget(failure);
-      case AppManagerInitial(:final version): return _buildInitialWidget(context, version);
+      case AppManagerInitial(): return _buildInitialWidget(context);
       }
     });
   }
@@ -70,7 +71,7 @@ final class SplashPage extends StatelessWidget {
     home: Scaffold(backgroundColor: Colors.white, body: Center(child: CircularProgressIndicator())),
   );
 
-  Widget _buildInitialWidget(BuildContext context,String version)=>OverlaySupport(
+  Widget _buildInitialWidget(BuildContext context) => OverlaySupport(
     child: MultiProvider(
       providers: [
         ChangeNotifierProvider<AuthNotifier>.value(value: getIt<AuthNotifier>()),
@@ -82,7 +83,7 @@ final class SplashPage extends StatelessWidget {
         Provider<AppInfo>.value(value: getIt<AppInfo>()),
       ],
       child: MaterialApp.router(
-        title: 'Collaborator Flex',
+        title: 'Ishonch Collaborator',
         theme: AppTheme.data,
         themeMode: AppTheme.themeMode,
         locale: context.locale,
@@ -93,10 +94,11 @@ final class SplashPage extends StatelessWidget {
         builder: (context, child) => Overlay(
           initialEntries: [
             OverlayEntry(builder: (context) => child ?? const SizedBox()),
-            //OverlayEntry(builder: (context) => AppVersionWatermark(version: version)),
-            if (AppConstants.isStaging) OverlayEntry(builder: (context) => const ChuckButton()),
-            //OverlayEntry(builder: (context) => const DotWidget()),
-          ], 
+            // Inspektor bog'liqligi shu yerda — ilovaning yig'ilish nuqtasida —
+            // beriladi, tugmaning o'zida emas (8.1).
+            if (AppConstants.isStaging)
+              OverlayEntry(builder: (context) => ChuckButton(inspectPress: getIt<Alice>().showInspector)),
+          ],
         ),
       ),
     ),

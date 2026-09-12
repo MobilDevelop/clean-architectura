@@ -163,7 +163,10 @@ final class ContractDetails extends Equatable {
   });
 
   final int id;
-  final int statusCode;
+  /// `null` — server statusni bermadi. Nol bilan almashtirilmaydi: nol
+  /// qonuniy status kodi emas va u qoralamani «tahrirlangan» qilib
+  /// ko'rsatardi.
+  final int? statusCode;
   final String clientName;
   final int termMonths;
 

@@ -10,11 +10,11 @@ final class WorkplaceRemoteDatasource {
   final Dio _dio;
 
   Future<List<WorkplaceInfoDto>> search(WorkplaceSearchParams params) async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.workplaces,
       queryParameters: <String, dynamic>{'region_id': params.regionId, 'search': params.query},
     );
 
-    return JsonParser.list(result.data?['data'], fromJson: WorkplaceInfoDto.fromJson);
+    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: WorkplaceInfoDto.fromJson);
   }
 }

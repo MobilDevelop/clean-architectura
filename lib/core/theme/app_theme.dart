@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class AppTheme {
+abstract final class AppTheme {
   static late BaseColors colors;
   static late ThemeMode themeMode;
   static late ThemeData data;

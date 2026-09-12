@@ -1,7 +1,7 @@
+import 'package:colloborator_v3/core/contract/contract_status_style.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/core/contract/contract_status_style.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 

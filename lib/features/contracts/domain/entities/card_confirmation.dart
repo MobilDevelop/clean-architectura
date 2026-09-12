@@ -1,3 +1,5 @@
+import 'package:colloborator_v3/core/utils/card_expiry.dart';
+import 'package:colloborator_v3/core/utils/uz_phone.dart';
 import 'package:equatable/equatable.dart';
 
 /// ELMA oqimining bosqichi. Backend uni `state` satri bilan yuboradi.
@@ -121,16 +123,16 @@ final class CardEntry extends Equatable {
   final String phone;
 
   static const int _numberLength = 16;
-  static const int _phoneLength = 12;
 
   int get month => int.tryParse(expiry.length >= 2 ? expiry.substring(0, 2) : '') ?? 0;
 
   int get year => int.tryParse(expiry.length >= 5 ? expiry.substring(3, 5) : '') ?? 0;
 
-  CardConfirmIssue get issue {
+  /// Vaqt tashqaridan (9.4) — muddat o'tganini tekshirish uchun.
+  CardConfirmIssue issueAt(DateTime now) {
     if (number.length != _numberLength) return CardConfirmIssue.cardNumberShort;
-    if (month < 1 || month > 12 || year == 0) return CardConfirmIssue.expiryInvalid;
-    if (phone.length != _phoneLength) return CardConfirmIssue.phoneShort;
+    if (!CardExpiry.isUsable(month: month, year: year, now: now)) return CardConfirmIssue.expiryInvalid;
+    if (!UzPhone.isValid(phone)) return CardConfirmIssue.phoneShort;
 
     return CardConfirmIssue.none;
   }

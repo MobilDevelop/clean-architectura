@@ -8,7 +8,7 @@ import 'package:colloborator_v3/features/outputs/domain/repositories/output_rele
 import 'package:colloborator_v3/features/outputs/domain/repositories/outputs_repository.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/outputs_usecases.dart';
 import 'package:colloborator_v3/features/outputs/domain/usecase/release_usecases.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs/outputs_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _FakeReleaseRepository implements OutputReleaseRepository {
@@ -335,6 +335,49 @@ void main() {
       await _settle();
 
       expect(marks, <ContractChange>[ContractChange.updated]);
+    });
+
+    // Banner qator yopilganda ham ekranda qolib, «Qayta urinish» hech nima
+    // qilmasdi: `_returnRequested` ochiq qator yo'qligi uchun darhol qaytardi.
+    test('qator yopilganda xato ham tozalanadi', () async {
+      final OutputsBloc bloc = await opened();
+
+      bloc.add(const ProductToggled(11));
+      await _settle();
+
+      release.result = const Err<void>(ServerFailure('xato'));
+      bloc.add(const ReturnRequested());
+      await _settle();
+      expect(bloc.state.failure, isNotNull);
+
+      // Xodim kartani bosib qatorni yopadi.
+      bloc.add(const ContractToggled(7));
+      await _settle();
+
+      expect(bloc.state.failure, isNull);
+      expect(bloc.state.openId, 0);
+    });
+
+    // Takrorlab bo'lmaydigan holat jimgina o'tib ketmasligi kerak.
+    test('qator yopiq bo‘lsa qayta urinish sababini aytadi', () async {
+      final OutputsBloc bloc = await opened();
+
+      bloc.add(const ProductToggled(11));
+      await _settle();
+
+      release.result = const Err<void>(ServerFailure('xato'));
+      bloc.add(const ReturnRequested());
+      await _settle();
+
+      final int sent = release.returns.length;
+
+      bloc.add(const ContractToggled(7));
+      await _settle();
+      bloc.add(const Retried());
+      await _settle();
+
+      expect(release.returns.length, sent, reason: 'so‘rov takrorlanmasligi kerak');
+      expect(bloc.state.failure, isA<ClientFailure>());
     });
 
     // Yiqilganda tanlov joyida qolsa «Qayta urinish» xodimdan tanlovni

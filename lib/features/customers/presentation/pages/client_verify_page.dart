@@ -11,7 +11,7 @@ import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id/face_id_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

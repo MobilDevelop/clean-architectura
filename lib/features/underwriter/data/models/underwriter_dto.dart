@@ -1,9 +1,8 @@
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_data.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_file.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_forms.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
-
-int _int(Object? raw) => raw == null ? 0 : (num.tryParse(raw.toString()) ?? 0).toInt();
 
 Map<String, dynamic> _object(Object? raw) => raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
 
@@ -26,10 +25,10 @@ final class MilitaryPositionDto {
   final Map<String, dynamic> _json;
 
   MilitaryPosition toEntity() => MilitaryPosition(
-    id: _int(_json['id']),
+    id: JsonValue.toInt(_json['id']),
     name: _json['name']?.toString() ?? '',
     // Summa lavozimdan olinadi — foydalanuvchi uni kiritmaydi.
-    amount: _int(_json['amount']),
+    amount: JsonValue.toInt(_json['amount']),
   );
 }
 
@@ -41,7 +40,7 @@ final class OptionDto {
   final Map<String, dynamic> _json;
 
   UnderwriterOption toEntity() =>
-      UnderwriterOption(id: _int(_json['id']), name: _json['name']?.toString() ?? '');
+      UnderwriterOption(id: JsonValue.toInt(_json['id']), name: _json['name']?.toString() ?? '');
 }
 
 /// `POST upload-s3-url` javobi. `data` o'ramisiz keladi.
@@ -94,46 +93,46 @@ final class UnderwriterDataDto {
       // Qatorlar bo'sh kelsa oylar bloc'da yaratiladi: ular bugungi sanaga
       // bog'liq va DTO soatga qaramasligi kerak (9.4).
       salary: SalaryForm(
-        editId: _int(salary['id']),
+        editId: JsonValue.toInt(salary['id']),
         files: _files(salary['urls']),
         rows: _rows(salary['sum']),
       ),
       pension: PensionForm(
-        editId: _int(pension['id']),
+        editId: JsonValue.toInt(pension['id']),
         files: _files(pension['urls']),
-        amount: _int(pension['sum']),
+        amount: JsonValue.toInt(pension['sum']),
       ),
-      student: StudentForm(editId: _int(student['id']), files: _files(student['urls'])),
+      student: StudentForm(editId: JsonValue.toInt(student['id']), files: _files(student['urls'])),
       // Lavozim ichma-ich obyektda keladi: `military: { id, urls, rank: {...} }`.
       // Yuborishda esa u tekis `rank_id` bo'lib ketadi — kalitlar assimetrik
       // (flex `certificate_edit.dart:21` va `military_model.dart:15`).
       military: MilitaryForm(
-        editId: _int(military['id']),
+        editId: JsonValue.toInt(military['id']),
         files: _files(military['urls']),
         position: () {
           final Map<String, dynamic> rank = _object(military['rank']);
 
           return MilitaryPosition(
-            id: _int(rank['id']),
+            id: JsonValue.toInt(rank['id']),
             name: rank['name']?.toString() ?? '',
-            amount: _int(rank['amount']),
+            amount: JsonValue.toInt(rank['amount']),
           );
         }(),
       ),
       // Bu yerda ham assimetriya: id `car_brand_id`, nomi esa `brand_name`
       // (flex `auto_income.dart:63`).
       car: CarForm(
-        editId: _int(car['id']),
+        editId: JsonValue.toInt(car['id']),
         files: _files(car['urls']),
         brand: UnderwriterOption(
-          id: _int(car['car_brand_id']),
+          id: JsonValue.toInt(car['car_brand_id']),
           name: car['brand_name']?.toString() ?? '',
         ),
         model: UnderwriterOption(
-          id: _int(car['car_model_id']),
+          id: JsonValue.toInt(car['car_model_id']),
           name: car['model_name']?.toString() ?? '',
         ),
-        year: _int(car['manufacture_year']),
+        year: JsonValue.toInt(car['manufacture_year']),
       ),
     );
   }
@@ -145,7 +144,7 @@ final class UnderwriterDataDto {
         .whereType<Map<String, dynamic>>()
         .map(
           (Map<String, dynamic> e) =>
-              SalaryRow(year: _int(e['year']), month: _int(e['month']), amount: _int(e['salary'])),
+              SalaryRow(year: JsonValue.toInt(e['year']), month: JsonValue.toInt(e['month']), amount: JsonValue.toInt(e['salary'])),
         )
         .toList();
   }

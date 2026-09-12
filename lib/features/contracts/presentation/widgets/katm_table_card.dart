@@ -1,4 +1,3 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
@@ -6,6 +5,7 @@ import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:colloborator_v3/features/contracts/presentation/styles/katm_labels.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/katm_contract_sheet.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/katm_fields.dart';

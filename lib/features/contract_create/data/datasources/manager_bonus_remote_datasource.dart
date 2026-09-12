@@ -7,7 +7,7 @@ final class ManagerBonusRemoteDatasource {
 
   final Dio _dio;
 
-  Future<void> sendDecision(SendBonusParams params) => _dio.post<Map<String, dynamic>>(
+  Future<void> sendDecision(SendBonusParams params) => _dio.post<dynamic>(
     Endpoints.managerBonus,
     data: <String, dynamic>{
       'benefit_sum': params.form.amount,

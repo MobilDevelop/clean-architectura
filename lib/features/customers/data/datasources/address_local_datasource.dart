@@ -22,35 +22,27 @@ final class AddressLocalDatasource {
 
   String _villagesKey(int regionId) => 'villages_$regionId.$_version';
 
-  Future<List<AddressItemDto>?> getProvinces() => _read(_provincesKey);
+  /// Xom satr qaytariladi: uni o'qish va buzuqligini hal qilish
+  /// repositoryning ishi (4.7.4). Datasource xato ushlamaydi (4.3) — ilgari
+  /// `jsonDecode` shu yerda `try/catch` bilan o'ralgan edi.
+  Future<String?> readProvinces() => _cache.read(key: _provincesKey, maxAge: _maxAge);
 
-  Future<List<AddressItemDto>?> getRegions(int provinceId) => _read(_regionsKey(provinceId));
+  Future<String?> readRegions(int provinceId) => _cache.read(key: _regionsKey(provinceId), maxAge: _maxAge);
 
-  Future<List<AddressItemDto>?> getVillages(int regionId) => _read(_villagesKey(regionId));
+  Future<String?> readVillages(int regionId) => _cache.read(key: _villagesKey(regionId), maxAge: _maxAge);
+
+  /// Buzuq yozuvni tashlab yuborish — repository shuni chaqiradi.
+  Future<void> dropProvinces() => _cache.remove(_provincesKey);
+
+  Future<void> dropRegions(int provinceId) => _cache.remove(_regionsKey(provinceId));
+
+  Future<void> dropVillages(int regionId) => _cache.remove(_villagesKey(regionId));
 
   Future<void> saveProvinces(List<AddressItemDto> items) => _write(_provincesKey, items);
 
   Future<void> saveRegions(int provinceId, List<AddressItemDto> items) => _write(_regionsKey(provinceId), items);
 
   Future<void> saveVillages(int regionId, List<AddressItemDto> items) => _write(_villagesKey(regionId), items);
-
-  /// Buzuq yozuv xato emas — "keshda yo'q" deb hisoblanadi va serverga
-  /// boriladi. Aks holda bir marta buzilgan kesh ekranni butunlay yopib
-  /// qo'yardi.
-  Future<List<AddressItemDto>?> _read(String key) async {
-    final String? raw = await _cache.read(key: key, maxAge: _maxAge);
-    if (raw == null) return null;
-
-    try {
-      final Object? decoded = jsonDecode(raw);
-      if (decoded is! List) return null;
-
-      return decoded.whereType<Map<String, dynamic>>().map(AddressItemDto.fromJson).toList();
-    } catch (_) {
-      await _cache.remove(key);
-      return null;
-    }
-  }
 
   Future<void> _write(String key, List<AddressItemDto> items) =>
       _cache.write(key: key, value: jsonEncode(items.map((AddressItemDto item) => item.toJson()).toList()));

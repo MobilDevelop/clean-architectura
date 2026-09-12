@@ -1,4 +1,5 @@
 import 'package:colloborator_v3/core/network/endpoints.dart';
+import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/contract_create/data/models/skip_reason_dto.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/katm_skip.dart';
 import 'package:dio/dio.dart';
@@ -22,7 +23,7 @@ final class KatmSkipRemoteDatasource {
   /// `success` HTTP 200 bilan ham `false` bo'lishi mumkin — shuning uchun
   /// javob repositoryga o'zi qaytariladi.
   Future<bool> turnOffKatm(KatmSkipParams params) async {
-    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.post<dynamic>(
       Endpoints.turnOffKatm,
       data: <String, dynamic>{
         'contract_id': params.contractId,
@@ -31,6 +32,6 @@ final class KatmSkipRemoteDatasource {
       },
     );
 
-    return result.data?['success'] as bool? ?? false;
+    return JsonParser.field(result.data, 'success') as bool? ?? false;
   }
 }

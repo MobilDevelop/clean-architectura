@@ -29,6 +29,6 @@ abstract final class CardConfirmText {
     CardConfirmIssue.codeMissing => "SMS kodni kiriting",
     CardConfirmIssue.cardNumberShort => "Karta raqami 16 xonadan iborat",
     CardConfirmIssue.expiryInvalid => "Karta muddati yaroqsiz",
-    CardConfirmIssue.phoneShort => "Telefon raqami to'liq emas",
+    CardConfirmIssue.phoneShort => "Telefon raqami to'liq emas yoki operator kodi yaroqsiz",
   };
 }

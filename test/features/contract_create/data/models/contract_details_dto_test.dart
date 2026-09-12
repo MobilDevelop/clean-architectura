@@ -107,4 +107,31 @@ void main() {
 
     expect(details.products.single.price, 1800000);
   });
+
+  // `status_id` `POST` va `PUT` orasidagi mezon. Ilgari u `0` ga tushib,
+  // `0 != draftStatus` bo'lgani uchun YANGI shartnoma «tahrirlangan» deb
+  // hisoblanib `PUT` bilan yuborilardi.
+  test('status kelmasa statusCode null bo‘ladi', () {
+    final ContractDetails details = ContractDetailsDto(const <String, dynamic>{}).toEntity();
+
+    expect(details.statusCode, isNull);
+  });
+
+  test('status kelsa o‘qiladi', () {
+    final ContractDetails details = ContractDetailsDto(
+      const <String, dynamic>{'status_id': 7},
+    ).toEntity();
+
+    expect(details.statusCode, 7);
+  });
+
+  // `?? 0` bo'lsa menejer qarori 0-shartnomaga ketardi.
+  test('bonus contract_id siz yasalmaydi', () {
+    final ContractDetails details = ContractDetailsDto(<String, dynamic>{
+      'has_benefit': true,
+      'benefit': <String, dynamic>{'required_amount': '50000'},
+    }).toEntity();
+
+    expect(details.benefit, isNull);
+  });
 }

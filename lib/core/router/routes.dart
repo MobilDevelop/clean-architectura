@@ -1,6 +1,6 @@
 import 'package:colloborator_v3/core/router/coordinate.dart';
 
-class Routes implements Coordinate {
+final class Routes implements Coordinate {
   const Routes._({required this.name,required this.path});
 
   final String name;

@@ -1,3 +1,5 @@
+import 'package:colloborator_v3/core/utils/card_expiry.dart';
+import 'package:colloborator_v3/core/utils/uz_phone.dart';
 import 'package:equatable/equatable.dart';
 
 /// Daromad asosi.
@@ -69,11 +71,13 @@ final class CardForm extends Equatable {
 
   int get year => expiry.length < 4 ? 0 : int.tryParse(expiry.substring(2, 4)) ?? 0;
 
-  CardFieldIssue get issue {
-    if (phone.length != phoneDigits) return CardFieldIssue.phoneIncomplete;
+  /// Vaqt tashqaridan: muddat o'tganini tekshirish uchun bugungi sana kerak,
+  /// uni entity ichida o'qish esa qoidani soatga bog'lab qo'yardi (9.4).
+  CardFieldIssue issueAt(DateTime now) {
+    if (!UzPhone.isValid(phone)) return CardFieldIssue.phoneIncomplete;
     if (number.length != numberDigits) return CardFieldIssue.numberIncomplete;
     if (expiry.length != expiryDigits) return CardFieldIssue.expiryIncomplete;
-    if (month < 1 || month > 12) return CardFieldIssue.expiryInvalid;
+    if (!CardExpiry.isUsable(month: month, year: year, now: now)) return CardFieldIssue.expiryInvalid;
 
     return CardFieldIssue.none;
   }

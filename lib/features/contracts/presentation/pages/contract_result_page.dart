@@ -1,12 +1,12 @@
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
+import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/katm_tab.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/mib_tab.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/result_tab_bar.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/scoring_tab.dart';
-import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

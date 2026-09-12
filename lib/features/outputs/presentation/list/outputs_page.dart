@@ -5,20 +5,21 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
+import 'package:colloborator_v3/core/widgets/dialogs/app_dialog.dart';
+import 'package:colloborator_v3/core/widgets/drawer/app_drawer_scope.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
+import 'package:colloborator_v3/core/widgets/headers/date_filter_header.dart';
 import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
-import 'package:colloborator_v3/core/widgets/dialogs/app_dialog.dart';
+import 'package:colloborator_v3/core/widgets/states/list_skeleton.dart';
 import 'package:colloborator_v3/core/widgets/states/pull_refresh.dart';
 import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_bloc.dart';
-import 'package:colloborator_v3/features/outputs/presentation/shared/output_text.dart';
+import 'package:colloborator_v3/features/outputs/presentation/bloc/outputs/outputs_bloc.dart';
 import 'package:colloborator_v3/features/outputs/presentation/list/output_card.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_header.dart';
-import 'package:colloborator_v3/features/outputs/presentation/list/outputs_skeleton.dart';
 import 'package:colloborator_v3/features/outputs/presentation/release/release_sheet.dart';
 import 'package:colloborator_v3/features/outputs/presentation/release/release_text.dart';
+import 'package:colloborator_v3/features/outputs/presentation/shared/output_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -170,9 +171,13 @@ final class _OutputsPageState extends State<OutputsPage> {
                   right: 0,
                   child: BlocSelector<OutputsBloc, OutputsState, DateTime?>(
                     selector: (OutputsState state) => state.query.date,
-                    builder: (BuildContext context, DateTime? date) => OutputsHeader(
+                    builder: (BuildContext context, DateTime? date) => DateFilterHeader(
+                      title: OutputText.title,
                       topInset: topInset,
                       date: date,
+                      // Menyu tugmasi shu yerda ham bo'lishi kerak: u yo'q
+                      // bo'lgani uchun bu bo'limdan menyu umuman ochilmasdi.
+                      drawerPress: () => AppDrawerScope.of(context)?.call(),
                       filterPress: () => unawaited(_openFilter(date)),
                       clearDate: () => _bloc.add(const DateCleared()),
                     ),
@@ -194,7 +199,7 @@ final class _OutputsPageState extends State<OutputsPage> {
       return ListView(
         controller: _scroll,
         padding: padding,
-        children: const <Widget>[OutputsSkeleton()],
+        children: const <Widget>[ListSkeleton()],
       );
     }
 

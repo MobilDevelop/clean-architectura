@@ -1,5 +1,5 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 KatmScoring _scoring({int grade = 250, int min = 0, int max = 500}) =>

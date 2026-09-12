@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
@@ -66,25 +67,28 @@ final class _OfferSheetState extends State<OfferSheet> {
     super.dispose();
   }
 
+  /// `try/catch` yo'q: hujjat `Result` qaytaradi (12-bo'lim). Sabab botga
+  /// `guard` orqali ketgan, bu yerda faqat ekranga nima chiqishi hal qilinadi.
   Future<void> _load() async {
-    try {
-      final String content = await _document.load(AppIcons.offerUz);
-      if (!mounted) return;
+    final Result<String> result = await _document.load(AppIcons.offerUz);
+    if (!mounted) return;
 
-      setState(() {
-        _html = content;
-        _isLoading = false;
-      });
+    switch (result) {
+      case Ok(: final String value):
+        setState(() {
+          _html = value;
+          _isLoading = false;
+        });
 
-      // Matn ekranga to'liq sig'sa hech qachon scroll bo'lmaydi — flex'da
-      // shu holatda tasdiqlash tugmasi abadiy o'chiq qolardi.
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkFits());
-    } catch (_) {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _isFailed = true;
-      });
+        // Matn ekranga to'liq sig'sa hech qachon scroll bo'lmaydi — flex'da
+        // shu holatda tasdiqlash tugmasi abadiy o'chiq qolardi.
+        WidgetsBinding.instance.addPostFrameCallback((_) => _checkFits());
+
+      case Err():
+        setState(() {
+          _isLoading = false;
+          _isFailed = true;
+        });
     }
   }
 

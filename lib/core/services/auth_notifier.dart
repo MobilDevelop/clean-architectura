@@ -5,7 +5,7 @@ import 'package:colloborator_v3/core/services/secure_token_storage.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:flutter/foundation.dart';
 
-class AuthNotifier extends ChangeNotifier {
+final class AuthNotifier extends ChangeNotifier {
   AuthNotifier(this._tokenStorage, this._cache, this._session);
 
   final SecureTokenStorage _tokenStorage;

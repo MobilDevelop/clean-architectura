@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
+import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_usecases.dart';
-import 'package:colloborator_v3/core/utils/camera_issue.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/product_picker_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/product_picker/product_picker_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_repository.dart';

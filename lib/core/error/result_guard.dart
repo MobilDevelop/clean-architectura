@@ -18,6 +18,25 @@ abstract final class GuardReport {
   static GuardReporter? reporter;
 }
 
+/// Biznes qoidasi bo'yicha aniq `Failure` qaytarish uchun.
+///
+/// Nega kerak: `guard` istisnoni tasniflaydi, lekin ba'zan repository o'zi
+/// qaysi `Failure` ekanini biladi — masalan server 200 bilan «qoralama
+/// yaratilmadi» deb javob bersa, bu `ClientFailure`, parse xatosi emas.
+/// Usiz o'sha metodlar `guard` dan tashqarida qolib, 5.7 bo'yicha xabar
+/// berishni yo'qotardi.
+///
+/// Bu yo'l bilan qaytarilgan `Failure` botga **yuborilmaydi**: u nosozlik
+/// emas, kutilgan biznes natijasi.
+final class GuardFailure implements Exception {
+  const GuardFailure(this.failure);
+
+  final Failure failure;
+
+  @override
+  String toString() => 'GuardFailure(${failure.message})';
+}
+
 /// Istisnoni `Failure` ga o'giradigan yagona joy.
 ///
 /// Nega funksiya: 5.5 har bir repository metodida oxirgi `catch (_)` ni talab
@@ -28,6 +47,8 @@ abstract final class GuardReport {
 Future<Result<T>> guard<T>(Future<T> Function() run) async {
   try {
     return Ok<T>(await run());
+  } on GuardFailure catch (e) {
+    return Err<T>(e.failure);
   } on DioException catch (e, s) {
     return _err<T>(ErrorMapper.fromDio(e), e, s);
   } on TypeError catch (e, s) {

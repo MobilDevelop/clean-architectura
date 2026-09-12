@@ -3,7 +3,7 @@ import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/income.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/income/contract_card_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_card/contract_card_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_income_repository.dart';
@@ -16,6 +16,7 @@ ContractCardBloc _bloc(FakeContractIncomeRepository repo, {ContractCard card = _
   card: card,
   addCard: AddCardUsecase(repo),
   removeCard: RemoveCardUsecase(repo),
+    now: () => DateTime(2026, 9, 12),
 );
 
 Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 30));

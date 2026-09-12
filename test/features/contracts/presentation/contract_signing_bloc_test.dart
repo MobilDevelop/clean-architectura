@@ -7,9 +7,9 @@ import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_signing.dart';
 import 'package:colloborator_v3/features/contracts/domain/repositories/contract_signing_repository.dart';
 import 'package:colloborator_v3/features/contracts/domain/usecase/signing_usecases.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_bloc.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_event.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing_state.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_event.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final class _FakeSigningRepository implements ContractSigningRepository {

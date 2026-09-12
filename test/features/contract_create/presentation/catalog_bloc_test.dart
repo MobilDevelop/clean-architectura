@@ -2,7 +2,7 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/paged.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/catalog_query.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/picker/catalog_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/catalog/catalog_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

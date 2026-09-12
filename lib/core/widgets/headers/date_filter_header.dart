@@ -14,10 +14,16 @@ import 'package:intl/intl.dart';
 
 final DateFormat _dayFormat = DateFormat('dd.MM.yyyy');
 
-/// Shartnomalar ro'yxatining suzuvchi sarlavhasi.
-final class ContractsHeader extends StatelessWidget {
-  const ContractsHeader({
+/// Sana bo'yicha filtrlanadigan ro'yxatning suzuvchi sarlavhasi.
+///
+/// Nega `core/` da: shartnomalar, chiqim tovarlar va fakturalar ro'yxatlari
+/// bir xil sarlavhaga ega (1.2). Uchtasida alohida yozilganda ulardan biri
+/// menyu tugmasisiz qolib ketgan edi — ya'ni o'sha bo'limda menyuni ochib
+/// bo'lmasdi.
+final class DateFilterHeader extends StatelessWidget {
+  const DateFilterHeader({
     super.key,
+    required this.title,
     required this.topInset,
     required this.date,
     required this.drawerPress,
@@ -25,10 +31,12 @@ final class ContractsHeader extends StatelessWidget {
     required this.clearDate,
   });
 
+  final String title;
   final double topInset;
 
   /// Tanlangan sana. `null` — filtr qo'yilmagan.
   final DateTime? date;
+
   final VoidCallback drawerPress;
   final VoidCallback filterPress;
   final VoidCallback clearDate;
@@ -41,53 +49,54 @@ final class ContractsHeader extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: AppSurface.blurSigma, sigmaY: AppSurface.blurSigma),
         child: Container(
-          padding: EdgeInsets.only(top: topInset, left: ScreenSize.h12, right: ScreenSize.h12, bottom: ScreenSize.h8),
+          padding: EdgeInsets.only(
+            top: topInset,
+            left: ScreenSize.h12,
+            right: ScreenSize.h12,
+            bottom: ScreenSize.h8,
+          ),
           decoration: BoxDecoration(
             color: AppTheme.colors.backcolor.withValues(alpha: AppSurface.panelAlpha),
             border: Border(bottom: BorderSide(color: AppSurface.line(alpha: .6))),
           ),
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: ScreenSize.h48,
-                child: Row(
-                  children: <Widget>[
-                    CircleIconButton(icon: AppIcons.drawer, onTap: drawerPress),
+          child: SizedBox(
+            height: ScreenSize.h48,
+            child: Row(
+              children: <Widget>[
+                CircleIconButton(icon: AppIcons.drawer, onTap: drawerPress),
 
-                    Gap(ScreenSize.w12),
-                    Expanded(
-                      child: Text(
-                        "Shartnomalar",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft),
-                      ),
-                    ),
-
-                    // Faol filtr kalendar tugmasining yonida turadi: sarlavha
-                    // bir qatorda qoladi va ro'yxat pastga surilmaydi.
-                    AnimatedSize(
-                      duration: Duration(milliseconds: AppConstants.duration),
-                      curve: Curves.easeOutCubic,
-                      alignment: Alignment.centerRight,
-                      child: selected == null
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              padding: EdgeInsets.only(right: ScreenSize.w8),
-                              child: _ActiveFilterChip(label: _dayFormat.format(selected), onClear: clearDate),
-                            ),
-                    ),
-
-                    CircleIconButton(
-                      icon: AppIcons.calendar,
-                      onTap: filterPress,
-                      // Filtr yoqilganini tugmaning o'zi ham ko'rsatadi.
-                      color: selected == null ? null : AppTheme.colors.primary,
-                    ),
-                  ],
+                Gap(ScreenSize.w12),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft),
+                  ),
                 ),
-              ),
-            ],
+
+                // Faol filtr kalendar tugmasining yonida turadi: sarlavha
+                // bir qatorda qoladi va ro'yxat pastga surilmaydi.
+                AnimatedSize(
+                  duration: Duration(milliseconds: AppConstants.duration),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.centerRight,
+                  child: selected == null
+                      ? const SizedBox.shrink()
+                      : Padding(
+                          padding: EdgeInsets.only(right: ScreenSize.w8),
+                          child: _ActiveFilterChip(label: _dayFormat.format(selected), onClear: clearDate),
+                        ),
+                ),
+
+                CircleIconButton(
+                  icon: AppIcons.calendar,
+                  onTap: filterPress,
+                  // Filtr yoqilganini tugmaning o'zi ham ko'rsatadi.
+                  color: selected == null ? null : AppTheme.colors.primary,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -96,6 +105,9 @@ final class ContractsHeader extends StatelessWidget {
 }
 
 /// Qo'llanilgan filtr va uni olib tashlash tugmasi.
+///
+/// Tanlangan sana ko'rinib turadi va shu yerdan tozalanadi — aks holda bo'sh
+/// ro'yxat filtrdanmi yoki ma'lumot yo'qligidanmi bilinmasdi (5.8).
 final class _ActiveFilterChip extends StatelessWidget {
   const _ActiveFilterChip({required this.label, required this.onClear});
 

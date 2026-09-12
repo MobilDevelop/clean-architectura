@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-
 import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
@@ -10,13 +9,13 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
+import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/core/widgets/sheets/date_sheet.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_search_param.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/face_check_form.dart';
-import 'package:colloborator_v3/features/customers/presentation/bloc/face_id_bloc.dart';
+import 'package:colloborator_v3/features/customers/presentation/bloc/face_id/face_id_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/face_check_issue_text.dart';
-import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/face_id_hint.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_check.dart';
 import 'package:colloborator_v3/features/customers/presentation/widgets/offer_sheet.dart';

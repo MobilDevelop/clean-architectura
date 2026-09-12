@@ -6,7 +6,7 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/contrac
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_file_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/download_contract_file_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/details/contract_details_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '_fake_repository.dart';

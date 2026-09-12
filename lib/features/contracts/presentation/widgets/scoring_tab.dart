@@ -4,7 +4,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/states/empty_placeholder.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
-import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result_bloc.dart';
+import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/flex_messages_card.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/report_failure_view.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/scoring_participant.dart';

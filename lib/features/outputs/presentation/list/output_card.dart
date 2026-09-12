@@ -7,8 +7,8 @@ import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
-import 'package:colloborator_v3/features/outputs/presentation/shared/output_text.dart';
 import 'package:colloborator_v3/features/outputs/presentation/list/output_product_row.dart';
+import 'package:colloborator_v3/features/outputs/presentation/shared/output_text.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 

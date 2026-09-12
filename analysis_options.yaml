@@ -23,3 +23,7 @@ linter:
     - close_sinks
     - only_throw_errors
     - prefer_final_locals
+    # Importlar tartibi: `dart` → `package:` → nisbiy, har biri alifbo bo'yicha.
+    # Yoqilmaganida ular qo'lda qo'shilgan joyda qolib, fayl ustida ishlaganda
+    # kerakli importni topish qiyinlashadi.
+    - directives_ordering

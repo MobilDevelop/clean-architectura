@@ -1,7 +1,7 @@
-import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 import 'package:colloborator_v3/features/contracts/data/models/credit_report_dto.dart';
 import 'package:colloborator_v3/features/contracts/data/models/katm_money_fields.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/katm_row.dart';
 
 /// KATM javobi og'ir (1.7 MB gacha) va jadval bo'limlaridagi maydonlar soni
 /// bo'limga qarab o'zgaradi. Shuning uchun qatorlar tiplangan ro'yxatga
@@ -82,8 +82,8 @@ final class KatmReportDto {
           )
           .toList(),
       overview: _row(_json['overview'] as Map<String, dynamic>? ?? const <String, dynamic>{}),
-      hasCreditBan: ban['banned'] as bool? ?? false,
-      isBlacklisted: _json['blacklisted'] as bool? ?? false,
+      hasCreditBan: _flag(ban['banned']),
+      isBlacklisted: _flag(_json['blacklisted']),
       layout: layout,
       tables: layout.map((KatmSection section) => _table(section.key)).toList(),
       comments: _list(_json['comments'])
@@ -125,4 +125,19 @@ final class KatmReportDto {
 
     return KatmTable(key: key, rows: _list(data).map(_row).toList(), totals: null);
   }
+}
+
+/// Xavf bayrog'i.
+///
+/// Kalit umuman kelmasa — «yo'q» deb qaraladi: backend salbiy bayroqni
+/// yubormasligi mumkin. Lekin kalit **kelib**, qiymati `bool` bo'lmasa
+/// (`"true"`, `1`, obyekt) — bu nosozlik va uni jimgina «toza» ga aylantirish
+/// mumkin emas: qora ro'yxatdagi mijozda ogohlantirish chizilmay qolardi va
+/// xodim kreditni tasdiqlardi. Istisno `guard` orqali `ParseFailure` ga
+/// aylanadi va botga ketadi (5.7).
+bool _flag(Object? raw) {
+  if (raw == null) return false;
+  if (raw is bool) return raw;
+
+  throw FormatException('xavf bayrog\'i bool emas: ${raw.runtimeType}');
 }

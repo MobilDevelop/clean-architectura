@@ -62,6 +62,14 @@ abstract final class JsonParser {
     }
   }
 
+  /// Javob tanasidan kalitni oladi. Tanasi obyekt bo'lmasa `null`.
+  ///
+  /// Nega kerak: `dio.get<dynamic>` dan keyin `result.data?['data']` yozish
+  /// `dynamic` ustidan chaqiruv bo'ladi (`avoid_dynamic_calls`). Tipli
+  /// so'rov (`get<Map<String, dynamic>>`) esa undan ham yomon: javob boshqa
+  /// shaklda kelsa Dio ichida, interceptor zanjiridan **keyin** yiqiladi.
+  static Object? field(Object? raw, String key) => raw is Map ? raw[key] : null;
+
   static void _report(ParseIssue issue) {
     final report = reporter;
     if (report == null) return;

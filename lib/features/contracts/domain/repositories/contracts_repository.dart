@@ -1,8 +1,8 @@
 import 'package:colloborator_v3/core/result/result.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
-import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
+import 'package:colloborator_v3/features/contracts/domain/entities/contracts_filter.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/credit_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/katm_report.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/mib_report.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
-class ThousandsSeparatorInputFormatter extends TextInputFormatter {
+final class ThousandsSeparatorInputFormatter extends TextInputFormatter {
   final NumberFormat formatter = NumberFormat('#,###', 'en_US');
 
   @override

@@ -29,6 +29,12 @@ Dio createDio({required List<Interceptor> interceptors}) {
 /// buzadi. Interceptorlar esa ikkalasini ham har so'rovga qo'shadi. Shuning
 /// uchun bu klientda na interceptor, na `baseUrl` bor.
 ///
+/// Xato haqida xabar beruvchi interceptor esa **qo'shiladi**: u so'rovga
+/// hech nima qo'shmaydi, faqat `onError` da ishlaydi. Usiz fayl yuklashdagi
+/// har qanday nosozlik botga umuman yetib bormasdi — `guard` esa har qanday
+/// `DioException` ni «interceptor ko'rdi» deb hisoblab, uni ikkinchi marta
+/// yubormasdi (5.7).
+///
 /// Bu 12-bo'limdagi "global Dio nusxasi" taqiqiga zid emas: nusxa servis
 /// ichida emas, DI da yaratiladi va tipi bilan nima uchun kerakligini aytadi.
 final class UploadClient {
@@ -37,12 +43,16 @@ final class UploadClient {
   final Dio dio;
 }
 
-UploadClient createUploadClient() => UploadClient(
-  Dio(
+UploadClient createUploadClient({required Interceptor errorReporter}) {
+  final Dio dio = Dio(
     BaseOptions(
       // Fayl yuklash sekin tarmoqda uzoq davom etadi.
       sendTimeout: const Duration(minutes: 3),
       receiveTimeout: const Duration(minutes: 1),
     ),
-  ),
-);
+  );
+
+  dio.interceptors.add(errorReporter);
+
+  return UploadClient(dio);
+}

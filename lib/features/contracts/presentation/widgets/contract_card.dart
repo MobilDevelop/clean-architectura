@@ -6,6 +6,7 @@ import 'package:colloborator_v3/core/theme/app_shadow.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/widgets/cards/labeled_row.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_approval_note.dart';
 import 'package:flutter/material.dart';
@@ -61,12 +62,12 @@ final class ContractCard extends StatelessWidget {
           children: <Widget>[
             _client(),
 
-            _ContractRow(label: "Shartnoma kodi", value: Text(
+            LabeledRow(label: "Shartnoma kodi", value: Text(
               "№ ${contract.id}",
               style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
             )),
 
-            _ContractRow(label: "Sanasi", value: Text(
+            LabeledRow(label: "Sanasi", value: Text(
               contract.createdAt,
               style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
             )),
@@ -74,18 +75,18 @@ final class ContractCard extends StatelessWidget {
             // Qo'shimcha qatorlar faqat ma'lumot bo'lganda chiqadi: bo'sh
             // «0 kafil» qatori kartani uzaytirib, hech nima aytmasdi.
             if (contract.guarantors.isNotEmpty)
-              _ContractRow(label: "Kafillar", value: Text(
+              LabeledRow(label: "Kafillar", value: Text(
                 "${contract.guarantors.length} ta",
                 style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
               )),
 
             if (contract.flex)
-              _ContractRow(label: "Turi", value: Text(
+              LabeledRow(label: "Turi", value: Text(
                 "Flex",
                 style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
               )),
 
-            _ContractRow(
+            LabeledRow(
               label: "Status",
               isLast: true,
               value: _StatusChip(
@@ -149,45 +150,6 @@ final class ContractCard extends StatelessWidget {
       ),
     ],
   );
-}
-
-/// «Yorliq — qiymat» qatori. Oxirgisidan keyin chiziq chizilmaydi.
-final class _ContractRow extends StatelessWidget {
-  const _ContractRow({required this.label, required this.value, this.isLast = false});
-
-  final String label;
-  final Widget value;
-  final bool isLast;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Divider(height: ScreenSize.h20, thickness: ScreenSize.h1, color: AppSurface.line()),
-
-        // Yorliq va qiymat bir qatorga sig'sa — chetlarga tarqaladi; sig'masa
-        // qiymat o'z qatoriga tushadi. `Row` da ulardan biri baribir kesilardi:
-        // 360px ekranda tizim shrifti 1.2× bo'lganda «Shartnoma tasdiqlangan»
-        // uch nuqta bilan tugab, holatni o'qib bo'lmay qolardi.
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: ScreenSize.w10,
-          runSpacing: ScreenSize.h6,
-          children: <Widget>[
-            Text(
-              label,
-              style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.grey),
-            ),
-
-            value,
-          ],
-        ),
-
-        if (isLast) Gap(ScreenSize.h2),
-      ],
-    );
-  }
 }
 
 final class _StatusChip extends StatelessWidget {

@@ -1,8 +1,8 @@
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_form.dart';
 import 'package:colloborator_v3/features/customers/presentation/styles/customer_form_issue_text.dart';
-import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 

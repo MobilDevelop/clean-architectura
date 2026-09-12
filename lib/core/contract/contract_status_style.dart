@@ -1,5 +1,5 @@
-import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/contract/contract_status.dart';
+import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 /// Status holatini ekranda qanday ko'rsatish.

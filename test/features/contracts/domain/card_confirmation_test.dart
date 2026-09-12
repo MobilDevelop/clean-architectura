@@ -102,10 +102,10 @@ void main() {
       const CardEntry shortPhone = CardEntry(number: '8600000000000000', expiry: '09/30', phone: '99890');
       const CardEntry good = CardEntry(number: '8600000000000000', expiry: '09/30', phone: '998901234567');
 
-      expect(short.issue, CardConfirmIssue.cardNumberShort);
-      expect(badMonth.issue, CardConfirmIssue.expiryInvalid);
-      expect(shortPhone.issue, CardConfirmIssue.phoneShort);
-      expect(good.issue, CardConfirmIssue.none);
+      expect(short.issueAt(DateTime(2026, 9, 12)), CardConfirmIssue.cardNumberShort);
+      expect(badMonth.issueAt(DateTime(2026, 9, 12)), CardConfirmIssue.expiryInvalid);
+      expect(shortPhone.issueAt(DateTime(2026, 9, 12)), CardConfirmIssue.phoneShort);
+      expect(good.issueAt(DateTime(2026, 9, 12)), CardConfirmIssue.none);
     });
   });
 
@@ -115,7 +115,7 @@ void main() {
 
     setUp(() {
       repo = _FakeRepo();
-      submit = SubmitCardConfirmationUsecase(repo);
+      submit = SubmitCardConfirmationUsecase(repo, () => DateTime(2026, 9, 12));
     });
 
     test('kodsiz yuborilmaydi', () async {

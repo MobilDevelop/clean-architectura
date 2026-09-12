@@ -1,4 +1,5 @@
 import 'package:colloborator_v3/core/network/endpoints.dart';
+import 'package:colloborator_v3/core/network/paged_response.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/outputs/data/models/output_dto.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
@@ -38,7 +39,15 @@ final class OutputsRemoteDatasource {
       fromJson: OutputContractDto.fromJson,
     );
 
-    return (items: items, isLast: _isLast(json, items.length, query.page));
+    return (
+      items: items,
+      isLast: PagedResponse.isLast(
+        json: json,
+        received: items.length,
+        page: query.page,
+        perPage: OutputsQuery.perPage,
+      ),
+    );
   }
 
   Future<List<OutputProductDto>> getProducts(int contractId) async {
@@ -52,19 +61,5 @@ final class OutputsRemoteDatasource {
       body is Map ? body['data'] : body,
       fromJson: OutputProductDto.fromJson,
     );
-  }
-
-  /// Oxirgi sahifami.
-  ///
-  /// Server sahifa ma'lumotini bersa unga tayaniladi, aks holda to'lmagan
-  /// sahifa oxirgisi deb hisoblanadi. Flex bo'sh javob kelguncha sahifani
-  /// oshiraverardi — ya'ni har doim bitta ortiqcha so'rov yuborardi.
-  bool _isLast(Map<String, dynamic> json, int received, int page) {
-    final Object? lastPage = json['last_page'] ?? json['meta'];
-    final int? last = lastPage is Map ? int.tryParse('${lastPage['last_page']}') : int.tryParse('$lastPage');
-
-    if (last != null && last > 0) return page >= last;
-
-    return received < OutputsQuery.perPage;
   }
 }

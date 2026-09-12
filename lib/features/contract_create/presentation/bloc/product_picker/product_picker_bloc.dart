@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:colloborator_v3/core/result/paged.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/result/paged.dart';
 import 'package:colloborator_v3/core/result/result.dart';
+import 'package:colloborator_v3/core/utils/camera_issue.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/add_product_params.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/catalog_query.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/domain/entities/add_product_params.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/add_product_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_usecases.dart';
-import 'package:colloborator_v3/core/utils/camera_issue.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

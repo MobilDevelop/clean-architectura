@@ -16,16 +16,16 @@ abstract final class CustomerFormIssueText {
   static String? house(CustomerFormIssue issue) => issue == CustomerFormIssue.houseMissing ? "Uy raqamini yozing" : null;
 
   static String? mainPhone(CustomerFormIssue issue) =>
-      issue == CustomerFormIssue.mainPhoneInvalid ? "Raqamni to'liq kiriting" : null;
+      issue == CustomerFormIssue.mainPhoneInvalid ? "Raqamni to'liq va to'g'ri kiriting" : null;
 
   static String? relativePhone(CustomerFormIssue issue) =>
-      issue == CustomerFormIssue.relativePhoneInvalid ? "Raqamni to'liq kiriting" : null;
+      issue == CustomerFormIssue.relativePhoneInvalid ? "Raqamni to'liq va to'g'ri kiriting" : null;
 
   static String? relativeKind(CustomerFormIssue issue) =>
       issue == CustomerFormIssue.relativeKindMissing ? "Kim ekanini tanlang" : null;
 
   static String? friendPhone(CustomerFormIssue issue) =>
-      issue == CustomerFormIssue.friendPhoneInvalid ? "Raqamni to'liq kiriting" : null;
+      issue == CustomerFormIssue.friendPhoneInvalid ? "Raqamni to'liq va to'g'ri kiriting" : null;
 
   static String? workplace(CustomerFormIssue issue) =>
       issue == CustomerFormIssue.workplaceMissing ? "Ish joyini tanlang" : null;

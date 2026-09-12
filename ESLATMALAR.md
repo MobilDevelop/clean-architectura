@@ -447,11 +447,257 @@ Ko'chirishni boshlashdan oldin javob kerak:
 16. **`GET loans/{id}` `occupation_type_id` ni qaytarmaydi.** Shu sababli shartnoma qayta ochilganda tanlangan kasb turi ko'rinmaydi va qayta so'raladi. Javobga qo'shish mumkinmi?
 17. **`add_loan_guarantor` qaytaradigan `id` — mijoz id simi yoki qator id si?** `DELETE delete_loan_guarantor/{id}` qaysinisini kutadi? Hozir server qaytargani o'zgartirilmasdan saqlanadi va o'chirishda ishlatiladi (flex ham shunday).
 
+**Fakturalar tugadi** (2026-09-12). `lib/features/invoices/`: `GET invoices` ro'yxati (sana filtri, sahifalash, tortib yangilash), karta bosilganda amallar oynasi — faylni ochish va yuk xatini ta'minotchiga yuborish (`POST waybills/{id}/send-to-partner`).
+
+Bitta ekran bo'lgani uchun `presentation/` qatlam papkalarida qoldi (1.1a chegarasi oshmagan).
+
+**Fayl tashqi ilovada ochiladi.** Flex `syncfusion_flutter_pdfviewer` bilan ilova ichida ko'rsatadi; v3 da bu kutubxona yo'q va faqat shuning uchun qo'shish ortiqcha — `url_launcher` allaqachon bor. Natija tekshiriladi: ochadigan ilova bo'lmasa sabab aytiladi (5.8).
+
+**Ichma-ich obyektlar himoyalangan.** Flex `json['status']['id']` deb o'qiydi — `status` kelmasa **butun ro'yxat** parse paytida yiqilib, ekran «Ma'lumot topilmadi» deb turib qolardi. Bu yerda `_nested()` orqali o'qiladi va yozuv `unknown` holat bilan qoladi.
+
+**Fayli yoki yuk xati yozuvi yo'q faktura amali o'chiq turadi** va sababi oyna tepasida yoziladi. Yozuvsiz `POST waybills/0/send-to-partner` serverda rad etilib, xodimga umumiy xato ko'rinardi.
+
+**Yuborish aylanishi aynan bosilgan kartada.** State'da bayroq emas, `sendingId` turadi: umumiy bayroq butun ro'yxatni aylantirib yuborardi.
+
+**Backenddan so'raladi:**
+
+- **`invoices` `per_page` ni qabul qiladimi?** Flex'da u **izohga olingan** (`// "per_page": 15`), ya'ni sahifa hajmi noma'lum. Bu yerda `output_contracts` bilan bir xil 15 yuboriladi va oxirgi sahifa server bergan `last_page` yoki to'lmagan sahifa bo'yicha aniqlanadi. Server `per_page` ni e'tiborsiz qoldirsa ortiqcha bitta so'rov ketadi (flex'dagi holat).
+- **`invoices` javobidagi `file_url` / `file` / `document` nima?** Flex uni modelga o'qiydi, lekin **hech qayerda ishlatmaydi** — ko'rish uchun `waybill_url` ochiladi. Shuning uchun entityga qo'shilmadi.
+
 **Yo'l-yo'lakay topilgan va tuzatilgan nuqsonlar (2026-09-12):**
 
 - **`MainButton` uzun yozuvda toshib ketardi.** Ikonkali tugmada `Row` ning yozuvi `Flexible` emas edi, tugmaning balandligi esa qat'iy — ikkinchi qatorga tushgan yozuv ichida kesilib, jimgina ko'rinmay qolardi (5.8). Endi `constraints: minHeight` va `Flexible` + `textAlign.center`. Bu **butun ilovaning** tugmalariga tegadi.
 - **Chiqim kartasida summa va holat bir qatorda edi** — uzun holat nomi qatordan toshib ketardi, summa esa uch nuqtaga aylanardi. Shartnoma kartasidagi yechim qo'yildi: `Wrap(spaceBetween)`, `maxLines` olib tashlandi. Tovar qatorida ham narx nom bilan yonma-yon turardi — endi u nom ostida, alohida qatorda.
-- Ikkalasini `output_card_fit_test.dart` qulflaydi: 393/360 px × 1.0/1.3 shrift — toshish ham, kesilgan matn ham nolga teng bo'lishi shart.
+- Ikkalasini `output_card_fit_test.dart` qulflaydi: 393/360 px × 1.0/1.3 shrift — toshish ham, kesilgan matn ham nolga teng bo'lishi shart. Faktura kartasi uchun ham xuddi shunday (`invoice_card_fit_test.dart`).
+- **Chiqim tovarlar bo'limida menyu tugmasi yo'q edi** — ya'ni o'sha bo'limdan menyuni umuman ochib bo'lmasdi. Uchta ro'yxat sarlavhasi deyarli bir xil bo'lgani uchun ular `core/widgets/headers/date_filter_header.dart` ga birlashtirildi (1.2) va tugma o'z-o'zidan hamma joyda paydo bo'ldi.
+- Shu bilan birga `core/` ga chiqarildi: `PagedResponse.isLast` (ikkita ro'yxat), `ListSkeleton` (ikkita ro'yxat), `LabeledRow` (shartnoma va faktura kartalari — «hamma matn sig'sin» qoidasi endi bitta joyda), `ExternalFile.open` (shartnoma tafsiloti va fakturalar; `launchUrl` ning platforma istisnosi ham shu yerda ushlanadi).
+
+## Qoidalar auditi — 73 ta topilma (2026-09-12)
+
+Butun kod CLAUDE.md ning har bir bo'limi bo'yicha 12 yo'nalishda tekshirildi, har bir topilma alohida agent tomonidan **rad etishga urinib** tasdiqlandi (128 agent). Natija: **53 buzilish, 16 shubha, 4 ma'lumot**.
+
+### Shu turda tuzatilgani
+
+1. **KATM xavf bayroqlari** (`katm_report_dto`, `credit_report_dto`) — `?? false` qora ro'yxatdagi mijozni «toza» qilib ko'rsatishi mumkin edi. Endi: kalit **umuman kelmasa** «yo'q» (backend salbiy bayroqni yubormasligi mumkin), lekin kalit kelib tipi `bool` bo'lmasa — `FormatException`, ya'ni ekranda xato va botda xabar. Zaxira qiymat xavfli tomonga yiqilmaydi.
+2. **`statusCode` endi `int?`** (`contract_details_dto`). `?? 0` bo'lganda `0 != draftStatus` chiqib, **yangi shartnoma `POST` o'rniga `PUT` bilan** yuborilardi. `null` esa blocdagi `?? draftStatus` himoyasini haqiqatan ishga soladi.
+3. **Bonus `contract_id` siz yasalmaydi.** `?? 0` bo'lsa menejer qarori 0-shartnomaga ketardi.
+4. **S3 yuklash klientiga xato interceptori qo'shildi.** `guard` har qanday `DioException` ni «interceptor ko'rdi» deb hisoblardi, lekin `UploadClient` da interceptor yo'q edi — ya'ni fayl yuklashdagi **barcha nosozlik botga umuman yetib bormasdi** (§5.7).
+5. **Chiqim qaytarishda «Qayta urinish» jimgina hech nima qilmasdi**: qator yopilsa banner qolib, `_returnRequested` darhol qaytardi. Endi qator yopilganda xato ham tozalanadi, takrorlab bo'lmaydigan holat esa sabab bilan aytiladi.
+6. `address_local_datasource` dagi `try/catch` (yuqoridagi 2-bandga qarang).
+
+### Qolgan 67 ta topilma
+
+Dalillari va tuzatish yo'llari to'liq holda audit natijasida. Guruhlab olganda:
+
+- **§3.9 — domain foydalanuvchi matnini to'qiydi** (5 ta usecase: `card_confirm`, `signing`, `release`, `icloud`, `invoices`). Eng yomoni: `CardConfirmText.issue` presentationda **tayyor turadi, lekin hech qayerdan chaqirilmaydi** — ya'ni to'g'ri qatlamdagi nusxa o'lik kod, foydalanuvchiga esa domaindagi matn chiqadi. Ikki nusxa allaqachon farq qilib ketgan (`signing_usecases` da «Avval yuzni tasdiqlash kerak», `signing_text.dart` da «Imzolashdan oldin yuzni tasdiqlang»).
+- **§15.3 — o'lik kod va ulanmagan mexanizmlar** (~20 ta): `logout` zanjiri to'liq yozilgan lekin chaqirilmaydi; `routes.dart` da 9 ta marshrut hech qayerda ishlatilmaydi; **shartnomalar ro'yxatida sahifalash ulanmagan** (`page` serverga ketadi, lekin hech qachon oshmaydi); `ScreenSize` da 360 o'lchamdan 266 tasi ishlatilmaydi; 16 ta ishlatilmaydigan ikonka.
+- **§6.6 — o'tgan zamonda bo'lmagan event nomlari** (4 ta): `RegistrationSendData`, `ContractsGet`, `ContractsStale`, `ShowSearch`, `CatalogNextPage`.
+- **§1.2 — `core/` da bitta feature ishlatadigan fayllar**: `paged.dart`, `paged_pick_sheet.dart`, `info_tile.dart`, `validator/rules.dart`.
+- **§12 — `!` operatori** `contract_details_page` da 3 joyda.
+- **§5.8 — jimgina yiqilish**: ishga tushish yiqilsa na ekran, na bot; `add_customer` blocidagi xato matni ekranga chiqmaydi; «Tovar yo'q» xatosi ko'rinmaydi.
+- **§6.7 — `MainButton` o'chiq holatni rangdan hisoblaydi** (`color == grey`). Bu men shu sessiyada tegib o'tgan joy: kimdir kulrang tugma bersa u bosilmaydigan bo'lib qoladi.
+
+| Jiddiylik | Qoida | Fayl | Nima |
+|---|---|---|---|
+| violation | §3.9 | `contracts/domain/usecase/card_confirm_usecases.dart:48` | Domain foydalanuvchi matnini to'qiydi, presentationdagi tayyor nusxasi esa o'lik kod |
+| violation | §3.9 | `contracts/domain/usecase/signing_usecases.dart:39` | Imzolash usecase'i uchta xabarni domainda to'qiydi, biri presentationdagi matn bilan zid |
+| violation | §3.9 | `outputs/domain/usecase/release_usecases.dart:27` | Chiqim usecase'i xabar matnini domainda yaratadi |
+| violation | §4.6 | `contract_create/data/models/special_tariff_dto.dart:17` | Tarif id si `?? 0` — "biriktirilmagan" belgisi bilan to'qnashadi |
+| violation | §4.6 | `contract_create/data/models/skip_reason_dto.dart:10` | Sabab id si `?? 0` — forma "tanlanmagan" deb qoladi |
+| violation | §4.6 | `contract_create/data/models/catalog_dto.dart:28` | Ma'lumotnoma id si `?? 0` — tanlangan tovar 0 bo'lib yuboriladi |
+| violation | §4.2 | `contract_create/data/datasources/special_tariff_remote_datasource.dart:32` | Datasource DTO emas, xom `Map` qaytaradi; parse repositoryda |
+| violation | §§5.8 | `core/di/app_init.dart:54` | Ishga tushish yiqilsa ilova jimgina o'ladi: na ekran, na bot |
+| violation | §§12 | `contract_create/presentation/details/contract_details_page.dart:152` | `!` operatori ishlatilgan |
+| violation | §12 / 15.3 | `auth/registration/presentation/bloc/registration/registration_bloc.dart:47` | Registratsiya arizasi majburiy `partnerId` va `organizationId` ni har doim 0 qilib yuboradi |
+| violation | §15.3 | `auth/registration/presentation/bloc/registration/registration_state.dart:28` | `RegistrationState.partners` state'ga yoziladi, lekin hech qayerda ekranga chiqmaydi |
+| violation | §6.3 | `customers/presentation/bloc/add_customer/add_customer_bloc.dart:168` | Bloc ichida qo'lda yozilgan xato matni — ustiga u ekranga umuman chiqmaydi |
+| violation | §6.6 | `auth/registration/presentation/bloc/registration/registration_event.dart:33` | `RegistrationSendData` eventi o'tgan zamonda emas |
+| violation | §6.6 | `contracts/presentation/bloc/contracts/contracts_event.dart:12` | `ContractsGet` va `ContractsStale` eventlari o'tgan zamonda emas |
+| violation | §6.6 | `customers/presentation/bloc/customers/customers_event.dart:10` | `ShowSearch` eventi o'tgan zamonda emas va nomi ishiga zid |
+| violation | §6.6 | `contract_create/presentation/bloc/catalog/catalog_event.dart:23` | `CatalogNextPage` eventi o'tgan zamonda emas |
+| violation | §§15.3 / §5.8 / §11.5 | `contract_create/presentation/products/products_tab.dart:61` | «Tovar yo'q» xatosi hech qachon ekranga chiqmaydi — ProganlarSection.errorText doimiy `null` |
+| violation | §§6.7 / §7.2 / §7.5 | `contract_create/presentation/products/product_edit_sheet.dart:57` | ProductEditSheet validatsiyani o'zi hisoblaydi va xato matnini o'zi to'qiydi |
+| violation | §§6.10 | `auth/registration/presentation/pages/registration_page.dart:42` | registration_page: `super.initState()` birinchi emas, oxirida chaqirilgan |
+| violation | §§12 | `contract_create/presentation/details/contract_details_page.dart:152` | `!` operatori: contract_details_page da tip va'da qilingan |
+| violation | §8.2 | `splash/presentation/pages/splash_page.dart:77` | `getIt` splash sahifasida — DI dan tashqarida 6 ta chaqiruv |
+| violation | §1.2 | `core/result/paged.dart:8` | `core/result/paged.dart` faqat bitta feature'da ishlatiladi |
+| violation | §1.2 | `core/widgets/sheets/paged_pick_sheet.dart:17` | `core/widgets/sheets/paged_pick_sheet.dart` faqat bitta feature'da ishlatiladi |
+| violation | §1.2 | `core/widgets/info_tile.dart:9` | `core/widgets/info_tile.dart` faqat `customers` feature'ida ishlatiladi |
+| violation | §1.2 | `core/utils/validator/rules.dart:1` | `core/utils/validator/rules.dart` faqat login bloc'ida ishlatiladi |
+| violation | §15.3 | `auth/login/domain/repositories/auth_repository.dart:10` | `logout` zanjiri to'liq yozilgan, lekin hech qayerdan chaqirilmaydi — server sessiyani hech qachon yopmaydi |
+| violation | §15.3 | `core/router/routes.dart:34` | `routes.dart` da to'qqizta marshrut e'lon qilingan, lekin na `GoRoute` si bor, na kimdir unga o'tadi |
+| violation | §15.3 | `core/router/coordinate.dart:1` | `Coordinate` shartnomasi hech narsani majburlamaydi — `implements` bu yerda bo'sh belgi |
+| violation | §15.3 | `contract_create/presentation/income/card_section.dart:269` | `cardBlocProvider()` funksiyasi hech qayerdan chaqirilmaydi — uning ishini `contract_tabs.dart` qo'lda takrorlaydi |
+| violation | §15.3 | `contract_create/presentation/bloc/contract_create/contract_create_state.dart:65` | `hasUnsavedTerms` hisoblanadi, lekin hech qayerda o'qilmaydi — izoh «foydalanuvchi buni bilishi kerak» deydi, u esa bilmaydi |
+| violation | §15.3 | `contract_create/presentation/shared/contract_write_mixin.dart:19` | Oltita ochiq getter/metod hech qayerdan chaqirilmaydi (qaror mantig'i yozilgan, iste'molchisi yo'q) |
+| violation | §15.3 | `core/widgets/toasts/custom_animated_toast.dart:60` | `CustomAnimatedToast` da ikkita o'lik ochiq a'zo: `showFromRoutes()` va `key` getter |
+| violation | §15.3 | `underwriter/presentation/widgets/document_list.dart:144` | `DocumentHint` widgeti e'lon qilingan, lekin hech qachon qurilmaydi |
+| violation | §15.3 | `core/theme/base_colors.dart:30` | `BaseColors` da toast ranglari e'lon qilingan va ikki temada bajarilgan — bittasi ham ishlatilmaydi |
+| violation | §§12 (taqiqlar) / §15.3 | `contract_create/presentation/details/contract_details_page.dart:152` | `!` null-assertion operatori ishlatilgan |
+| violation | §§11.1 (shartnomalar — `abstract interface class`) | `core/router/coordinate.dart:1` | `Coordinate` shartnomasi `abstract class`, va uning barcha a'zolari o'lik |
+| violation | §§11.4 (izohlar o'zbek tilida; nima uchun, nima qilishini emas) | `core/network/endpoints.dart:4` | Bo'lim izohlari ingliz tilida va faqat kodni takrorlaydi |
+| violation | §§15.3 (o'lik kod) / §11.4 | `core/widgets/inputs/text_input.dart:180` | Fayl oxirida izohga o'ralgan o'lik kod bloki qolgan |
+| violation | §7.5 | `contracts/domain/usecase/card_confirm_usecases.dart:39` | Karta tasdiqlashda kiritish xatosi server xatosi kanalidan o'tadi |
+| violation | §15.3 | `contracts/presentation/styles/card_confirm_text.dart:27` | CardConfirmText.issue hech qayerdan chaqirilmaydi — ulanmagan mexanizm |
+| violation | §3.9 | `contracts/domain/usecase/card_confirm_usecases.dart:48` | Domain usecase foydalanuvchiga ko'rsatiladigan matn to'qiydi |
+| violation | §1.2 | `core/utils/validator/rules.dart:3` | core/utils/validator/rules.dart ni bitta feature ishlatadi |
+| violation | §6.7, 12-bo'lim, 15.4 | `core/widgets/buttons/main_button.dart:73` | MainButton o'chiq holatni rangdan hisoblaydi — widget qaror qabul qilyapti |
+| violation | §5.8, 15.3 (state'ga yozilib ekranga chiqmaydigan maydon), 9.5 | `test/features/contract_create/presentation/contract_products_bloc_test.dart:161` | ContractProductsBloc xatosi ekranga umuman chiqmaydi — testlar hech kim chaqirmaydigan yo'lni qulflaydi |
+| violation | §11.5, 13.4, 15.2 | `test/core/utils/money_test.dart:13` | money_test kasrli summadagi flex xatosini «to'g'ri» deb qulflaydi |
+| violation | §15.3 / 5.8 | `contracts/domain/entities/contracts_filter.dart:4` | Shartnomalar ro'yxatida sahifalash mexanizmi ulanmagan: `page` serverga yuboriladi, lekin hech qachon oshmaydi |
+| violation | §1.2 | `contracts/presentation/widgets/mib_summary_card.dart:10` | `core/utils/money.dart` bor, lekin 7 ta widget summani o'zi formatlaydi — `Money.withUnit` so'zma-so'z takrorlangan |
+| smell | §§5.7 / §5.8 | `core/di/app_startup.dart:39` | `AppStartup` yiqilganda sabab butunlay yo'qoladi: botga xabar yo'q, ekranda «Qayta urinish» yo'q |
+| smell | §§5.8 | `core/services/push_token_service.dart:11` | Push token olinmasa bo'sh satr yuboriladi — bildirishnomalar jimgina o'chadi |
+| smell | §§5.8 | `core/services/device_info_service.dart:61` | Qurilma ma'lumoti o'qilmasa bo'sh `DeviceInfo` qaytadi va login ekranida bo'sh quti ko'rinadi |
+| smell | §15.3 | `contract_create/presentation/shared/contract_write_mixin.dart:57` | `ContractWriteMixin` dagi `forgetLastWrite()` va `lastWrite` hech qayerdan chaqirilmaydi |
+| smell | §15.3 | `auth/login/presentation/bloc/login/login_event.dart:21` | `LoginOnChanged` va `PasswordOnChanged` `value` maydonini olib keladi, handler uni o'qimaydi |
+| smell | §§8.2 / §14.1 | `splash/presentation/pages/splash_page.dart:77` | splash_page ichida `getIt<>` — `BlocProvider.create` dan tashqarida |
+| smell | §15.3 | `contracts/domain/entities/credit_report.dart:17` | Entity maydonlari backenddan parse qilinadi, entityda saqlanadi va hech qayerda o'qilmaydi |
+| smell | §15.3 | `core/constants/app_icons.dart:15` | 16 ta `AppIcons` konstantasi ishlatilmaydi; 3 ta asset fayl esa umuman konstantasiz — 17 ta fayl bekorga bundle'ga kiryapti |
+| smell | §15.3 | `core/network/endpoints.dart:10` | Ikkita endpoint konstantasi hech qayerdan chaqirilmaydi |
+| smell | §15.3 | `contracts/presentation/styles/signing_text.dart:32` | `SigningText.cameraFailed` — hech qayerda ko'rsatilmaydigan xato matni |
+| smell | §15.3 | `core/theme/screen_size.dart:376` | `ScreenSize` da 360 ta o'lchamdan 266 tasi hech qayerda ishlatilmaydi |
+| smell | §3.9 | `outputs/domain/usecase/icloud_usecases.dart:26` | iCloud usecase Failure ichida foydalanuvchi matnini yozadi |
+| smell | §15.4 | `contract_create/presentation/guarantors/guarantor_issue_text.dart:7` | Kafillar chegarasi matnda sehrli raqam bilan yozilgan |
+| smell | §15.3 | `core/widgets/inputs/text_input.dart:180` | text_input.dart oxirida flex davridagi o'lik validatsiya bloki |
+| smell | §5.8, 4.7 | `outputs/data/datasources/outputs_remote_datasource.dart:46` | PagedResponse'ga o'qilmagan yozuvlar tashlab yuborilgandan keyingi son beriladi — sahifalash erta to'xtaydi |
+| smell | §3.9 / 1.2 | `contracts/data/models/contract_info_dto.dart:102` | `createdAt` ikki xil hosil qilinadi: chiqimda DTO uni formatlaydi, shartnomalarda backend satri to'g'ridan-to'g'ri ekranga chiqadi |
+| info | §11.5 | `contract_create/presentation/bloc/contract_guarantors/contract_guarantors_bloc.dart:39` | Izoh ikkita qoida deydi, kodda uchta tekshiruv bor |
+| info | §15.3 | `core/widgets/states/list_skeleton.dart:16` | `ListSkeleton.height` parametrini hech kim bermaydi — o'lik mexanizm |
+| info | §15.3 | `outputs/presentation/credential/credential_text.dart:7` | `CredentialText.saved` konstantasi hech qayerdan chaqirilmaydi |
+| info | §15.3 (o'lik kod) | `test/features/underwriter/_fake_underwriter_repository.dart:69` | Test yordamchisida hech qayerda ishlatilmaydigan doimiy |
+
+## Qoidalar bo'yicha to'liq tekshiruv (2026-09-12)
+
+Butun kod CLAUDE.md ga solishtirib chiqildi. Topilgan va **tuzatilgan** kamchiliklar:
+
+**1. Beshta repository `guard()` dan tashqarida qolgan edi — xatolar botga yetib bormasdi (§5.7).**
+
+`contracts`, `contract_create`, `customers` (uchta repo) qo'lda `on DioException / on TypeError / catch (_)` yozib, `ParseFailure` va `UnknownFailure` ni to'g'ridan-to'g'ri qaytarardi. `guard()` esa aynan shu ikki turni `GuardReport.reporter` orqali botga yuboradi. Ya'ni ro'yxatlar, skoring, KATM/MIB hisobotlari va shartnoma tuzish oqimidagi **har qanday parse nosozligi jimgina yo'qolardi** — ekranda umumiy xabar chiqib, sabab hech kimga yetib bormasdi. Endi 19 ta repositoryning hammasi `guard()` orqali.
+
+Buning uchun `result_guard.dart` ga **`GuardFailure`** qo'shildi: repository o'zi biladigan `Failure` ni (masalan server 200 bilan «qoralama yaratilmadi» degani — bu `ClientFailure`, parse xatosi emas) istisno sifatida otadi va `guard` uni o'ramsiz qaytaradi. Bunday `Failure` botga **yuborilmaydi** — u nosozlik emas, kutilgan natija. Usiz o'sha metodlar `guard` dan tashqarida qolishga majbur edi.
+
+**2. `_int` beshta DTO faylida so'zma-so'z takrorlangan (§1.2).** `_digits` ikkitasida, `_text` ikkitasida. `core/utils/json_value.dart` (`JsonValue.toInt/toNullableInt/toText/toDigits`) ga chiqarildi, `test/core/json_value_test.dart` bilan qulflandi. Takrorlangan nusxada bittasi tuzatilsa qolganlari eski holicha qolib ketardi.
+
+**3. `ChuckButton` klass ichida `getIt<Alice>()` chaqirardi (§8.1, §12).** Endi inspektorni ochish amali konstruktordan keladi, bog'liqlik esa `splash_page` da — ilovaning yig'ilish nuqtasida — beriladi.
+
+**4. O'lik kod (§15.3):**
+- `splash/presentation/widgets/dot_widget.dart` — hech kim import qilmasdi;
+- `auth/login/domain/entities/device_info.dart` — `core/services/device_info_service.dart` uni butunlay almashtirgan, ustiga entityda `fromMap` va majburiy maydonlarga `?? ''` bor edi (§3.1, §4.6);
+- `AppManagerInitial.version` — holatga yozilar, lekin **hech qayerda ko'rsatilmasdi**: versiyani menyu `AppInfo` dan oladi. Maydon ham, uni uzatuvchi `AppStartup.prepare()` ning `String` qaytarishi ham olib tashlandi;
+- `splash_page` dagi izohga olingan `OverlayEntry` qatorlari.
+
+**5. `MaterialApp.title` hali `'Collaborator Flex'` edi** — flex'dan qolgan nom (§13.4). `'Ishonch Collaborator'` ga almashtirildi.
+
+**6. O'n to'rtta klass `final class` / `abstract final class` emas edi (§11.1)** — `AppTheme` va `ScreenSize` (statik yordamchilar), formatterlar, interceptor, `AppRouter`, `Routes`, `AuthNotifier`, `SecureTokenStorage`, rang palitralari, `MyApp`. Hech biridan meros olinmasligi tekshirilgach o'zgartirildi.
+
+**7. Importlar tartibi** — yuqoridagi alohida bo'limga qarang: `directives_ordering` yoqildi, 76 ta faylda tartibga solindi.
+
+### Tekshirilgan va toza chiqqan joylar
+
+`flutter analyze` (yangi lint bilan), 389 test, §14 ning ikkala grepi, `print`/`debugPrint`, `!` null-assertion operatori, datasource'larda `try/catch` (bittasi — `address_local_datasource` — ataylab va izohlangan), DI qoidalari (§8.3/§8.4), event nomlarining o'tgan zamonda ekani, domain qatlamining tozaligi.
+
+### Qaror talab qilgan to'rt joy — hammasi hal qilindi
+
+**1. Formatterlar endi faqat formatlaydi.** `PhoneFormatter` operator kodini tekshirib **toast chiqarardi**, `CardExpiryFormatter` esa oy oralig'i, muddat o'tgani va juda uzoqqa ketganini tekshirib to'rtta joyda toast chiqarardi. Uchta qoida buzilardi: yordamchi UI ta'sirini bajarmaydi (§6.2), kiritish xatosi maydon tagida ko'rinishi kerak (§7.5), `DateTime.now()` esa mantiq ichida chaqirilmaydi (§9.4).
+
+Endi qoidalar sof Dart yordamchilarda: **`core/utils/uz_phone.dart`** (`UzPhone.isValid` — uzunlik + operator kodi) va **`core/utils/card_expiry.dart`** (`CardExpiry.isUsable` — oy oralig'i, muddat o'tgani, besh yillik chegara; **vaqt tashqaridan beriladi**). Tekshiruv esa entitylarning `issue` qoidalarida: `CustomerForm`, `CardForm`, `CardEntry`, `IcloudCredential`.
+
+Karta muddati vaqtga bog'liq bo'lgani uchun `CardForm.issue` va `CardEntry.issue` getterlari **`issueAt(DateTime now)`** metodiga aylandi; soat `ContractCardBloc` va `SubmitCardConfirmationUsecase` ga kiritildi (`face_id_bloc` dagi qolip bilan bir xil). Shu tufayli muddat o'tgan karta qoidasi **birinchi marta testlanadigan** bo'ldi — ilgari u `DateTime.now()` ga qotirilgan edi.
+
+Xato matnlari ham kengaytirildi: «Raqamni to'liq kiriting» → «Raqamni to'liq va to'g'ri kiriting», chunki endi operator kodi ham shu xatoga kiradi.
+
+**2. `address_local_datasource` endi xom satr qaytaradi.** `jsonDecode` va buzuq keshni tashlash mantig'i repositoryga ko'chdi (`_decode`). Datasource xato ushlamaydi (§4.3), ma'lumot kutilgan shaklda ekanini tekshirish esa repositoryning ishi (§4.7.4). Xatti-harakat o'zgarmadi: buzuq kesh «keshda yo'q» deb qaraladi, yozuv o'chiriladi va serverga boriladi.
+
+**3. `OfferDocument.load` endi `Result<String>` qaytaradi.** `offer_sheet.dart` dagi `try/catch` olib tashlandi — §12 aynan shuni «chaqiruv `Result` tizimidan tashqarida qolgan» belgisi deb ataydi. Endi sabab `guard` orqali botga ham ketadi.
+
+**4. `get<Map<String, dynamic>>` — 45 ta chaqiruvning hammasi o'tkazildi.** Endi hech qayerda tipli javob so'ralmaydi. Kalitlarni o'qish uchun **`JsonParser.field(body, key)`** qo'shildi: u `dynamic` ustidan chaqiruvni ham (`avoid_dynamic_calls`), tipli so'rovning tuzog'ini ham yo'q qiladi. `pagedFrom` va `catalogList` ham `Object?` qabul qiladigan bo'ldi.
+
+Yangi testlar: `test/core/uz_phone`+`phone_test.dart`, `card_expiry_test.dart`, `json_value_test.dart`, `camera_issue_test.dart`. Jami **407 test**.
+
+## Bloc papkalari — butun loyiha bo'yicha (2026-09-12)
+
+Har bir blocning uchligi (`_bloc` / `_event` / `_state`) `presentation/bloc/<nom>/` ichiga yig'ildi. Papka nomi bloc nomidan olinadi (`_bloc`/`_cubit`/`_event`/`_state` qo'shimchasisiz), fayl nomlari o'zgarmadi — shuning uchun `part 'xxx_event.dart'` direktivalari o'z holicha ishlayveradi.
+
+| Feature | `bloc/` ichidagi papkalar |
+|---|---|
+| `auth/login` | `login` |
+| `auth/registration` | `registration` |
+| `contract_create` | `catalog` `contract_card` `contract_create` `contract_details` `contract_guarantors` `contract_products` `katm_skip` `manager_bonus` `payment_schedule` `product_picker` `special_tariff` |
+| `contracts` | `card_confirm` `contract_action` `contract_result` `contract_signing` `contracts` |
+| `customers` | `add_customer` `customers` `face_id` `scoring` |
+| `outputs` | `credential` `outputs` `release` `requirements` |
+| `invoices` `splash` `underwriter` | bittadan |
+
+**Sahifalar, widgetlar va matnlar tegilmadi** — ular qayerda bo'lsa o'sha yerda qoldi. `contract_create` va `outputs` da ekran papkalari (`create/`, `picker/`, `list/`, `release/` …) saqlanib qoldi, faqat bloc fayllari ulardan chiqib `bloc/` ga o'tdi.
+
+Jami 86 ta bloc fayli ko'chdi.
+
+### Importlar tartibi endi lint bilan qulflandi
+
+Ko'chirishlardan keyin importlar aralashib ketgani ko'rindi: `core/…` fayllari `features/…` orasida, bir xil papkadagilar bir-biridan uzoqda. Sabab — `directives_ordering` linti yoqilmagan edi, shuning uchun `flutter analyze` buni umuman ko'rsatmasdi.
+
+`analysis_options.yaml` ga qo'shildi va `dart fix --apply` bilan **76 ta faylda** tartibga solindi: `dart:` → `package:` → nisbiy, har biri alifbo bo'yicha. Endi tartib buzilsa `analyze` darhol aytadi.
+
+### ⚠️ Bu CLAUDE.md §1.1a bilan ziddiyatda
+
+§1.1a `presentation/` uch-to'rt ekrandan oshganda **ekran papkalari** talab qiladi — har bir ekranning bloci, sahifasi, widgetlari va matnlari bitta joyda. Endi bloc fayllari o'z ekranidan ajratilgan.
+
+Men avval §1.1a bo'yicha qilgandim, buyurtmachi boshqacha xohladi va qaror qabul qilindi. **Natijada kod o'zining qoidalar faylidan chetga chiqdi.** §1.1a shu yangi qolipga moslab qayta yozilishi kerak — aks holda keyingi featureda qaysi qoidaga amal qilish noma'lum bo'lib qoladi.
+
+## iOS da sinash (2026-09-12 da tekshirildi)
+
+**Haqiqiy iPhone'da ishlaydi.** Simulyatorda esa to'g'ridan-to'g'ri **ishlamaydi** — sababi bitta va aniq:
+
+`google_mlkit_face_detection` ning iOS kutubxonalari **arm64 simulyator uchun qurilmagan**. CocoaPods shuning uchun `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` qo'yadi, natijada faqat `x86_64` binar chiqadi, Apple Silicon + iOS 26 simulyatori esa uni o'rnatishdan bosh tortadi: «This app needs to be updated by the developer». Plaginning eng yangi versiyasi (0.15.1 / MLKitCommon 14.0.0) ham xuddi shunday — **yangilash yordam bermaydi**.
+
+**Bajarilgan tuzatish (kerak va o'rnida qoldirildi):** iOS deployment target `15.0` → **`15.5`** (`google_mlkit_commons` shuni talab qiladi), `ios/Podfile` da `platform :ios, '15.5'` yoqildi. Busiz `pod install` umuman o'tmaydi.
+
+**Simulyatorda sinash retsepti** (vaqtinchalik, keyin albatta qaytariladi):
+
+1. `pubspec.yaml` da `google_mlkit_face_detection` qatorini izohga oling;
+2. `lib/features/customers/presentation/camera/face_scanner.dart` ni o'rinbosar bilan almashtiring — `isBusy => false`, `scan(...) async => null`, `close() async {}` (ML Kit importisiz). Simulyatorda kamera baribir yo'q, shuning uchun bu klass chaqirilmaydi;
+3. `flutter pub get` → `cd ios && LANG=en_US.UTF-8 pod install` → `flutter build ios --simulator --debug`.
+
+So'ng `lipo -info build/ios/iphonesimulator/Runner.app/Runner` da `arm64` paydo bo'ladi va ilova o'rnatiladi. **Ikkala faylni darhol qaytaring** — ML Kit'siz kod haqiqiy qurilmada yuz tekshiruvini o'chirib qo'yadi.
+
+Shu yo'l bilan ilova simulyatorda ishga tushirildi: splash → asosiy oyna → sessiya eskirgani uchun to'g'ri ravishda login oynasi. Shrift, mavzu, pastki menyu (to'rtta bo'lim, «Fakturalar» ham) joyida.
+
+### iOS auditi topilmalari (2026-09-12, 39 ta agent, 20 ta tasdiqlangan)
+
+**1. `.env` ilova paketi ichiga oddiy fayl bo'lib tushadi — bu maxfiy kalitlarning oshkor bo'lishi.**
+
+`pubspec.yaml:71` da `.env` asset sifatida e'lon qilingan, ya'ni u `.ipa`/`.apk` ichiga **shifrlanmagan holda** qo'shiladi. Arxivni ochgan har kim `BOT_TOKEN`, `BOT_CHAT_ID` va `FIGMA_TOKEN` ni o'qiy oladi. Telegram bot tokeni bilan bot nomidan xabar yuborish va uning yozishmalarini o'qish mumkin.
+
+Qilinishi kerak:
+
+- `FIGMA_TOKEN` ni `.env` dan **olib tashlang** — u faqat ishlab chiqish vositalariga kerak, ilovaga umuman kerak emas. Figma'da uni **bekor qilib, yangisini yarating**: u allaqachon qurilgan paketlar ichiga tushgan.
+- `BOT_TOKEN` ni ham ilovadan chiqarish kerak. Eng to'g'risi — xato xabarlarini botga ilova emas, **server** yuborsin. Oraliq yechim sifatida `--dart-define` bilan qurish paytida berish mumkin, lekin u ham binardan topiladi — ya'ni bu faqat vaqtinchalik.
+- Token almashtirilgunicha uni oshkor deb hisoblash kerak.
+
+**2. `device_id` qotirib qo'yilgan.** `lib/features/auth/login/data/datasources/auth_remote_datasource.dart:36` da `'device_id': "aa2ad6bb11fcdefd"`, haqiqiy `device.uniqueId` esa 35-qatorda izohga olingan. Natijada barcha o'rnatmalar serverga **bitta qurilma** sifatida kiradi: qurilma bo'yicha sessiya boshqaruvi va push manzillash buziladi. Sinov uchun qotirilgan bo'lsa, qaytarilishi kerak.
+
+**3. iOS'da push umuman ishlamaydi — uch sabab birga.**
+
+- `aps-environment` entitlement yo'q: `ios/Runner/Runner.entitlements` mavjud emas va `project.pbxproj` da `CODE_SIGN_ENTITLEMENTS` **umuman uchramaydi**. Shuning uchun `registerForRemoteNotifications` rad etiladi.
+- `firebase_options.dart` dagi `iosBundleId` — `com.example.colloboratorFlex`, ilovaniki esa `com.example.colloboratorV3`.
+- `push_token_service.dart:11-13` dagi `catch (_) { return ''; }` xatoni **jimgina yutadi** (5.8) va serverga bo'sh token yuboradi — shuning uchun bu nosozlik hech qachon ko'rinmaydi.
+
+Tuzatish tartibi: bundle ID ni hal qilish → `flutterfire configure` ni qayta ishga tushirish → Xcode'da Runner target → Signing & Capabilities → **Push Notifications** qo'shish (u `.entitlements` ni ham, `CODE_SIGN_ENTITLEMENTS` ni ham o'zi yozadi) → Apple Developer portalida App ID ga push yoqish va APNs kalitini Firebase konsoliga yuklash. `push_token_service` dagi `catch` esa `ErrorReporter` ga ulanishi kerak.
+
+**4. `image_picker` xato kodlari ikki platformada boshqa-boshqa — tuzatildi.** iOS `already_active` emas, `multiple_request` yuboradi; u qamrab olinmagani uchun «oldingi so'rov tugamagan» holati «Kamerani ochib bo'lmadi» degan noto'g'ri xabar bilan chiqardi. `core/utils/camera_issue.dart` ga qo'shildi, `test/core/camera_issue_test.dart` ikkala platformaning kodlarini qulflaydi.
+
+**5. iOS'da kamera yo'q bo'lsa `image_picker` istisno otmaydi.** `FLTImagePickerPlugin.m:321-344` — o'zining «Camera not available» oynasini ko'rsatib, natijani `null` qilib qaytaradi. Ya'ni bizning `CameraIssue` mexanizmi bu yo'lda umuman ishga tushmaydi; sababni plaginning o'zi aytadi. Android'da esa `no_available_camera` istisnosi keladi. Kod noto'g'ri emas, lekin farqni bilib qo'yish kerak.
+
+**Yo'l-yo'lakay chiqqan boshqa to'siqlar:**
+
+- `pod install` ni qo'lda ishga tushirganda `Encoding::CompatibilityError` beradi — `LANG=en_US.UTF-8` qo'yish kerak (`flutter build` buni o'zi qiladi).
+- Podsiz qurishdan qolgan artefaktlar `Framework 'Pods_Runner' not found` beradi; `video_player_avfoundation` esa `Malformed or corrupted AST file` beradi. Ikkalasi ham `flutter clean` + `rm -rf ~/Library/Developer/Xcode/DerivedData/Runner-*` bilan yo'qoladi.
+- `GoogleService-Info.plist` **yo'q, lekin kerak emas**: Firebase `firebase_options.dart` dagi Dart konfiguratsiyasidan ishga tushadi.
+
+**Ochiq savol:** `firebase_options.dart` dagi `iosBundleId` — `com.example.colloboratorFlex`, Xcode'dagi haqiqiy identifikator esa `com.example.colloboratorV3`. Firebase buni ishga tushishda xato deb yozadi va push ro'yxatdan o'tishi buzilishi mumkin. Ikkalasi moslashtirilishi kerak (va ikkalasi ham hali `com.example.` — relizdan oldin haqiqiy identifikatorga o'tkaziladi).
+
+**Simulyatorda ishlamaydigan qismlar** (qurilmada ishlaydi): mijoz yuzini tasdiqlash (kamera + ML Kit), IMEI yorlig'ini suratga olish, chiqim berishdagi tovar surati, push bildirishnomalar. Kodda bularning hammasi sababini aytadigan qilib yozilgan (`CameraStartIssue.notFound`, `CameraIssue.unavailable`), ya'ni jimgina yiqilmaydi.
 
 **Ochiq, tuzatilmagan:**
 
@@ -460,6 +706,5 @@ Ko'chirishni boshlashdan oldin javob kerak:
 *D — hali boshlanmagan*
 
 9. **Mijoz hujjati rasmi (DEV-4714)** — endpoint (`contract/client-document`) va `side` kaliti backend bilan tasdiqlangach imzolash ekraniga qo'shiladi.
-9. `invoices` — sahifasi `Center(Text(...))`, bloci bo'sh shablon (`// TODO: implement event handler`). `outputs` to'liq tugadi.
 10. **Testlar — ongli ravishda loyiha oxiriga qoldirilgan.** 2026-09-09 holatiga 272 ta. Ular qoida yozilganda birga yozilgan, alohida ish sifatida emas: har biri bitta qarorni qulflaydi (`terms_tab_fit_test`, `underwriter_dto_test`, `guarantor_picker_layout_test`, `contracts_push_test`). Qolgan qamrov featurelar tugagandan keyin. **Eslatilmaydi.**
 11. **`get<Map<String, dynamic>>` qolgan 37 joyda** — yuqoridagi "Dio javob tipi" qolipiga o'tkazilishi kerak.

@@ -23,6 +23,7 @@ final class ContractCardBloc extends Bloc<ContractCardEvent, ContractCardState>
     required ContractCard card,
     required this._addCard,
     required this._removeCard,
+    required this._now,
   }) : super(ContractCardState.initial(contractId: contractId, clientId: clientId, card: card)) {
     on<CardFieldChanged>(_fieldChanged);
     on<CardSubmitted>(_submitted, transformer: sequential());
@@ -34,6 +35,9 @@ final class ContractCardBloc extends Bloc<ContractCardEvent, ContractCardState>
   final AddCardUsecase _addCard;
   final RemoveCardUsecase _removeCard;
 
+  /// Muddat o'tganini tekshirish uchun bugungi sana (9.4).
+  final DateTime Function() _now;
+
   void _fieldChanged(CardFieldChanged event, Emitter<ContractCardState> emit) => emit(
     state.copyWith(
       form: state.form.copyWith(phone: event.phone, number: event.number, expiry: event.expiry),
@@ -42,7 +46,7 @@ final class ContractCardBloc extends Bloc<ContractCardEvent, ContractCardState>
   );
 
   Future<void> _submitted(CardSubmitted event, Emitter<ContractCardState> emit) async {
-    final CardFieldIssue issue = state.form.issue;
+    final CardFieldIssue issue = state.form.issueAt(_now());
 
     if (issue != CardFieldIssue.none) {
       emit(state.copyWith(issue: issue));

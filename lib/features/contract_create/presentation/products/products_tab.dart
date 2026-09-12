@@ -4,7 +4,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/products/contract_products_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_products/contract_products_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/products/product_edit_sheet.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/products/products_section.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/products/remove_product_dialog.dart';

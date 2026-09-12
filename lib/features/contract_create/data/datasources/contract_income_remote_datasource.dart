@@ -10,20 +10,21 @@ final class ContractIncomeRemoteDatasource {
   final Dio _dio;
 
   Future<OccupationCatalogDto?> getOccupations() async {
-    final Response<Map<String, dynamic>> result = await _dio.get<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.occupationAutocomplete,
     );
 
-    final Map<String, dynamic>? body = result.data;
+    final Object? body = result.data;
 
-    return JsonParser.object(body?['data'] ?? body, fromJson: OccupationCatalogDto.fromJson);
+    // Server goh `data` o'ramida, goh to'g'ridan-to'g'ri yuboradi.
+    return JsonParser.object(JsonParser.field(body, 'data') ?? body, fromJson: OccupationCatalogDto.fromJson);
   }
 
   /// Kartani biriktiradi. Javobda qator id si keladi.
   Future<int?> addCard(AddCardParams params) async {
     final CardForm form = params.form;
 
-    final Response<Map<String, dynamic>> result = await _dio.post<Map<String, dynamic>>(
+    final Response<dynamic> result = await _dio.post<dynamic>(
       Endpoints.addLoanCard,
       data: <String, dynamic>{
         'loan_id': params.contractId,
@@ -37,11 +38,11 @@ final class ContractIncomeRemoteDatasource {
       },
     );
 
-    return result.data?['id'] as int?;
+    return JsonParser.field(result.data, 'id') as int?;
   }
 
   /// O'chirish `PUT` bilan bajariladi — backend shunday tuzilgan.
-  Future<void> removeCard(RemoveCardParams params) => _dio.put<Map<String, dynamic>>(
+  Future<void> removeCard(RemoveCardParams params) => _dio.put<dynamic>(
     '${Endpoints.deleteLoanCard}${params.cardId}',
     data: <String, dynamic>{'loan_id': params.contractId.toString()},
   );

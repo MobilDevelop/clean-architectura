@@ -1,8 +1,8 @@
+import 'package:colloborator_v3/core/contract/contract_status.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
 import 'package:colloborator_v3/features/contracts/data/models/guarantor_info_dto.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_authority.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
-import 'package:colloborator_v3/core/contract/contract_status.dart';
 
 final class ContractInfoDto {
 

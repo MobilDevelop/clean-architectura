@@ -3,12 +3,12 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/contrac
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_extras.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_card/contract_card_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_guarantors/contract_guarantors_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_products/contract_products_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_terms_tab.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/guarantors/contract_guarantors_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/guarantors/guarantors_tab.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/income/contract_card_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/products/contract_products_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/products/products_tab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
