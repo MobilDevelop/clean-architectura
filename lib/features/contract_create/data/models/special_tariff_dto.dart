@@ -1,3 +1,5 @@
+import 'package:colloborator_v3/core/utils/json_value.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/special_tariff.dart';
 
 double _percent(Object? raw) => raw is num ? raw.toDouble() : double.tryParse(raw?.toString() ?? '') ?? 0;
@@ -9,12 +11,14 @@ final class SpecialTariffDto {
 
   final Map<String, dynamic> _json;
 
+  /// `id`si yo'q tarif tanlansa, noto'g'ri `special_tariff_id` serverga
+  /// ketardi (4.6) — bu yerda `AppliedTariff`dagidek meʼyoriy `0` yo'q.
   SpecialTariff toEntity() {
     final Object? raw = _json['back_margin'];
     final Map<String, dynamic> back = raw is Map<String, dynamic> ? raw : const <String, dynamic>{};
 
     return SpecialTariff(
-      id: _json['id'] as int? ?? 0,
+      id: JsonValue.requireInt(_json['id'], field: 'special_tariff.id'),
       name: _json['name']?.toString() ?? '',
       frontMargin: _percent(_json['front_margin']),
       prepaymentPercent: _percent(_json['prepayment_percent']),
@@ -28,4 +32,20 @@ final class SpecialTariffDto {
       endsAt: _json['ends_at']?.toString() ?? '',
     );
   }
+}
+
+/// Shartnomaga hozir biriktirilgan tarif. Bo'sh obyekt meʼyoriy — hali
+/// biriktirilmagan degani (`AppliedTariff.isEmpty => id == 0`).
+final class AppliedTariffDto {
+  const AppliedTariffDto(this._json);
+
+  factory AppliedTariffDto.fromJson(Map<String, dynamic> json) => AppliedTariffDto(json);
+
+  final Map<String, dynamic> _json;
+
+  AppliedTariff toEntity() => AppliedTariff(
+    id: _json['id'] as int? ?? 0,
+    name: _json['name']?.toString() ?? '',
+    isActive: _json['active'] as bool? ?? false,
+  );
 }

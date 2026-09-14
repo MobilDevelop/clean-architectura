@@ -278,6 +278,10 @@ Yangi `Failure` turi qo'shilsa, UI 5.6 dagi guruhlar bilan ishlagani uchun o'zga
 
 **11.5** Izoh kod bilan zid bo'lmasligi kerak. Kod o'zgarsa, izoh ham o'zgaradi.
 
+**11.6** Izoh siyrak yoziladi — faqat nom va kod tuzilishidan o'zi ko'rinmaydigan qarorga. Har bir yangi maydonga, har bir yangi testga, har bir oddiy `if`ga izoh shart emas: kod o'zi tushunarli bo'lsa, izoh ortiqcha shovqin. Bitta faylda bitta noaniq qarorga bitta izoh yetarli — uni har bir chaqiruv joyida takrorlash shart emas.
+
+Mezon: izohni olib tashlasangiz, boshqa dasturchi kodni **noto'g'ri** tushunib qoladimi? Yo'q bo'lsa — izoh keraksiz.
+
 ---
 
 ## 12. Taqiqlar

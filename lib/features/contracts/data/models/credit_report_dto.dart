@@ -1,4 +1,5 @@
 import 'package:colloborator_v3/core/utils/json_parser.dart';
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/credit_report.dart';
 
 /// Backend holatni matn bilan yuboradi.
@@ -14,8 +15,8 @@ final class MibSummaryDto {
 
   factory MibSummaryDto.fromJson(Map<String, dynamic> json) => MibSummaryDto(
     state: json['state'] as String? ?? 'not_checked',
-    total: (json['total'] as num? ?? 0).toDouble(),
-    debtsQty: json['debts_qty'] as int? ?? 0,
+    total: JsonValue.numOrDefault(json, 'total', 0).toDouble(),
+    debtsQty: JsonValue.numOrDefault(json, 'debts_qty', 0).toInt(),
   );
 
   final String state;
@@ -40,14 +41,14 @@ final class KatmSummaryDto {
 
   factory KatmSummaryDto.fromJson(Map<String, dynamic> json) => KatmSummaryDto(
     state: json['state'] as String? ?? 'not_checked',
-    scoringGrade: json['scoring_grade'] as int? ?? 0,
+    scoringGrade: JsonValue.numOrDefault(json, 'scoring_grade', 0).toInt(),
     scoringClass: json['scoring_class'] as String? ?? '',
     scoringLevel: json['scoring_level'] as String? ?? '',
     creditBan: _flag(json['credit_ban']),
     blacklisted: _flag(json['blacklisted']),
-    allDebtSum: (json['all_debt_sum'] as num? ?? 0).toDouble(),
-    allOverdueDebtSum: (json['all_overdue_debt_sum'] as num? ?? 0).toDouble(),
-    contractsQty: json['contracts_qty'] as int? ?? 0,
+    allDebtSum: JsonValue.numOrDefault(json, 'all_debt_sum', 0).toDouble(),
+    allOverdueDebtSum: JsonValue.numOrDefault(json, 'all_overdue_debt_sum', 0).toDouble(),
+    contractsQty: JsonValue.numOrDefault(json, 'contracts_qty', 0).toInt(),
   );
 
   final String state;
@@ -83,8 +84,10 @@ final class CreditParticipantDto {
     required this.katm,
   });
 
+  /// `client_id` ishtirokchining kimligini bildiradi — yo'qolsa hisobot
+  /// boshqa odamga tegishli bo'lib qolishi mumkin (4.6).
   factory CreditParticipantDto.fromJson(Map<String, dynamic> json) => CreditParticipantDto(
-    clientId: json['client_id'] as int? ?? 0,
+    clientId: JsonValue.requireInt(json['client_id'], field: 'participant.client_id'),
     role: json['role'] as String? ?? '',
     fio: json['fio'] as String? ?? '',
     inps: json['inps'] as String? ?? '',
@@ -114,7 +117,7 @@ final class CreditReportsDto {
   const CreditReportsDto({required this.participants});
 
   factory CreditReportsDto.fromJson(Map<String, dynamic> json) => CreditReportsDto(
-    participants: JsonParser.list(json['participants'], fromJson: CreditParticipantDto.fromJson),
+    participants: JsonParser.strictList(json['participants'], fromJson: CreditParticipantDto.fromJson),
   );
 
   final List<CreditParticipantDto> participants;

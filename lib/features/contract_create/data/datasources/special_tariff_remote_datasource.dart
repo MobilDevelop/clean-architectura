@@ -30,7 +30,7 @@ final class SpecialTariffRemoteDatasource {
       _dio.delete<dynamic>(Endpoints.specialTariffOf(contractId));
 
   /// Biriktirilgan tarif. Javob `data.special_tariff` ichida keladi.
-  Future<Map<String, dynamic>> getApplied(int contractId) async {
+  Future<AppliedTariffDto> getApplied(int contractId) async {
     final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.specialTariffOf(contractId),
     );
@@ -38,6 +38,6 @@ final class SpecialTariffRemoteDatasource {
     final Object? data = JsonParser.field(result.data, 'data');
     final Object? tariff = data is Map<String, dynamic> ? data['special_tariff'] : null;
 
-    return tariff is Map<String, dynamic> ? tariff : const <String, dynamic>{};
+    return AppliedTariffDto.fromJson(tariff is Map<String, dynamic> ? tariff : const <String, dynamic>{});
   }
 }

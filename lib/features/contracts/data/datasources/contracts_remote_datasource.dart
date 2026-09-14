@@ -38,7 +38,7 @@ final class ContractsRemoteDatasource {
       '${Endpoints.contractScoring}$contractId',
     );
 
-    return JsonParser.list(JsonParser.field(result.data, 'data'), fromJson: ContractScoringDto.fromJson);
+    return JsonParser.strictList(JsonParser.field(result.data, 'data'), fromJson: ContractScoringDto.fromJson);
   }
 
   /// Flex shartnomalarida ro'yxat tepasida ko'rsatiladigan xabarlar.

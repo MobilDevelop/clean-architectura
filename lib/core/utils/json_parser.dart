@@ -47,6 +47,20 @@ abstract final class JsonParser {
     return result;
   }
 
+  /// `list()`dan farqi: bitta yozuv buzuq bo'lsa butun ro'yxatni yiqitadi.
+  /// Hisobot ishtirokchisi kabi oz sonli, har biri muhim ro'yxatlar uchun —
+  /// u yerda bitta yozuvning jimgina tushib qolishi (5.8) xato ko'ringan
+  /// holatdan yomonroq.
+  static List<T> strictList<T>(Object? raw, {required T Function(Map<String, dynamic> json) fromJson}) {
+    if (raw is! List) throw FormatException('ro\'yxat emas: ${raw.runtimeType}');
+
+    return raw.map((Object? item) {
+      if (item is! Map) throw FormatException('element obyekt emas: ${item.runtimeType}');
+
+      return fromJson(Map<String, dynamic>.from(item));
+    }).toList();
+  }
+
   /// Bitta obyektni parse qiladi. Buzuq bo'lsa `null` qaytadi va xabar beriladi.
   static T? object<T>(Object? raw, {required T Function(Map<String, dynamic> json) fromJson}) {
     if (raw is! Map) {

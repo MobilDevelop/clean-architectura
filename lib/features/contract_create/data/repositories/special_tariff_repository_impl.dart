@@ -26,13 +26,8 @@ final class SpecialTariffRepositoryImpl implements SpecialTariffRepository {
 
   @override
   Future<Result<AppliedTariff>> getApplied(int contractId) => guard(() async {
-    final Map<String, dynamic> tariff = await _remote.getApplied(contractId);
+    final AppliedTariffDto dto = await _remote.getApplied(contractId);
 
-    // Bo'sh obyekt — tarif biriktirilmagan. Bu xato emas.
-    return AppliedTariff(
-      id: tariff['id'] as int? ?? 0,
-      name: tariff['name']?.toString() ?? '',
-      isActive: tariff['active'] as bool? ?? false,
-    );
+    return dto.toEntity();
   });
 }

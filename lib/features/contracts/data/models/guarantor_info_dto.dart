@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/guarantor_info.dart';
 
 final class GuarantorInfoDto {
@@ -24,8 +25,10 @@ final class GuarantorInfoDto {
     signUrl: signUrl
   );
 
+  /// Imzolash shu id bilan ishlaydi — yo'qolsa jimgina `0`ga aylantirib
+  /// bo'lmaydi (4.6).
   factory GuarantorInfoDto.fromJson(Map<String,dynamic> json)=>GuarantorInfoDto(
-    id: json['id'] as int? ?? 0,
+    id: JsonValue.requireInt(json['id'], field: 'guarantor.id'),
     name: json['client_fio'] as String? ?? "",
     inps: json['client_inps'] as String? ?? "",
     passport: json['passport_series_number'] as String? ?? "",

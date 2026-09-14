@@ -41,12 +41,8 @@ final class ContractsRepositoryImpl implements ContractRepository {
 
       if (dto == null) throw const FormatException('javob obyekt emas');
 
-      // `client_id` siz ishtirokchi bo'yicha hisobot so'rab bo'lmaydi —
-      // bunday yozuv tanlagichda ham ko'rinmasligi kerak.
-      return dto.participants
-          .where((CreditParticipantDto item) => item.clientId > 0)
-          .map((CreditParticipantDto item) => item.toEntity())
-          .toList();
+      // `client_id` siz ishtirokchi bo'yicha hisobot so'rab bo'lmaydi.
+      return dto.participants .where((CreditParticipantDto item) => item.clientId > 0).map((CreditParticipantDto item) => item.toEntity()).toList();
   });
 
   @override
@@ -98,9 +94,6 @@ final class ContractsRepositoryImpl implements ContractRepository {
   Future<Result<List<String>>> getFlexMessages(int contractId) => guard(() async {
       final List<FlexMessageDto> dto = await _remote.getFlexMessages(contractId);
 
-      return dto
-          .map((FlexMessageDto item) => item.message)
-          .where((String message) => message.isNotEmpty)
-          .toList();
+      return dto.map((FlexMessageDto item) => item.message).where((String message) => message.isNotEmpty).toList();
   });
 }

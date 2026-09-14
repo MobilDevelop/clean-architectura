@@ -134,4 +134,17 @@ void main() {
 
     expect(details.benefit, isNull);
   });
+
+  // Kafilning `id`si imzolashda ishlatiladi (`sign_guarantor_contract`) —
+  // yo'qolsa boshqa kafilga ishora qilib qo'yishi mumkin (4.6).
+  test('kafil id siz o‘qib bo‘lmaydi', () {
+    expect(
+      () => ContractDetailsDto(<String, dynamic>{
+        'guarantors': <dynamic>[
+          <String, dynamic>{'fio': 'KARIMOV ALI'},
+        ],
+      }).toEntity(),
+      throwsFormatException,
+    );
+  });
 }

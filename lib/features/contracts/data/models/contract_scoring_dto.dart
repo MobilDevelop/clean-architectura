@@ -1,4 +1,5 @@
 import 'package:colloborator_v3/core/utils/json_parser.dart';
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_scoring.dart';
 
 final class StopReasonDto {
@@ -77,15 +78,21 @@ final class ContractScoringDto {
     ExternalCheckDto source(String key) =>
         ExternalCheckDto.fromJson(external[key] as Map<String, dynamic>? ?? const <String, dynamic>{});
 
+    // Bu yozuv tugallangan skoring natijasi — MIB/KATM'dagidek "hali
+    // tekshirilmagan" holati yo'q, shuning uchun `client_id` va limitlar
+    // majburiy (4.6).
     return ContractScoringDto(
-      clientId: json['client_id'] as int? ?? 0,
+      clientId: JsonValue.requireInt(json['client_id'], field: 'scoring.client_id'),
       clientName: json['client_fio'] as String? ?? '',
       statusCode: json['status_code'] as String? ?? '',
-      limit: json['limit'] as int? ?? 0,
-      freeLimit: json['free_limit'] as int? ?? 0,
-      exceededLimit: json['exceeded_limit'] as int? ?? 0,
-      coBorrowerLimit: json['co_borrower_limit'] as int? ?? 0,
-      asokiMonthlyPayment: json['asoki_monthly_payment'] as int? ?? 0,
+      limit: JsonValue.requireInt(json['limit'], field: 'scoring.limit'),
+      freeLimit: JsonValue.requireInt(json['free_limit'], field: 'scoring.free_limit'),
+      exceededLimit: JsonValue.requireInt(json['exceeded_limit'], field: 'scoring.exceeded_limit'),
+      coBorrowerLimit: JsonValue.requireInt(json['co_borrower_limit'], field: 'scoring.co_borrower_limit'),
+      asokiMonthlyPayment: JsonValue.requireInt(
+        json['asoki_monthly_payment'],
+        field: 'scoring.asoki_monthly_payment',
+      ),
       internal: <InternalCheckKind, String>{
         InternalCheckKind.age: internal['age'] as String? ?? '',
         InternalCheckKind.blacklist: internal['blacklist'] as String? ?? '',

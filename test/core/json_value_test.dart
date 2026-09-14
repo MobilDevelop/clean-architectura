@@ -39,4 +39,41 @@ void main() {
 
     test('null bo‘sh satr', () => expect(JsonValue.toDigits(null), ''));
   });
+
+  // Identifikatorlar uchun: yo'qlik meʼyoriy `0` emas — bu yozuv kimligini
+  // bildiradi (4.6).
+  group('requireInt', () {
+    test('son va satr o‘qiladi', () {
+      expect(JsonValue.requireInt(42, field: 'id'), 42);
+      expect(JsonValue.requireInt('42', field: 'id'), 42);
+    });
+
+    test('yo‘q bo‘lsa yiqiladi', () {
+      expect(() => JsonValue.requireInt(null, field: 'id'), throwsFormatException);
+    });
+
+    test('songa aylanmasa yiqiladi', () {
+      expect(() => JsonValue.requireInt('abc', field: 'id'), throwsFormatException);
+    });
+  });
+
+  // `_flag` bilan bir xil mantiq: yo'qlik meʼyoriy, buzuq shakl — nosozlik.
+  group('numOrDefault', () {
+    test('kalit yo‘q bo‘lsa standart qiymat', () {
+      expect(JsonValue.numOrDefault(const <String, dynamic>{}, 'total', 0), 0);
+      expect(JsonValue.numOrDefault(const <String, dynamic>{'total': null}, 'total', 0), 0);
+    });
+
+    test('son yoki songa aylanadigan satr o‘qiladi', () {
+      expect(JsonValue.numOrDefault(const <String, dynamic>{'total': 15000}, 'total', 0), 15000);
+      expect(JsonValue.numOrDefault(const <String, dynamic>{'total': '15000'}, 'total', 0), 15000);
+    });
+
+    test('kalit bor-u son emas — yiqiladi', () {
+      expect(
+        () => JsonValue.numOrDefault(const <String, dynamic>{'total': 'noma\'lum'}, 'total', 0),
+        throwsFormatException,
+      );
+    });
+  });
 }

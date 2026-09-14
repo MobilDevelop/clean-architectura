@@ -1,4 +1,5 @@
 import 'package:colloborator_v3/core/utils/json_parser.dart';
+import 'package:colloborator_v3/core/utils/json_value.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 
 /// Ma'lumotnoma elementi hamma joyda bir xil shaklda keladi.
@@ -27,10 +28,7 @@ final class ContractProductDto {
     variant: _catalogItem(_json['product_variant']),
     price: _amount(_json['price']),
     count: _amount(_json['count']),
-    imeis: (_json['devices'] as List<dynamic>? ?? const <dynamic>[])
-        .map((Object? e) => e?.toString() ?? '')
-        .where((String e) => e.isNotEmpty)
-        .toList(),
+    imeis: (_json['devices'] as List<dynamic>? ?? const <dynamic>[]).map((Object? e) => e?.toString() ?? '').where((String e) => e.isNotEmpty).toList(),
   );
 }
 
@@ -42,7 +40,9 @@ final class ContractGuarantorDto {
   final Map<String, dynamic> _json;
 
   ContractGuarantor toEntity() => ContractGuarantor(
-    clientId: _json['id'] as int? ?? 0,
+    // Imzolash shu id bilan ishlaydi — yo'qolsa boshqa kafilga ishora
+    // qilib qo'yishi mumkin (4.6).
+    clientId: JsonValue.requireInt(_json['id'], field: 'guarantor.id'),
     // Ro'yxat va yuz tekshiruvi ikki xil kalit yuboradi.
     fullName: _json['fio'] as String? ?? _json['name'] as String? ?? '',
     passport: _json['passport_series_number'] as String? ?? '',
