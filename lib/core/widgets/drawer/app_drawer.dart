@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/router/routes.dart';
 import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/session/app_user.dart';
@@ -16,6 +17,7 @@ import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 /// Yon menyu.
@@ -62,8 +64,11 @@ final class AppDrawer extends StatelessWidget {
                       title: DrawerText.analysis,
                       icon: AppIcons.graphic,
                       accent: AppTheme.colors.blue,
-                      mark: DrawerTileMark.soon,
-                      onTap: () => _notReady(context, DrawerText.analysis),
+                      mark: DrawerTileMark.open,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push(Routes.customerAnalysis.path);
+                      },
                     ),
 
                   DrawerTile(

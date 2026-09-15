@@ -100,4 +100,8 @@ abstract final class Endpoints {
 
   static const String signClientContract = "${_prefix}sign_client_contract";
   static const String signGuarantorContract = "${_prefix}sign_guarantor_contract";
+
+  // mijoz tahlili (prescoring)
+  static const String customerAnalysis = "${_prefix}prescoring";
+  static const String confirmAnalysisSms = "${_prefix}confirm-pre-scoring-sms";
 }

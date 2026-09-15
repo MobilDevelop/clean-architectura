@@ -2,13 +2,15 @@ import 'package:colloborator_v3/core/error/failure.dart';
 import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/local_cache.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
+import 'package:colloborator_v3/core/services/secure_user_storage.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:flutter/foundation.dart';
 
 final class AuthNotifier extends ChangeNotifier {
-  AuthNotifier(this._tokenStorage, this._cache, this._session);
+  AuthNotifier(this._tokenStorage, this._userStorage, this._cache, this._session);
 
   final SecureTokenStorage _tokenStorage;
+  final SecureUserStorage _userStorage;
   final LocalCache _cache;
   final SessionStore _session;
 
@@ -37,6 +39,10 @@ final class AuthNotifier extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       await _tokenStorage.deleteToken();
+      // Saqlangan profil ham ketadi — aks holda keyingi kirishda eski
+      // xodimning ruxsatlari bir lahza ko'rinib turardi (`load()` tiklash
+      // paytida).
+      await _userStorage.delete();
       // Keshdagi ma'lumotnomalar ham ketadi: bitta qurilmada ikkinchi agent
       // kirsa, oldingisining ma'lumotini ko'rmasligi kerak.
       await _cache.clear();

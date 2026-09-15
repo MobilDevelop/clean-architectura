@@ -17,6 +17,7 @@ import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/services/push_notifications.dart';
 import 'package:colloborator_v3/core/services/push_token_service.dart';
 import 'package:colloborator_v3/core/services/secure_token_storage.dart';
+import 'package:colloborator_v3/core/services/secure_user_storage.dart';
 import 'package:colloborator_v3/core/services/shared_prefs_cache.dart';
 import 'package:colloborator_v3/core/services/telegram_error_reporter.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
@@ -26,6 +27,7 @@ import 'package:colloborator_v3/features/auth/login/data/datasources/auth_remote
 import 'package:colloborator_v3/features/auth/login/data/repositories/auth_repository_impl.dart';
 import 'package:colloborator_v3/features/auth/login/domain/repositories/auth_repository.dart';
 import 'package:colloborator_v3/features/auth/login/domain/usecase/login_usecase.dart';
+import 'package:colloborator_v3/features/auth/login/domain/usecase/restore_session_usecase.dart';
 import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/login_bloc.dart';
 import 'package:colloborator_v3/features/auth/registration/data/datasources/registration_remote_datasource.dart';
 import 'package:colloborator_v3/features/auth/registration/data/repositories/registration_repository_impl.dart';
@@ -106,6 +108,11 @@ import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_ac
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
+import 'package:colloborator_v3/features/customer_analysis/data/datasources/customer_analysis_remote_datasource.dart';
+import 'package:colloborator_v3/features/customer_analysis/data/repositories/customer_analysis_repository_impl.dart';
+import 'package:colloborator_v3/features/customer_analysis/domain/repositories/customer_analysis_repository.dart';
+import 'package:colloborator_v3/features/customer_analysis/domain/usecase/customer_analysis_usecases.dart';
+import 'package:colloborator_v3/features/customer_analysis/presentation/bloc/customer_analysis_bloc.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/address_local_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/address_remote_datasource.dart';
 import 'package:colloborator_v3/features/customers/data/datasources/customer_remote_datasource.dart';
@@ -184,6 +191,7 @@ void setupDependencies(SharedPreferences prefs) {
   _registerUnderwriter();
   _registerOutputs();
   _registerInvoices();
+  _registerCustomerAnalysis();
 
   // Parse nosozliklari ham shu kanaldan ketadi.
   JsonParser.reporter = (issue) => getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
@@ -210,6 +218,7 @@ void _registerPlatform(SharedPreferences prefs) {
     ..registerLazySingleton<SessionStore>(MemorySessionStore.new)
     ..registerLazySingleton<LocalCache>(() => SharedPrefsCache(prefs: prefs, now: DateTime.now))
     ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
+    ..registerLazySingleton(() => SecureUserStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
     ..registerLazySingleton<ErrorReporter>(() => TelegramErrorReporter(dio: Dio(),token: dotenv.env['BOT_TOKEN'] ?? '',chatId: dotenv.env['BOT_CHAT_ID'] ?? '',environment: AppConstants.isStaging ? 'staging' : 'production', now: DateTime.now))
     ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')))
     ..registerLazySingleton(() => Alice(navigatorKey: CustomAnimatedToast.navigatorKey));
@@ -233,7 +242,7 @@ void _registerNetwork() {
 /// Ilova darajasidagi holat va navigatsiya
 void _registerApp() {
   getIt
-    ..registerLazySingleton(() => AuthNotifier(getIt(), getIt(), getIt()))
+    ..registerLazySingleton(() => AuthNotifier(getIt(), getIt(), getIt(), getIt()))
     ..registerLazySingleton(() => AppRouter(getIt(), getIt()))
     ..registerLazySingleton<AppStartup>(() => AppStartupImpl(getIt(), getIt(), getIt()));
 }
@@ -242,8 +251,9 @@ void _registerApp() {
 void _registerLogin() {
   getIt
     ..registerLazySingleton(() => AuthRemoteDataSource(dio: getIt(), deviceInfo: getIt(),push: getIt()))
-    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt()))
+    ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt(), getIt()))
     ..registerLazySingleton(() => LoginUseCase(getIt()))
+    ..registerLazySingleton(() => RestoreSessionUsecase(getIt()))
     ..registerFactory(() => LoginBloc(loginUseCase: getIt(), auth: getIt(), session: getIt(), deviceInfo: getIt()));
 }
 
@@ -574,4 +584,23 @@ void _registerInvoices() {
     ..registerLazySingleton(() => GetInvoicesUsecase(getIt()))
     ..registerLazySingleton(() => SendInvoiceUsecase(getIt()))
     ..registerFactory(() => InvoicesBloc(getInvoices: getIt(), send: getIt()));
+}
+
+/// Mijoz tahlili (prescoring). Tartib: datasource → repository → usecase →
+/// bloc (8.5).
+void _registerCustomerAnalysis() {
+  getIt
+    ..registerLazySingleton(() => CustomerAnalysisRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<CustomerAnalysisRepository>(() => CustomerAnalysisRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetCustomerAnalysesUsecase(getIt()))
+    ..registerLazySingleton(() => SubmitAnalysisUsecase(getIt()))
+    ..registerLazySingleton(() => ConfirmAnalysisSmsUsecase(getIt()))
+    ..registerFactory(
+      () => CustomerAnalysisBloc(
+        getAnalyses: getIt(),
+        submit: getIt(),
+        confirmSms: getIt(),
+        now: DateTime.now,
+      ),
+    );
 }

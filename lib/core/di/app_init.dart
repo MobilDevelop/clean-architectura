@@ -1,9 +1,14 @@
 
 import 'package:colloborator_v3/core/di/injection.dart';
+import 'package:colloborator_v3/core/result/result.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/error_reporter.dart';
 import 'package:colloborator_v3/core/services/firebase_options.dart';
 import 'package:colloborator_v3/core/services/notification_service.dart';
+import 'package:colloborator_v3/core/session/app_user.dart';
+import 'package:colloborator_v3/core/session/session_store.dart';
+import 'package:colloborator_v3/core/usecase/usecase.dart';
+import 'package:colloborator_v3/features/auth/login/domain/usecase/restore_session_usecase.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +34,19 @@ Future<void> initializeApp() async {
   await getIt<LocalNotificationService>().init();
 
   await getIt<AuthNotifier>().load();
+
+  // Faqat token tiklanadi (yuqorida) — profil (ism, ruxsatlar) alohida,
+  // tarmoqsiz tiklanadi. Aks holda `SessionStore.user` `null` bo'lib qolib,
+  // drawer sarlavhasi va ruxsatga bog'liq bo'limlar ("Mijoz tahlili" kabi)
+  // ilova qayta ochilganda yo'qolib qolardi.
+  final Result<User?> restored = await getIt<RestoreSessionUsecase>()(const NoParams());
+
+  switch (restored) {
+    case Ok(:final User? value):
+      if (value != null) getIt<SessionStore>().save(value);
+    case Err():
+    // Sababi botga ketgan (5.7) — xodim baribir qayta login qila oladi.
+  }
 }
 
 /// Ilovaning `Result` tizimidan tashqarida qolgan xatolarni botga uzatadi.

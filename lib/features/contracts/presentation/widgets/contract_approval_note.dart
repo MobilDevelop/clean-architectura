@@ -52,10 +52,7 @@ final class ContractApprovalNote extends StatelessWidget {
 
               Gap(ScreenSize.w8),
               Expanded(
-                child: Text(
-                  "Shartnoma limiti oshgan — ruxsat talab qilinadi",
-                  style: AppTheme.data.textTheme.bodyMedium?.copyWith(color: color),
-                ),
+                child: Text("Shartnoma limiti oshgan — ruxsat talab qilinadi",style: AppTheme.data.textTheme.bodyMedium?.copyWith(color: color)),
               ),
             ],
           ),
@@ -71,10 +68,10 @@ final class ContractApprovalNote extends StatelessWidget {
   Widget _row({required String label, required String value}) => Padding(
     padding: EdgeInsets.only(top: ScreenSize.h6),
     child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Text(label, style: AppTheme.data.textTheme.labelMedium),
 
-        const Spacer(),
         Flexible(
           child: Text(
             value,

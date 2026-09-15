@@ -61,8 +61,7 @@ final class _ContractsPageState extends State<ContractsPage> {
     // "topilmadi" deyish noto'g'ri bo'lardi. Xato bo'lsa belgi saqlanadi:
     // «Qayta urinish» muvaffaqiyatli tugagach shartnoma baribir ochiladi.
     return BlocListener<ContractsBloc, ContractsState>(
-      listenWhen: (ContractsState previous, ContractsState current) =>
-          current.openContractId != 0 && previous.isLoading && !current.isLoading && current.failure == null,
+      listenWhen: (ContractsState previous, ContractsState current) => current.openContractId != 0 && previous.isLoading && !current.isLoading && current.failure == null,
       listener: (BuildContext context, ContractsState state) => unawaited(_openFromPush(state)),
       child: Scaffold(
         backgroundColor: AppTheme.colors.backcolor,
@@ -78,25 +77,15 @@ final class _ContractsPageState extends State<ContractsPage> {
 
                 // Ro'yxat sarlavha ostidan suzib o'tadi.
                 Positioned.fill(
-                  child:
-                      BlocSelector<
-                        ContractsBloc,
-                        ContractsState,
-                        ({bool isLoading, List<ContractInfo> contracts, DateTime? date})
-                      >(
-                        selector: (ContractsState state) =>
-                            (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
-                        builder:
-                            (
-                              BuildContext context,
-                              ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,
-                            ) => PullRefresh<ContractsBloc, ContractsState>(
-                              isLoading: (ContractsState state) => state.isLoading,
-                              refreshPress: () => _bloc.add(const ContractsGet()),
-                              edgeOffset: topInset + ScreenSize.h56,
-                              child: _content(data: data, topPadding: topInset + ScreenSize.h56),
-                            ),
-                      ),
+                  child:BlocSelector<ContractsBloc,ContractsState,({bool isLoading, List<ContractInfo> contracts, DateTime? date})>(
+                    selector: (ContractsState state) => (isLoading: state.isLoading, contracts: state.contracts, date: state.filter.date),
+                    builder: (BuildContext context,({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,) => PullRefresh<ContractsBloc, ContractsState>(
+                      isLoading: (ContractsState state) => state.isLoading,
+                      refreshPress: () => _bloc.add(const ContractsGet()),
+                      edgeOffset: topInset + ScreenSize.h56,
+                      child: _content(data: data, topPadding: topInset + ScreenSize.h56),
+                    ),
+                  ),
                 ),
 
                 Positioned(

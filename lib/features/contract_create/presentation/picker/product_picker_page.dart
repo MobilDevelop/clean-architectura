@@ -123,8 +123,7 @@ final class _ProductPickerPageState extends State<ProductPickerPage> {
             bottomNavigationBar: SafeArea(
               minimum: EdgeInsets.symmetric(horizontal: ScreenSize.h16, vertical: ScreenSize.h12),
               child: BlocSelector<ProductPickerBloc, ProductPickerState, ({int total, bool isScanning})>(
-                selector: (ProductPickerState state) =>
-                    (total: state.draft.total, isScanning: state.isScanning),
+                selector: (ProductPickerState state) => (total: state.draft.total, isScanning: state.isScanning),
                 builder: (BuildContext context, ({int total, bool isScanning}) view) => MainButton(
                   text: view.total > 0 ? "Qo'shish · ${Money.withUnit(view.total)}" : "Qo'shish",
                   // Skan tugamaguncha yuborish to'xtaydi (bloc'da) — sabab shu

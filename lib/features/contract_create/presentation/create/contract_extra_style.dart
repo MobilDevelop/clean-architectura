@@ -9,20 +9,25 @@ import 'package:flutter/material.dart';
 /// jadval — ko'k, aksiya — sariq, muammo — qizil bo'lib, ular bir qarashda
 /// tanib olinadi. Domain rang ham, matn ham yaratmaydi (3.9).
 abstract final class ContractExtraStyle {
+  // Ixcham katakka sig'ishi uchun qisqa: to'liq nomi bloklanish sababi va
+  // amal (`action`) bilan birga aytiladi, bitta so'zga hammasini yuklash
+  // shart emas.
   static String title(ContractExtra extra) => switch (extra) {
     ContractExtra.schedule => "To'lov jadvali",
     ContractExtra.tariff => "Maxsus tarif",
-    ContractExtra.underwriter => "Anderrayter hujjatlari",
-    ContractExtra.bonus => "Filial rahbari bonusi",
-    ContractExtra.katmSkip => "KATM/MIB tekshiruvi",
+    ContractExtra.underwriter => "Anderrayter",
+    ContractExtra.bonus => "Filial bonusi",
+    ContractExtra.katmSkip => "KATM/MIB",
   };
 
-  static String hint(ContractExtra extra) => switch (extra) {
-    ContractExtra.schedule => "Oylik to'lovni ko'rish",
-    ContractExtra.tariff => "Aksiya shartlarini biriktirish",
-    ContractExtra.underwriter => "Daromad hujjatlarini yuklash",
-    ContractExtra.bonus => "Tasdiqlash yoki rad etish",
-    ContractExtra.katmSkip => "Tekshiruvni o'tkazib yuborish",
+  /// Katakdagi qisqa amal belgisi (badge). Sarlavha **nima** ekanini,
+  /// bu esa bosilganda **nima bo'lishini** aytadi.
+  static String action(ContractExtra extra) => switch (extra) {
+    ContractExtra.schedule => "Ko'rish",
+    ContractExtra.tariff => "Tanlash",
+    ContractExtra.underwriter => "Kiritish",
+    ContractExtra.bonus => "Ko'rish",
+    ContractExtra.katmSkip => "O'tkazish",
   };
 
   static IconData icon(ContractExtra extra) => switch (extra) {

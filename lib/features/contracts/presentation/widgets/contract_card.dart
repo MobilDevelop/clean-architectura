@@ -52,9 +52,7 @@ final class ContractCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppTheme.colors.white,
           borderRadius: BorderRadius.circular(ScreenSize.r20),
-          border: accent == null
-              ? AppSurface.border()
-              : Border.all(color: accent.withValues(alpha: .45), width: ScreenSize.h2),
+          border: accent == null ? AppSurface.border() : Border.all(color: accent.withValues(alpha: .45), width: ScreenSize.h2),
           boxShadow: AppShadow.card(),
         ),
         child: Column(
@@ -62,10 +60,7 @@ final class ContractCard extends StatelessWidget {
           children: <Widget>[
             _client(),
 
-            LabeledRow(label: "Shartnoma kodi", value: Text(
-              "№ ${contract.id}",
-              style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
-            )),
+            LabeledRow(label: "Shartnoma kodi", value: Text("№ ${contract.id}",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
 
             LabeledRow(label: "Sanasi", value: Text(
               contract.createdAt,
@@ -75,16 +70,10 @@ final class ContractCard extends StatelessWidget {
             // Qo'shimcha qatorlar faqat ma'lumot bo'lganda chiqadi: bo'sh
             // «0 kafil» qatori kartani uzaytirib, hech nima aytmasdi.
             if (contract.guarantors.isNotEmpty)
-              LabeledRow(label: "Kafillar", value: Text(
-                "${contract.guarantors.length} ta",
-                style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
-              )),
+              LabeledRow(label: "Kafillar", value: Text("${contract.guarantors.length} ta",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
 
             if (contract.flex)
-              LabeledRow(label: "Turi", value: Text(
-                "Flex",
-                style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
-              )),
+              LabeledRow(label: "Turi", value: Text("Flex",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
 
             LabeledRow(
               label: "Status",
@@ -102,7 +91,11 @@ final class ContractCard extends StatelessWidget {
     );
   }
 
+  // `start`: ism uzun bo'lib bir necha qatorga chiqqanda avatar va menyu
+  // butun blok balandligining o'rtasiga emas, yorliq bilan bir qatorga
+  // tortilib qolmasligi kerak.
   Widget _client() => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
       Container(
         height: ScreenSize.h44,
@@ -124,29 +117,13 @@ final class ContractCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
-              "Mijozning F.I.O si:",
-              style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.grey),
-            ),
+            Text("Mijozning F.I.O si:",style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.grey)),
 
             // Ism kesilmaydi: uzun familiya uch qatorga chiqsa ham to'liq
             // ko'rinadi. Kesilgan ism xodimga mijozni tanishga xalaqit beradi.
-            Text(
-              contract.clientFio,
-              style: AppTheme.data.textTheme.headlineLarge?.copyWith(
-                color: AppTheme.colors.black,
-                letterSpacing: -0.2,
-              ),
-            ),
+            Text(contract.clientFio,style: AppTheme.data.textTheme.headlineLarge?.copyWith(color: AppTheme.colors.black,letterSpacing: -0.2)),
           ],
         ),
-      ),
-
-      Gap(ScreenSize.w6),
-      SvgPicture.asset(
-        AppIcons.points,
-        height: ScreenSize.h20,
-        colorFilter: ColorFilter.mode(AppTheme.colors.grey.withValues(alpha: .7), BlendMode.srcIn),
       ),
     ],
   );

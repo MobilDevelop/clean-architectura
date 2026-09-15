@@ -79,8 +79,12 @@ final class MainButton extends StatelessWidget {
         // Balandlik eng kichik chegara: qat'iy balandlikda ikkinchi qatorga
         // tushgan yozuv tugmaning ichida kesilib, jimgina ko'rinmay qolardi
         // (5.8). Tizim shrifti kattalashtirilganda ham shu holat edi.
+        //
+        // `alignment` shu yerda emas, `Center(heightFactor: 1)` da: Container
+        // ustida `alignment` bo'lsa, u balandligi cheklanmagan joyga
+        // qo'yilganda (masalan `bottomNavigationBar`) butun joyni egallashga
+        // urinadi. `heightFactor: 1` esa uni faqat o'z tarkibiga moslashtiradi.
         constraints: BoxConstraints(minHeight: height ?? ScreenSize.h45),
-        alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: ScreenSize.w15,vertical: showLoading?0:ScreenSize.h8),
         decoration: BoxDecoration(
           border: Border.all(color: borderColor ?? Colors.transparent),
@@ -88,7 +92,7 @@ final class MainButton extends StatelessWidget {
           color: color ?? AppTheme.colors.primary,
         ),
         margin: margin,
-        child: current,
+        child: Center(widthFactor: 1, heightFactor: 1, child: current),
       ),
     );
   }

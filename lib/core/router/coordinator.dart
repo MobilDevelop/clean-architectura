@@ -30,6 +30,8 @@ import 'package:colloborator_v3/features/contracts/presentation/pages/contract_r
 import 'package:colloborator_v3/features/contracts/presentation/pages/contract_signing_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/signature_page.dart';
+import 'package:colloborator_v3/features/customer_analysis/presentation/bloc/customer_analysis_bloc.dart';
+import 'package:colloborator_v3/features/customer_analysis/presentation/pages/customer_analysis_page.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/add_customer/add_customer_bloc.dart';
 import 'package:colloborator_v3/features/customers/presentation/bloc/customers/customers_bloc.dart';
@@ -295,6 +297,19 @@ final class AppRouter {
             child: SignaturePage(participantName: extra is String ? extra : ''),
           );
         },
+      ),
+
+      GoRoute(
+        name: Routes.customerAnalysis.name,
+        path: Routes.customerAnalysis.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<void>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<CustomerAnalysisBloc>()..add(const AnalysisRequested()),
+            child: const CustomerAnalysisPage(),
+          ),
+        ),
       ),
 
       GoRoute(

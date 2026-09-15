@@ -10,8 +10,7 @@ import 'package:colloborator_v3/features/contract_create/domain/entities/contrac
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/income.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/contract_extra_style.dart';
-import 'package:colloborator_v3/features/contract_create/presentation/create/extra_entry_row.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/create/extra_grid.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/term_editor.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/income/card_section.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/income/income_chips.dart';
@@ -118,16 +117,9 @@ final class ContractTermsTab extends StatelessWidget {
           title: "Qo'shimcha",
           icon: Icons.more_horiz_rounded,
           accent: AppTheme.colors.grey,
+          isDivided: false,
           children: <Widget>[
-            for (final ContractExtraRow row in state.extras.rows)
-              ExtraEntryRow(
-                title: ContractExtraStyle.title(row.extra),
-                hint: ContractExtraStyle.hint(row.extra),
-                icon: ContractExtraStyle.icon(row.extra),
-                accent: ContractExtraStyle.color(row.extra),
-                blockReason: ContractExtraStyle.block(row.block),
-                onTap: () => extraPressed(row.extra),
-              ),
+            ExtraGrid(rows: state.extras.rows, onTap: extraPressed),
           ],
         ),
       ],

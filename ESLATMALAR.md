@@ -64,16 +64,22 @@ Har uch tabning **o'z xatosi va o'z "Qayta urinish"** i bor: bir tabning nosozli
 
 Flex'ning shakli saqlangan — **Shartnoma / Tovarlar / Kafillar** — chunki eng ko'p ishlatiladigan uchta narsa orasida o'tish uchun orqaga qaytish shart emas. Flex'ning nuqsoni esa saqlanmagan: **birinchi tab scroll qiladi.** Flex'da u `Column(spaceBetween)` da turadi va 360×780 da ~160px toshadi (ko'rish rejimida ham).
 
-**Scroll olib tashlanmaydi — bu o'lchangan** (`terms_tab_fit_test.dart`, 2026-09-08). Ekranda kontent "sig'ayotganday" ko'rinishi aldamchi: oxirgi qatorlar ekran chetidan sal pastda qoladi. `maxScrollExtent` (toshgan piksel):
+**Scroll olib tashlanmaydi — bu o'lchangan** (`terms_tab_fit_test.dart`, 2026-09-08, 2026-09-14 da qayta o'lchangan). Ekranda kontent "sig'ayotganday" ko'rinishi aldamchi: oxirgi qatorlar ekran chetidan sal pastda qoladi. `maxScrollExtent` (toshgan piksel):
 
 | Holat | Toshish |
 |---|---|
-| 393×852, yengil (kartasiz, «Qo'shimcha» da 3 qator) | **82px** |
-| 393×852, to'liq (karta + 5 qator) | **242px** |
-| 360×640 (kichik Android) | **319px** |
-| 393×852, tizim shrifti 1.3× | **444px** |
+| 393×852, yengil (kartasiz, «Qo'shimcha» da 3 qator) | **123px** |
+| 393×852, to'liq (karta + 5 qator) | **297px** |
+| 360×640 (kichik Android) | **355px** |
+| 393×852, tizim shrifti 1.3× | **565px** |
 
 Ya'ni eng yengil holatda ham sig'maydi. Test shu faktni qulflaydi: kimdir `ListView` ni `Column` ga almashtirsa, u yiqiladi.
+
+**«Qo'shimcha» ikki ustunli katakchalarga o'tkazildi** (`ExtraGrid`, 2026-09-14). Ilgari har bir qator (to'lov jadvali, maxsus tarif, anderrayter, bonus, KATM skip) to'liq kenglikda, sarlavha + izoh bilan ikki qatorli edi — beshtasi birga tabni sezilarli uzaytirardi.
+
+Birinchi urinish (ikonka ustida, sarlavha ostida, izohsiz) texnik jihatdan ixcham chiqdi-yu, ko'rinishi past sifatli edi. Flex'dagi `product_add`ning `infoCard()`iga qarab (ikonka va qisqa amal belgisi — badge — bitta qatorda tepada, sarlavha ostida, oq karta + ingichka chegara) qayta qurildi: `ContractExtraStyle.action()` — "Ko'rish", "Kiritish", "Tanlash", "O'tkazish" kabi qisqa amal so'zlari, sarlavhalar esa ixcham (masalan "Anderrayter hujjatlari" → "Anderrayter", flex'dagi nom bilan bir xil).
+
+**Toq sondagi oxirgi element** (3 yoki 5 ta bo'lganda) ikkinchi ustunni bo'sh `Expanded` bilan to'ldirib, yarim bo'sh va nomutanosib ko'rinardi. `_ExtraWideTile` — shu element uchun alohida, **butun kenglikni egallaydigan gorizontal** ko'rinish (ikonka — sarlavha — badge bitta qatorda), ikki ustunli katakni oddiy ikki barobarga cho'zish o'rniga. Bu bo'sh joyni ham yo'qotdi, tabni yanada ixchamlashtirdi (yuqoridagi jadval shu holatdan keyingi o'lchov).
 
 Tabga tiqilmaydigan narsalar — **kam ishlatiladigan va shartli** bo'lganlar: to'lov jadvali, maxsus tarif, anderrayter, menejer bonusi, KATM skip. Ular «Qo'shimcha» qatorlaridan alohida ekran bo'lib ochiladi. Aks holda birinchi tab flex'dagidek cheksiz o'sadi.
 

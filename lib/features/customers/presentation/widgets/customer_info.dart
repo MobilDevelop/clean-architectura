@@ -53,10 +53,7 @@ final class CustomerInfoWidget extends StatelessWidget {
                         info.fullName,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTheme.data.textTheme.headlineLarge?.copyWith(
-                          color: AppTheme.colors.black,
-                          letterSpacing: -0.2,
-                        ),
+                        style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.black,letterSpacing: -0.2),
                       ),
 
                       Gap(ScreenSize.h5),

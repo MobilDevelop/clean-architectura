@@ -68,8 +68,7 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
           ],
           child: ContractCreatePage(
             productPicker: (BuildContext context) => context.push<ProductDraft>(Routes.productPicker.path),
-            guarantorPicker: (BuildContext context) =>
-                context.push<GuarantorPick>(Routes.guarantorPicker.path),
+            guarantorPicker: (BuildContext context) => context.push<GuarantorPick>(Routes.guarantorPicker.path),
             extraOpener: _openExtra,
           ),
         ),

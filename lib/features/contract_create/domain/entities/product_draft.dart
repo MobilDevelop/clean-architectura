@@ -91,14 +91,11 @@ final class ProductDraft extends Equatable {
   /// Yuqoridagi tanlov o'zgarsa, unga bog'liqlari bekor bo'ladi. Narx va
   /// miqdor esa tanlovga bog'liq emas — ular saqlanadi, aks holda ekranda
   /// ko'rinib turgan son bilan yuboriladigan son ajralib ketardi.
-  ProductDraft withSupplier(CatalogItem value) =>
-      ProductDraft(supplier: value, price: price, count: count);
+  ProductDraft withSupplier(CatalogItem value) => ProductDraft(supplier: value, price: price, count: count);
 
-  ProductDraft withCategory(ProductCategory value) =>
-      ProductDraft(supplier: supplier, category: value, price: price, count: count);
+  ProductDraft withCategory(ProductCategory value) => ProductDraft(supplier: supplier, category: value, price: price, count: count);
 
-  ProductDraft withBrand(CatalogItem value) =>
-      ProductDraft(supplier: supplier, category: category, brand: value, price: price, count: count);
+  ProductDraft withBrand(CatalogItem value) => ProductDraft(supplier: supplier, category: category, brand: value, price: price, count: count);
 
   /// IMEI aynan tanlangan tovarning yorlig'idan o'qiladi, shuning uchun tovar
   /// almashganda ro'yxat bekor bo'ladi. Aks holda oldingi qurilmaning

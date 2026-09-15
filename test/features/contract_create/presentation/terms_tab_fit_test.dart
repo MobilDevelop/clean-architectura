@@ -29,14 +29,16 @@ import '_fake_repository.dart';
 /// "sig'ayotganday" ko'rinishi aldamchi — oxirgi qatorlar ekran chetidan
 /// sal pastda qoladi.
 ///
-/// 2026-09-08 dagi o'lchov (`maxScrollExtent`, ya'ni toshgan piksel):
+/// 2026-09-14 dagi o'lchov (`maxScrollExtent`, ya'ni toshgan piksel).
+/// «Qo'shimcha» bo'limi ikki ustunli katakchalarga o'tkazilgach (`ExtraGrid`)
+/// sonlar pasaydi, lekin nolga tushmadi:
 ///
 /// | Holat | Toshish |
 /// |---|---|
-/// | 393x852, yengil (kartasiz, 3 qo'shimcha) | 82px |
-/// | 393x852, to'liq (karta + 5 qo'shimcha) | 242px |
-/// | 360x640 (kichik Android) | 319px |
-/// | 393x852, tizim shrifti 1.3x | 444px |
+/// | 393x852, yengil (kartasiz, 3 qo'shimcha) | 123px |
+/// | 393x852, to'liq (karta + 5 qo'shimcha) | 297px |
+/// | 360x640 (kichik Android) | 355px |
+/// | 393x852, tizim shrifti 1.3x | 565px |
 ///
 /// Ya'ni scroll bezak emas — usiz ekran har qanday holatda toshadi.
 const ContractCard _card = ContractCard(
