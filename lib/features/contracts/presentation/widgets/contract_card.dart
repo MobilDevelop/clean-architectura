@@ -121,7 +121,7 @@ final class ContractCard extends StatelessWidget {
 
             // Ism kesilmaydi: uzun familiya uch qatorga chiqsa ham to'liq
             // ko'rinadi. Kesilgan ism xodimga mijozni tanishga xalaqit beradi.
-            Text(contract.clientFio,style: AppTheme.data.textTheme.headlineLarge?.copyWith(color: AppTheme.colors.black,letterSpacing: -0.2)),
+            Text(contract.clientFio,style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black,letterSpacing: -0.2)),
           ],
         ),
       ),

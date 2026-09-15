@@ -35,6 +35,11 @@ import 'package:colloborator_v3/features/auth/registration/domain/repositories/r
 import 'package:colloborator_v3/features/auth/registration/domain/usecase/partners_usecase.dart';
 import 'package:colloborator_v3/features/auth/registration/domain/usecase/registration_usecase.dart';
 import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration/registration_bloc.dart';
+import 'package:colloborator_v3/features/change_password/data/datasources/change_password_remote_datasource.dart';
+import 'package:colloborator_v3/features/change_password/data/repositories/change_password_repository_impl.dart';
+import 'package:colloborator_v3/features/change_password/domain/repositories/change_password_repository.dart';
+import 'package:colloborator_v3/features/change_password/domain/usecase/change_password_usecase.dart';
+import 'package:colloborator_v3/features/change_password/presentation/bloc/change_password_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_create_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_file_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_guarantor_remote_datasource.dart';
@@ -108,6 +113,7 @@ import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_ac
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_result/contract_result_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contract_signing/contract_signing_bloc.dart';
 import 'package:colloborator_v3/features/contracts/presentation/bloc/contracts/contracts_bloc.dart';
+import 'package:colloborator_v3/features/credit_calculator/presentation/bloc/credit_calculator_bloc.dart';
 import 'package:colloborator_v3/features/customer_analysis/data/datasources/customer_analysis_remote_datasource.dart';
 import 'package:colloborator_v3/features/customer_analysis/data/repositories/customer_analysis_repository_impl.dart';
 import 'package:colloborator_v3/features/customer_analysis/domain/repositories/customer_analysis_repository.dart';
@@ -192,6 +198,8 @@ void setupDependencies(SharedPreferences prefs) {
   _registerOutputs();
   _registerInvoices();
   _registerCustomerAnalysis();
+  _registerCreditCalculator();
+  _registerChangePassword();
 
   // Parse nosozliklari ham shu kanaldan ketadi.
   JsonParser.reporter = (issue) => getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
@@ -603,4 +611,19 @@ void _registerCustomerAnalysis() {
         now: DateTime.now,
       ),
     );
+}
+
+/// Kredit kalkulyator. Serverga murojaat qilmaydi — bloc hech qanday
+/// bog'liqlik olmaydi.
+void _registerCreditCalculator() {
+  getIt.registerFactory(CreditCalculatorBloc.new);
+}
+
+/// Parolni almashtirish. Tartib: datasource → repository → usecase → bloc (8.5).
+void _registerChangePassword() {
+  getIt
+    ..registerLazySingleton(() => ChangePasswordRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<ChangePasswordRepository>(() => ChangePasswordRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => ChangePasswordUsecase(getIt()))
+    ..registerFactory(() => ChangePasswordBloc(changePassword: getIt(), auth: getIt()));
 }

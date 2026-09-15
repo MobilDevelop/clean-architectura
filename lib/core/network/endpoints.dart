@@ -4,6 +4,7 @@ abstract final class Endpoints {
  // login_page all url
   static const String login = "${_prefix}sign-in";
   static const String logOut = "${_prefix}logout";
+  static const String updatePassword = "${_prefix}update-password/";
 
   // registration page all urls
   static const String partners = "${_prefix}get_partner_list_with_organizations";

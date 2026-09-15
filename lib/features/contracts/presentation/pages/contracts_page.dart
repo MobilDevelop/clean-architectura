@@ -166,14 +166,10 @@ final class _ContractsPageState extends State<ContractsPage> {
   /// oynasi emas, aniq bir oqim ochilishi kerak.
   Future<void> _onTap(ContractInfo contract) async {
     switch (ContractActions.tapOf(contract.statusCode)) {
-      case ContractTap.selectIncome:
-        await CustomAnimatedToast.showInfo(ContractTapText.selectIncome);
-      case ContractTap.confirmSms:
-        await _openCardConfirm(contract);
-      case ContractTap.viewProduct:
-        await context.push(Routes.contractDetails.path, extra: contract.id);
-      case ContractTap.showActions:
-        await _openActions(contract);
+      case ContractTap.selectIncome: await CustomAnimatedToast.showInfo(ContractTapText.selectIncome);
+      case ContractTap.confirmSms: await _openCardConfirm(contract);
+      case ContractTap.viewProduct: await context.push(Routes.contractDetails.path, extra: contract.id);
+      case ContractTap.showActions: await _openActions(contract);
     }
   }
 

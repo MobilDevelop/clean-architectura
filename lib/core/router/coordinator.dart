@@ -14,6 +14,8 @@ import 'package:colloborator_v3/features/auth/login/presentation/bloc/login/logi
 import 'package:colloborator_v3/features/auth/login/presentation/pages/login_page.dart';
 import 'package:colloborator_v3/features/auth/registration/presentation/bloc/registration/registration_bloc.dart';
 import 'package:colloborator_v3/features/auth/registration/presentation/pages/registration_page.dart';
+import 'package:colloborator_v3/features/change_password/presentation/bloc/change_password_bloc.dart';
+import 'package:colloborator_v3/features/change_password/presentation/pages/change_password_page.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/product_picker/product_picker_bloc.dart';
@@ -30,6 +32,8 @@ import 'package:colloborator_v3/features/contracts/presentation/pages/contract_r
 import 'package:colloborator_v3/features/contracts/presentation/pages/contract_signing_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/contracts_page.dart';
 import 'package:colloborator_v3/features/contracts/presentation/pages/signature_page.dart';
+import 'package:colloborator_v3/features/credit_calculator/presentation/bloc/credit_calculator_bloc.dart';
+import 'package:colloborator_v3/features/credit_calculator/presentation/pages/credit_calculator_page.dart';
 import 'package:colloborator_v3/features/customer_analysis/presentation/bloc/customer_analysis_bloc.dart';
 import 'package:colloborator_v3/features/customer_analysis/presentation/pages/customer_analysis_page.dart';
 import 'package:colloborator_v3/features/customers/domain/entities/customer_info.dart';
@@ -308,6 +312,32 @@ final class AppRouter {
           child: BlocProvider(
             create: (context) => getIt<CustomerAnalysisBloc>()..add(const AnalysisRequested()),
             child: const CustomerAnalysisPage(),
+          ),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.calculator.name,
+        path: Routes.calculator.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<void>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<CreditCalculatorBloc>(),
+            child: const CreditCalculatorPage(),
+          ),
+        ),
+      ),
+
+      GoRoute(
+        name: Routes.changePassword.name,
+        path: Routes.changePassword.path,
+        pageBuilder: (context, state) => buildScaleTransitionPage<void>(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) => getIt<ChangePasswordBloc>(),
+            child: const ChangePasswordPage(),
           ),
         ),
       ),

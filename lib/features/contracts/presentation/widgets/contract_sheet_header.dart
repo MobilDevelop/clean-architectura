@@ -22,7 +22,7 @@ final class ContractSheetHeader extends StatelessWidget {
           contract.clientFio,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft, letterSpacing: -0.2),
+          style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.blackSoft, letterSpacing: -0.2),
         ),
 
         Gap(ScreenSize.h6),

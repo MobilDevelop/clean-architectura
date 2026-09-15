@@ -76,16 +76,22 @@ final class AppDrawer extends StatelessWidget {
                     icon: '',
                     materialIcon: Icons.calculate_outlined,
                     accent: AppTheme.colors.primary,
-                    mark: DrawerTileMark.soon,
-                    onTap: () => _notReady(context, DrawerText.calculator),
+                    mark: DrawerTileMark.open,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(Routes.calculator.path);
+                    },
                   ),
 
                   DrawerTile(
                     title: DrawerText.password,
                     icon: AppIcons.refresh,
                     accent: AppTheme.colors.yellow,
-                    mark: DrawerTileMark.soon,
-                    onTap: () => _notReady(context, DrawerText.password),
+                    mark: DrawerTileMark.open,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push(Routes.changePassword.path);
+                    },
                   ),
 
                   DrawerTile(

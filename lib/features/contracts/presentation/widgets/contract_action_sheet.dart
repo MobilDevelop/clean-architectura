@@ -64,8 +64,7 @@ final class _Actions extends StatelessWidget {
     final ContractActionBloc bloc = context.read<ContractActionBloc>();
 
     return BlocConsumer<ContractActionBloc, ContractActionState>(
-      listenWhen: (ContractActionState previous, ContractActionState current) =>
-          (current.isDone && !previous.isDone) || (current.isSigningRequested && !previous.isSigningRequested),
+      listenWhen: (ContractActionState previous, ContractActionState current) => (current.isDone && !previous.isDone) || (current.isSigningRequested && !previous.isSigningRequested),
       listener: (BuildContext context, ContractActionState state) {
         Navigator.of(context).pop();
 
@@ -125,9 +124,7 @@ final class _Actions extends StatelessWidget {
                   icon: actions.approve == ApproveAction.allow ? AppIcons.approve : AppIcons.sendUp,
                   color: actions.approve == ApproveAction.allow ? AppTheme.colors.primary : AppTheme.colors.yellow,
                   title: actions.approve == ApproveAction.allow ? "Ruxsat berish" : "Yuborish",
-                  subtitle: actions.approve == ApproveAction.allow
-                      ? "Shartnomaga ruxsat berish"
-                      : "Vakolatli shaxsga yuborish",
+                  subtitle: actions.approve == ApproveAction.allow ? "Shartnomaga ruxsat berish" : "Vakolatli shaxsga yuborish",
                   enabled: actions.canApprove && !state.isLoading,
                   closeOnTap: false,
                   onTap: () => unawaited(_confirmApprove(context, bloc, actions.approve)),
@@ -190,9 +187,7 @@ final class _Actions extends StatelessWidget {
         icon: isAllow ? AppIcons.approve : AppIcons.sendUp,
         accent: isAllow ? AppTheme.colors.primary : AppTheme.colors.yellow,
         title: isAllow ? "Ruxsat berish" : "Yuborish",
-        message: isAllow
-            ? "Ushbu shartnoma bo'yicha ruxsat berilsinmi?"
-            : "Shartnomani tasdiqlash uchun vakolatli shaxsga yuborasizmi?",
+        message: isAllow ? "Ushbu shartnoma bo'yicha ruxsat berilsinmi?" : "Shartnomani tasdiqlash uchun vakolatli shaxsga yuborasizmi?",
         actionLabel: isAllow ? "Ruxsat berish" : "Yuborish",
         cancelLabel: "Yopish",
         onAction: () => Navigator.of(dialogContext).pop(true),

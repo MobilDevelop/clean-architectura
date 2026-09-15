@@ -157,6 +157,11 @@ final class Routes implements Coordinate {
     path: '/change_password',
   );
 
+  static const calculator = Routes._(
+    name: 'credit_calculator_page',
+    path: '/credit_calculator',
+  );
+
   static const questionarie = Routes._(
     name: 'questionarie_page',
     path: '/questionarie',
