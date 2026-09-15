@@ -2,22 +2,19 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:flutter/material.dart';
 
-/// Tarmoq so'rovlarini ko'rish tugmasi (faqat staging'da).
+/// HTTP jurnalini ochuvchi suriladigan tugma (faqat staging'da).
 ///
-/// Inspektorni o'zi ochmaydi — ochish amalini tashqaridan oladi (8.1).
-/// Ilgari bu yerda `getIt<Alice>()` turardi: klass ichidagi `getIt` testda
-/// o'rniga soxta obyekt qo'yishga imkon bermaydi va widgetni tashxis
-/// kutubxonasiga bog'lab qo'yadi.
-final class ChuckButton extends StatefulWidget {
-  const ChuckButton({super.key, required this.inspectPress});
+/// Jurnalni o'zi ochmaydi — ochish amalini tashqaridan oladi (8.1).
+final class HttpLogButton extends StatefulWidget {
+  const HttpLogButton({super.key, required this.onPressed});
 
-  final VoidCallback inspectPress;
+  final VoidCallback onPressed;
 
   @override
-  State<ChuckButton> createState() => _ChuckButtonState();
+  State<HttpLogButton> createState() => _HttpLogButtonState();
 }
 
-final class _ChuckButtonState extends State<ChuckButton> {
+final class _HttpLogButtonState extends State<HttpLogButton> {
   late double _top;
   double _right = ScreenSize.h20;
   bool _placed = false;
@@ -44,7 +41,7 @@ final class _ChuckButtonState extends State<ChuckButton> {
             _right -= details.delta.dx;
           });
         },
-        onTap: widget.inspectPress,
+        onTap: widget.onPressed,
         child: Material(
           elevation: 4,
           shape: const CircleBorder(),

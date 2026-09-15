@@ -21,7 +21,7 @@ final class UnderwriterRemoteDatasource {
 
   final Dio _dio;
 
-  /// Imzolangan havolaga yozish uchun — interceptorsiz klient.
+  /// Imzolangan havolaga yozish uchun — `Authorization` qo'shmaydigan klient.
   final UploadClient _upload;
 
   /// Javob `data` ichida emas, yuqori darajada keladi.
