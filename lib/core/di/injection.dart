@@ -5,6 +5,7 @@ import 'package:colloborator_v3/core/error/result_guard.dart';
 import 'package:colloborator_v3/core/network/dio_client.dart';
 import 'package:colloborator_v3/core/network/interceptors/auth_interceptor.dart';
 import 'package:colloborator_v3/core/network/interceptors/error_report_interceptor.dart';
+import 'package:colloborator_v3/core/network/interceptors/http_log_interceptor.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
@@ -22,7 +23,6 @@ import 'package:colloborator_v3/core/services/shared_prefs_cache.dart';
 import 'package:colloborator_v3/core/services/telegram_error_reporter.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/utils/json_parser.dart';
-import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/auth/login/data/datasources/auth_remote_datasource.dart';
 import 'package:colloborator_v3/features/auth/login/data/repositories/auth_repository_impl.dart';
 import 'package:colloborator_v3/features/auth/login/domain/repositories/auth_repository.dart';
@@ -169,7 +169,6 @@ import 'package:colloborator_v3/features/underwriter/presentation/bloc/underwrit
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_alice/alice.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -220,23 +219,33 @@ void _registerPlatform(SharedPreferences prefs) {
     ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
     ..registerLazySingleton(() => SecureUserStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
     ..registerLazySingleton<ErrorReporter>(() => TelegramErrorReporter(dio: Dio(),token: dotenv.env['BOT_TOKEN'] ?? '',chatId: dotenv.env['BOT_CHAT_ID'] ?? '',environment: AppConstants.isStaging ? 'staging' : 'production', now: DateTime.now))
-    ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')))
-    ..registerLazySingleton(() => Alice(navigatorKey: CustomAnimatedToast.navigatorKey));
+    ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')));
 }
 
-/// Tarmoq: yagona Dio va uning interceptorlari
+/// Tarmoq: yagona Dio, fayl yuklash klienti va ularning interceptorlari
 void _registerNetwork() {
-  getIt.registerLazySingleton<Dio>(
-    () => createDio(
-      interceptors: [
-        AuthInterceptor(getIt()),
-        if (AppConstants.isStaging) getIt<Alice>().getDioInterceptor(),
+  getIt
+    ..registerLazySingleton(() => HttpLog(now: DateTime.now))
+    ..registerLazySingleton<Dio>(
+      () => createDio(
+        interceptors: [
+          AuthInterceptor(getIt()),
+          if (AppConstants.isStaging) HttpLogInterceptor(getIt()),
 
-        // Oxirida: undan oldingilar hal qilgan xatolarni ko'rmasin.
-        ErrorReportInterceptor(getIt()),
-      ],
-    ),
-  );
+          // Oxirida: undan oldingilar hal qilgan xatolarni ko'rmasin.
+          ErrorReportInterceptor(getIt()),
+        ],
+      ),
+    )
+    // Featurega emas, tarmoqqa tegishli: uni `contract_create` ham, `underwriter` ham ishlatadi.
+    ..registerLazySingleton(
+      () => createUploadClient(
+        interceptors: [
+          if (AppConstants.isStaging) HttpLogInterceptor(getIt()),
+          ErrorReportInterceptor(getIt()),
+        ],
+      ),
+    );
 }
 
 /// Ilova darajasidagi holat va navigatsiya
@@ -427,7 +436,7 @@ void _registerContractCreate() {
       ),
     )
     // Fayl imzolangan S3 havolasidan olinadi — bizning `Authorization`
-    // sarlavhamiz unga kerak emas, shuning uchun interceptorsiz klient.
+    // sarlavhamiz imzoni buzadi, shuning uchun asosiy `Dio` emas, `UploadClient`.
     ..registerLazySingleton(() => ContractFileRemoteDatasource(dio: getIt<UploadClient>().dio))
     ..registerLazySingleton<ContractFileRepository>(() => ContractFileRepositoryImpl(remote: getIt()))
     ..registerLazySingleton(() => DownloadContractFileUsecase(getIt()))
@@ -505,8 +514,6 @@ void _registerContractCreate() {
 /// Anderrayter featurei: daromadni tasdiqlovchi hujjatlar.
 void _registerUnderwriter() {
   getIt
-    // Imzolangan S3 havolasiga yozish uchun interceptorsiz klient.
-    ..registerLazySingleton(() => createUploadClient(errorReporter: ErrorReportInterceptor(getIt())))
     ..registerLazySingleton(() => UnderwriterRemoteDatasource(dio: getIt(), upload: getIt()))
     ..registerLazySingleton<UnderwriterRepository>(() => UnderwriterRepositoryImpl(remote: getIt()))
     ..registerLazySingleton(() => LoadUnderwriterUsecase(getIt()))
