@@ -4,7 +4,7 @@ Bu fayl **o'zgaradi**. Qat'iy qoidalar `CLAUDE.md` da va ular bu yerdan boshqari
 bu yerda faqat loyihaning hozirgi holati, ochiq ishlar, backendga savollar va
 kelajakda qilinadigan ishlar turadi.
 
-*Yangilangan: 2026-09-09*
+*Yangilangan: 2026-09-15*
 
 ---
 
@@ -14,6 +14,23 @@ kelajakda qilinadigan ishlar turadi.
 **Xatolar (5.x) — to'liq.** `FailureGroup` va `Failure.group` / `Failure.isReportable` getterlari `core/error` da. Barcha bloclar `Failure?` saqlaydi, birortasi matn to'qimaydi. `FailureView` guruhga qarab yo'naltiradi: `session` → dialog + chiqish, `connection` → banner + "Qayta urinish", `input` → maydon tagida, `internal` → umumiy matn. Foydalanuvchiga ko'rinadigan matn `FailureText` da — yagona manba. To'rtala ekran ham ulangan: mijozlar, shartnomalar, login, registratsiya.
 
 **Telegram bot (5.7) — ishlayapti.** `TelegramErrorReporter` + `ErrorReportInterceptor`, `injection.dart` da ulangan. `JsonParser.reporter` ham shu kanalga ulandi — u loyiha boshidan beri o'lik turgan edi. Token va chat id `.env` da (git'da kuzatilmaydi). Takrorlar 10 daqiqalik oynada filtrlanadi.
+
+**HTTP jurnal — `flutter_alice` o'rniga (2026-09-15).** Andoza — ishonch_setapp (`domain/common/http_log_*.dart`). Uch qism: `HttpLog` + `HttpLogInterceptor` (`core/network/interceptors/http_log_interceptor.dart`), `HttpLogPage` va `HttpLogButton` (`core/widgets/http_log/`). Faqat staging'da ulanadi. `flutter_alice` va `ChuckButton` olib tashlandi.
+
+Endi asosiy `Dio` bilan birga **`UploadClient` so'rovlari ham** yoziladi — S3 ga yuklash va shartnoma faylini yuklab olish. Alice faqat asosiy klientni ko'rardi. `UploadClient` ning ro'yxatdan o'tishi `_registerUnderwriter` dan `_registerNetwork` ga ko'chdi: uni ikkita feature ishlatadi.
+
+Jurnal `GoRoute` emas. Tugma `MaterialApp.builder` dagi overlay'da turadi, sahifa router navigatorining kaliti orqali ochiladi — aks holda `redirect` login ekranida jurnalni ochirmasdi.
+
+**Setapp nusxasining nuqsonlari takrorlanmadi:**
+
+- `HttpLog.instance` statik singleton edi (§12). Endi DI da, soat tashqaridan (§9.4).
+- Yozuv holati `statusCode == null && error == null` bilan aniqlanardi, `error` esa `err.message` edi. Javobsiz va xabarsiz `DioException` (masalan `SocketException` → `type: unknown`, `message: null`) yozuvni **abadiy «yuborilmoqda»** da qoldirardi — aynan tarmoq nosozligini tekshirayotganda. Endi holat davomiylik bo'yicha.
+- Yozuv `options.hashCode` bo'yicha xaritada emas, `RequestOptions.extra` da: `copyWith` qilingan so'rovda ham topiladi.
+- Tana formatlashdagi `try/catch` o'rniga `JsonEncoder` ning `toEncodable` zaxirasi. Baytlar, oqim va `FormData` qisqa ko'rinishda — S3 ga ketayotgan megabaytlar JSON massiv bo'lib chizilmaydi.
+- Tafsilotda matn 20 000 belgida kesiladi (KATM javobi ~1.7 MB, `SelectableText` ni qotirardi), nusxalash esa to'liq matnni oladi. Tafsilot oynasi javob kelgach jurnalni tinglashni to'xtatadi.
+- `!` operatori, eskirgan `withOpacity`, iOS'da mavjud bo'lmagan `monospace` shrifti.
+
+`test/core/network/http_log_interceptor_test.dart` qulflaydi.
 
 **`guard()` — `core/error/result_guard.dart` da** (2026-09-09 da `contract_create` dan ko'chirildi: uni ikkita feature ishlatadi, 1.2). `underwriter` dagi nusxa o'chirildi.
 

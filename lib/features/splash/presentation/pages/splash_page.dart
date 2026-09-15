@@ -1,18 +1,20 @@
 import 'package:colloborator_v3/core/constants/app_constants.dart';
 import 'package:colloborator_v3/core/di/injection.dart';
 import 'package:colloborator_v3/core/error/failure.dart';
+import 'package:colloborator_v3/core/network/interceptors/http_log_interceptor.dart';
 import 'package:colloborator_v3/core/router/coordinator.dart';
 import 'package:colloborator_v3/core/services/app_info.dart';
 import 'package:colloborator_v3/core/services/auth_notifier.dart';
 import 'package:colloborator_v3/core/services/offer_document.dart';
 import 'package:colloborator_v3/core/session/session_store.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
-import 'package:colloborator_v3/core/widgets/buttons/chuck_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
+import 'package:colloborator_v3/core/widgets/http_log/http_log_button.dart';
+import 'package:colloborator_v3/core/widgets/http_log/http_log_page.dart';
+import 'package:colloborator_v3/core/widgets/toasts/custom_animated_toast.dart';
 import 'package:colloborator_v3/features/splash/presentation/bloc/app_manager/app_manager_cubit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_alice/alice.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart';
@@ -94,13 +96,23 @@ final class SplashPage extends StatelessWidget {
         builder: (context, child) => Overlay(
           initialEntries: [
             OverlayEntry(builder: (context) => child ?? const SizedBox()),
-            // Inspektor bog'liqligi shu yerda — ilovaning yig'ilish nuqtasida —
+            // Jurnal bog'liqligi shu yerda — ilovaning yig'ilish nuqtasida —
             // beriladi, tugmaning o'zida emas (8.1).
             if (AppConstants.isStaging)
-              OverlayEntry(builder: (context) => ChuckButton(inspectPress: getIt<Alice>().showInspector)),
+              OverlayEntry(builder: (context) => const HttpLogButton(onPressed: _openHttpLog)),
           ],
         ),
       ),
     ),
   );
+
+  /// Tugma navigatorning ustidagi overlay'da turadi, `Navigator.of(context)`
+  /// uni topmaydi — shuning uchun router navigatorining kaliti orqali.
+  /// Jurnal `GoRoute` qilinmadi: u login ekranida ham kerak, `redirect` esa
+  /// kirmagan foydalanuvchini har qanday yopiq marshrutdan qaytaradi.
+  static void _openHttpLog() {
+    CustomAnimatedToast.navigatorKey.currentState?.push(
+      MaterialPageRoute<void>(builder: (_) => HttpLogPage(log: getIt<HttpLog>())),
+    );
+  }
 }

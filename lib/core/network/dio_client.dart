@@ -26,14 +26,15 @@ Dio createDio({required List<Interceptor> interceptors}) {
 ///
 /// Nega alohida nusxa: imzolangan havolaga bizning `Authorization` headerimiz
 /// ham, `Content-Type: application/json` ham ketmasligi kerak — ular imzoni
-/// buzadi. Interceptorlar esa ikkalasini ham har so'rovga qo'shadi. Shuning
-/// uchun bu klientda na interceptor, na `baseUrl` bor.
+/// buzadi. Asosiy klientning interceptorlari esa ikkalasini ham har so'rovga
+/// qo'shadi. Shuning uchun bu klientda na `baseUrl`, na so'rovni o'zgartiradigan
+/// interceptor bor.
 ///
-/// Xato haqida xabar beruvchi interceptor esa **qo'shiladi**: u so'rovga
-/// hech nima qo'shmaydi, faqat `onError` da ishlaydi. Usiz fayl yuklashdagi
-/// har qanday nosozlik botga umuman yetib bormasdi — `guard` esa har qanday
-/// `DioException` ni «interceptor ko'rdi» deb hisoblab, uni ikkinchi marta
-/// yubormasdi (5.7).
+/// So'rovga hech nima qo'shmaydigan interceptorlar esa **beriladi**. Xato
+/// haqida xabar beruvchisiz fayl yuklashdagi har qanday nosozlik botga umuman
+/// yetib bormasdi — `guard` esa har qanday `DioException` ni «interceptor ko'rdi»
+/// deb hisoblab, uni ikkinchi marta yubormasdi (5.7). Staging'dagi HTTP jurnal
+/// ham shu turdagi interceptor.
 ///
 /// Bu 12-bo'limdagi "global Dio nusxasi" taqiqiga zid emas: nusxa servis
 /// ichida emas, DI da yaratiladi va tipi bilan nima uchun kerakligini aytadi.
@@ -43,7 +44,7 @@ final class UploadClient {
   final Dio dio;
 }
 
-UploadClient createUploadClient({required Interceptor errorReporter}) {
+UploadClient createUploadClient({required List<Interceptor> interceptors}) {
   final Dio dio = Dio(
     BaseOptions(
       // Fayl yuklash sekin tarmoqda uzoq davom etadi.
@@ -52,7 +53,7 @@ UploadClient createUploadClient({required Interceptor errorReporter}) {
     ),
   );
 
-  dio.interceptors.add(errorReporter);
+  dio.interceptors.addAll(interceptors);
 
   return UploadClient(dio);
 }
