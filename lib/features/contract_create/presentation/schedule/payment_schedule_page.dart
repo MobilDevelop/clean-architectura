@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
+import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/payment_schedule.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/payment_schedule/payment_schedule_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/schedule/schedule_date_text.dart';
@@ -10,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// To'lov jadvali — faqat o'qish uchun.
 ///
@@ -20,7 +26,13 @@ final class PaymentSchedulePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PaymentScheduleBloc, PaymentScheduleState>(
+    return BlocConsumer<PaymentScheduleBloc, PaymentScheduleState>(
+      listenWhen: (PaymentScheduleState previous, PaymentScheduleState current) =>
+          current.shareFile != null && current.shareFile != previous.shareFile,
+      listener: (BuildContext context, PaymentScheduleState state) {
+        final File? file = state.shareFile;
+        if (file != null) unawaited(_share(context, file));
+      },
       builder: (BuildContext context, PaymentScheduleState state) {
         final PaymentScheduleBloc bloc = context.read<PaymentScheduleBloc>();
 
@@ -31,11 +43,27 @@ final class PaymentSchedulePage extends StatelessWidget {
           retryPress: () => bloc.add(const ScheduleRequested()),
           backPress: () => context.pop(),
           isLoading: state.isLoading && !state.isLoaded,
+          bottom: state.canShare ? _shareButton(bloc, state) : null,
           child: _body(state),
         );
       },
     );
   }
+
+  /// Ulashish oynasi — UI ta'siri, shuning uchun bloc emas, sahifa ochadi (6.2).
+  Future<void> _share(BuildContext context, File file) async {
+    context.read<PaymentScheduleBloc>().add(const ScheduleFileShared());
+
+    await SharePlus.instance.share(ShareParams(files: <XFile>[XFile(file.path)]));
+  }
+
+  Widget _shareButton(PaymentScheduleBloc bloc, PaymentScheduleState state) => MainButton(
+    text: "Jadvalni ulashish",
+    leftIcon: AppIcons.file,
+    margin: EdgeInsets.symmetric(horizontal: ScreenSize.h16, vertical: ScreenSize.h8),
+    showLoading: state.isSharing,
+    onPressed: () => bloc.add(const ScheduleShareRequested()),
+  );
 
   Widget _body(PaymentScheduleState state) {
     // Bo'sh jadval va tarmoq xatosi bir xil ko'rinmaydi: flex ikkalasini ham

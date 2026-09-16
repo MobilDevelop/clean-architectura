@@ -5,6 +5,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/formatter/thousand_separator_formatter.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
+import 'package:colloborator_v3/core/widgets/cards/section_card.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
 import 'package:colloborator_v3/core/widgets/inputs/select_tile.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
@@ -97,9 +98,31 @@ final class _CreditCalculatorPageState extends State<CreditCalculatorPage> {
         ScreenSize.h24,
       ),
       children: <Widget>[
-        Text(CalculatorText.description,style: AppTheme.data.textTheme.bodyMedium?.copyWith(color: AppTheme.colors.grey, height: 1.6)),
+        CalculationSummary(calculation: calculation),
 
-        Gap(ScreenSize.h16),
+        Gap(ScreenSize.h12),
+        SectionCard(
+          title: CalculatorText.formTitle,
+          icon: Icons.tune_rounded,
+          accent: AppTheme.colors.primary,
+          isDivided: false,
+          children: <Widget>[_form(calculation)],
+        ),
+
+        CalculationBreakdown(calculation: calculation),
+
+        Text(
+          CalculatorText.disclaimer,
+          style: AppTheme.data.textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  Widget _form(CreditCalculation calculation) => Padding(
+    padding: EdgeInsets.fromLTRB(ScreenSize.h14, 0, ScreenSize.h14, ScreenSize.h6),
+    child: Column(
+      children: <Widget>[
         TextInputWidget(
           title: CalculatorText.priceLabel,
           hint: CalculatorText.priceHint,
@@ -142,10 +165,7 @@ final class _CreditCalculatorPageState extends State<CreditCalculatorPage> {
           ],
           onChanged: (String value) => _bloc.add(BackMarginChanged(int.tryParse(value) ?? 0)),
         ),
-
-        Gap(ScreenSize.h16),
-        CalculationResultCard(calculation: calculation),
       ],
-    );
-  }
+    ),
+  );
 }

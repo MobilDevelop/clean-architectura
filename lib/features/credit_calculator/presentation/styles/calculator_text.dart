@@ -2,10 +2,14 @@
 abstract final class CalculatorText {
   static const String title = "Kredit kalkulyator";
 
-  static const String description =
-      "Tovar narxi, muddat, Front marja va Bek marjani kiriting — oylik "
-      "to'lov va shartnoma qiymati avtomatik hisoblanadi. Bu faqat tezkor "
-      "taxmin, yakuniy summa mijoz va tovar tanlangandan keyin aniqlashadi.";
+  /// Ekranning pastida turadigan ogohlantirish — natijaning o'zi tepada.
+  static const String disclaimer =
+      "Bu tezkor taxmin: yakuniy summa mijoz va tovar tanlangandan keyin aniqlashadi.";
+
+  /// Natija bloki bo'sh turganda nima qilish kerakligini aytadi.
+  static const String emptyHint = "Tovar narxini kiriting";
+
+  static const String formTitle = "Ma'lumotlar";
 
   static const String priceLabel = "Tovar narxi";
   static const String priceHint = "Kirim narxi, so'm";

@@ -141,7 +141,7 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
     pageBuilder: (context, state) {
       final extra = state.extra;
 
-      if (extra is! ScheduleQuery) {
+      if (extra is! ({ScheduleQuery query, String clientName})) {
         return buildScaleTransitionPage<bool>(
           context: context,
           state: state,
@@ -153,7 +153,9 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
         context: context,
         state: state,
         child: BlocProvider(
-          create: (context) => getIt<PaymentScheduleBloc>(param1: extra)..add(const ScheduleRequested()),
+          create: (context) =>
+              getIt<PaymentScheduleBloc>(param1: extra.query, param2: extra.clientName)
+                ..add(const ScheduleRequested()),
           child: const PaymentSchedulePage(),
         ),
       );
@@ -291,11 +293,14 @@ Future<bool?> _openExtra(
     case ContractExtra.schedule:
       return context.push<bool>(
         Routes.paymentSchedule.path,
-        extra: ScheduleQuery(
-          contractId: contractId,
-          termMonths: state.form.termMonths,
-          paymentDay: state.form.paymentDay,
-          isInformal: state.form.basis == IncomeBasis.informal,
+        extra: (
+          query: ScheduleQuery(
+            contractId: contractId,
+            termMonths: state.form.termMonths,
+            paymentDay: state.form.paymentDay,
+            isInformal: state.form.basis == IncomeBasis.informal,
+          ),
+          clientName: details?.clientName ?? '',
         ),
       );
 

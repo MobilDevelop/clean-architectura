@@ -1218,6 +1218,73 @@ O'lchandi (393×852): klaviaturasiz oyna ekranning ~45% ini oladi;
 
 Instrumentlar oynasi (kafil) shu qolipda yozilgan edi — endi ikkalasi bir xil.
 
+## To'lov jadvalini PDF qilib ulashish (2026-09-16, flexdan)
+
+Flexda bu bor (`graphic_pdf.dart` + `Share.shareXFiles`), v3 da yo'q edi.
+Endi «To'lov jadvali» ekranining pastida «Jadvalni ulashish» tugmasi turadi:
+PDF yasaladi va OS ning ulashish oynasiga beriladi — Telegram o'sha ro'yxatda
+o'zi chiqadi, alohida integratsiya kerak emas.
+
+**Ikkita yangi paket:** `pdf` va `path_provider`. Ikkinchisi vaqtinchalik
+papka uchun — fayl faqat ulashish uchun kerak, saqlanib qolishi shart emas.
+
+**Qatlam qarori:** `SchedulePdf` presentationda
+(`presentation/schedule/schedule_pdf.dart`), usecase emas. Sababi: biznes
+qoidasi yo'q — qatorlar serverdan tayyor keladi va faqat hujjatga ko'chiriladi;
+ustiga shrift `rootBundle` dan o'qiladi, ya'ni domainda turolmaydi (§2.1).
+
+Ulashish oqimi `contract_details` dagi mavjud qolipni takrorlaydi: bloc faylni
+yasaydi va holatga qo'yadi, sahifa oynani ochib `ScheduleFileShared` yuboradi.
+Busiz ekran qayta qurilganda ulashish oynasi ikkinchi marta ochilardi.
+
+**Shrift hujjat ichiga joylanadi** — PDF ning standart shriftida `o'`, `g'` va
+kirill harflari to'g'ri chiqmaydi (flexda ham shu sabab yozilgan).
+
+Mijoz ismi hujjat sarlavhasida turadi, shuning uchun marshrut argumenti
+`ScheduleQuery` dan `(query:, clientName:)` yozuviga o'zgardi — ism domen
+so'roviga qo'shilmadi, u ko'rsatish uchun.
+
+**Testlar** (`schedule_share_test.dart`): fayl haqiqatan yasalishi (`%PDF-`
+bilan boshlanishi va shrift joylanganini ko'rsatadigan hajm), ulashilgach
+holatdan olinishi, bo'sh jadval ulashilmasligi. `path_provider` uchun test
+muhitida tayyor amalga oshirish yo'q — vaqtinchalik papka kanal mock'i bilan
+beriladi.
+
+## Kredit kalkulyator v3 uslubiga keltirildi (2026-09-16)
+
+Ekran flexning deyarli aynan ko'chirmasi edi: uch gapli paragraf, to'rtta
+maydon, keyin ettita qatorli oq jadval. Nima o'zgardi:
+
+**1. Javob tepaga chiqdi.** «Oylik to'lov» endi asosiy rangdagi blokda —
+to'lov jadvali ekranidagi `_summary` bilan bir xil qolip. Xodim kalkulyatorni
+aynan shu son uchun ochadi va uni ko'rish uchun pastga aylantirishi kerak
+emas. Ostida muddat va shartnoma qiymati bir qatorda.
+
+**2. Maydonlar `SectionCard` ichiga yig'ildi** («Ma'lumotlar»,
+`isDivided: false` — boshqaruv elementlari orasiga chiziq kerak emas, buni
+widgetning o'z izohi aytadi).
+
+**3. Hisob-kitob juftlandi** (`LabeledCellRow`): «Kirim narxi | Front marja»,
+«Sotish narxi | Bek marja», keyin «Shartnoma qiymati». Ilgari yettita qiymat
+yettita ajratuvchi chiziq bilan kelardi — shartnoma kartasida qilingan
+qarorning o'zi.
+
+**4. Uzun paragraf olib tashlandi.** O'rniga bitta qator ogohlantirish
+ekranning pastida: natija tepada turgani uchun ekranning boshida uch gapli
+matn o'qilmaydi ham.
+
+**5. Ishlatilmayotgan matn ulandi.** `CalculatorText.roundingHint` e'lon
+qilinib hech qayerda ishlatilmagan edi (§15.3 — o'lik kod). Endi u faqat
+yaxlitlash farqi bo'lganda, «Oxirgi oy to'lovi» qatori ostida chiqadi —
+sababi yozilmasa xodim buni xato deb o'ylardi.
+
+**6. Bo'sh holat.** Ilgari natija jadvali «—» lar bilan to'lib turardi. Endi
+hisob-kitob bo'limi umuman chizilmaydi, tepadagi blok esa «Tovar narxini
+kiriting» deb aytadi.
+
+`CalculationResultCard` ikkiga bo'lindi: `CalculationSummary` (javob) va
+`CalculationBreakdown` (bosqichlar).
+
 *D — hali boshlanmagan*
 
 9. **Mijoz hujjati rasmi (DEV-4714)** — endpoint (`contract/client-document`) va `side` kaliti backend bilan tasdiqlangach imzolash ekraniga qo'shiladi.

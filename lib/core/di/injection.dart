@@ -520,8 +520,13 @@ void _registerContractCreate() {
         removeGuarantor: getIt(),
       ),
     )
-    ..registerFactoryParam<PaymentScheduleBloc, ScheduleQuery, void>(
-      (ScheduleQuery query, void _) => PaymentScheduleBloc(query: query, getSchedule: getIt()),
+    ..registerFactoryParam<PaymentScheduleBloc, ScheduleQuery, String>(
+      (ScheduleQuery query, String? clientName) => PaymentScheduleBloc(
+        query: query,
+        clientName: clientName ?? '',
+        getSchedule: getIt(),
+        now: DateTime.now,
+      ),
     )
     ..registerFactoryParam<SpecialTariffBloc, ({int contractId, int termMonths}), AppliedTariff>(
       (({int contractId, int termMonths}) ids, AppliedTariff? applied) => SpecialTariffBloc(
