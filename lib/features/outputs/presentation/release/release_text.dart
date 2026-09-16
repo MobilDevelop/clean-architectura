@@ -13,7 +13,6 @@ abstract final class ReleaseText {
 
   static const String divider = "keyin";
   static String sentTo(String phone) => "$phone raqamiga yuborilgan SMS kodni kiriting";
-  static const String codeHint = "Kodni kiriting";
   static const String waiting = "SMS kod 1-5 daqiqa ichida yetib keladi";
   static const String expired = "SMS kelmagan bo'lsa, adminga murojaat qiling";
 
@@ -34,7 +33,7 @@ abstract final class ReleaseText {
       issue == ReleaseIssue.photoMissing ? "Tovarlar suratini oling" : null;
 
   static String? code(ReleaseIssue issue) => issue == ReleaseIssue.codeIncomplete
-      ? "Kod ${ReleaseDraft.codeLength} belgidan iborat"
+      ? "Kod ${ReleaseDraft.codeLength} xonadan iborat"
       : null;
 
   static String? camera(CameraIssue issue) => CameraIssueText.of(issue);

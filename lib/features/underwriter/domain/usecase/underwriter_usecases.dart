@@ -7,13 +7,13 @@ import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
 import 'package:colloborator_v3/features/underwriter/domain/repositories/underwriter_repository.dart';
 
-final class LoadUnderwriterUsecase implements UseCase<UnderwriterData, int> {
+final class LoadUnderwriterUsecase implements UseCase<UnderwriterData, UnderwriterRef> {
   const LoadUnderwriterUsecase(this._repository);
 
   final UnderwriterRepository _repository;
 
   @override
-  Future<Result<UnderwriterData>> call(int params) => _repository.load(params);
+  Future<Result<UnderwriterData>> call(UnderwriterRef params) => _repository.load(params);
 }
 
 /// Ekran uchun kerak bo'lgan barcha ma'lumotnomalarni yig'adi.
@@ -105,7 +105,9 @@ final class SaveUnderwriterUsecase implements UseCase<SaveOutcome, SaveUnderwrit
 
     if (saved is Err<void>) return Err<SaveOutcome>(saved.failure);
 
-    final Result<UnderwriterData> reloaded = await _repository.load(params.args.contractId);
+    final Result<UnderwriterData> reloaded = await _repository.load(
+      UnderwriterRef(contractId: params.args.contractId, clientId: params.args.clientId),
+    );
 
     return switch (reloaded) {
       Ok(: final UnderwriterData value) => Ok<SaveOutcome>(

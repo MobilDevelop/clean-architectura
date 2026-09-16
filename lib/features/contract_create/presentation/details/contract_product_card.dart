@@ -3,6 +3,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/shared/imei_list.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -61,29 +62,16 @@ final class ContractProductCard extends StatelessWidget {
 
           if (product.supplier.name.isNotEmpty) ...<Widget>[
             Gap(ScreenSize.h6),
-            Text("Yetkazib beruvchi: ${product.supplier.name}", style: AppTheme.data.textTheme.bodySmall),
+            Text("Ta'minotchi: ${product.supplier.name}", style: AppTheme.data.textTheme.bodySmall),
           ],
 
           if (product.imeis.isNotEmpty) ...<Widget>[
             Gap(ScreenSize.h8),
-            Wrap(
-              spacing: ScreenSize.w6,
-              runSpacing: ScreenSize.h4,
-              children: product.imeis.map(_imei).toList(),
-            ),
+            ImeiList(values: product.imeis, chipColor: AppTheme.colors.white),
           ],
         ],
       ),
     );
   }
 
-  Widget _imei(String value) => Container(
-    padding: EdgeInsets.symmetric(horizontal: ScreenSize.h8, vertical: ScreenSize.h2),
-    decoration: BoxDecoration(
-      color: AppTheme.colors.white,
-      borderRadius: BorderRadius.circular(ScreenSize.r8),
-      border: AppSurface.border(alpha: .5),
-    ),
-    child: Text(value, style: AppTheme.data.textTheme.bodySmall),
-  );
 }

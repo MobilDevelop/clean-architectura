@@ -14,15 +14,24 @@ import 'package:gap/gap.dart';
 
 /// Kafil tanlash natijasi. Faqat oddiy tiplar — `contract_create` mijozlar
 /// featureini import qilmaydi (1.3).
-typedef GuarantorPickResult = ({int clientId, String fullName, String passport});
+typedef GuarantorPickResult = ({int clientId, String fullName, String passport, String inps, int workplaceCategoryId});
+
+/// Kafil uchun ochiladigan qo'shimcha ekran.
+enum GuarantorExtra { underwriter, instruments }
+
+/// Ekran yopilgach shartnoma qayta o'qiladi — natija qaytarilmaydi.
+typedef GuarantorExtraOpener =
+    Future<void> Function(BuildContext context, GuarantorExtra extra, ContractGuarantor guarantor);
 
 /// «Kafillar» tabi.
 final class GuarantorsTab extends StatelessWidget {
-  const GuarantorsTab({super.key, required this.guarantorPicker});
+  const GuarantorsTab({super.key, required this.guarantorPicker, required this.extraOpener});
 
   /// Mijozlar ekranini kafil rejimida ochadi: tanlash → oferta → yuz
   /// tekshiruvi, yoki noldan yangi mijoz.
   final Future<GuarantorPickResult?> Function(BuildContext context) guarantorPicker;
+
+  final GuarantorExtraOpener extraOpener;
 
   Future<void> _add(BuildContext context) async {
     final ContractGuarantorsBloc bloc = context.read<ContractGuarantorsBloc>();
@@ -30,7 +39,15 @@ final class GuarantorsTab extends StatelessWidget {
 
     if (pick == null) return;
 
-    bloc.add(GuarantorAdded(clientId: pick.clientId, fullName: pick.fullName, passport: pick.passport));
+    bloc.add(
+      GuarantorAdded(
+        clientId: pick.clientId,
+        fullName: pick.fullName,
+        passport: pick.passport,
+        inps: pick.inps,
+        workplaceCategoryId: pick.workplaceCategoryId,
+      ),
+    );
   }
 
   Future<void> _remove(BuildContext context, ContractGuarantor guarantor) async {
@@ -51,7 +68,7 @@ final class GuarantorsTab extends StatelessWidget {
 
     if (!(isConfirmed ?? false)) return;
 
-    bloc.add(GuarantorRemoved(guarantor.clientId));
+    bloc.add(GuarantorRemoved(guarantor.rowId));
   }
 
   @override
@@ -66,8 +83,10 @@ final class GuarantorsTab extends StatelessWidget {
             for (final ContractGuarantor item in state.guarantors)
               GuarantorCard(
                 guarantor: item,
-                isBusy: state.busyId == item.clientId,
+                isBusy: state.busyId == item.rowId,
                 removePress: () => unawaited(_remove(context, item)),
+                underwriterPress: () => unawaited(extraOpener(context, GuarantorExtra.underwriter, item)),
+                instrumentsPress: () => unawaited(extraOpener(context, GuarantorExtra.instruments, item)),
               ),
 
             if (state.guarantors.isEmpty) ...<Widget>[

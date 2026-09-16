@@ -16,6 +16,8 @@ import 'package:colloborator_v3/features/contract_create/presentation/bloc/payme
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/special_tariff/special_tariff_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bonus/manager_bonus_page.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/create/contract_create_page.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/guarantors/guarantors_tab.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/guarantors/instruments_sheet.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/katm_skip/katm_skip_page.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/schedule/payment_schedule_page.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/tariff/special_tariff_page.dart';
@@ -70,6 +72,7 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
             productPicker: (BuildContext context) => context.push<ProductDraft>(Routes.productPicker.path),
             guarantorPicker: (BuildContext context) => context.push<GuarantorPick>(Routes.guarantorPicker.path),
             extraOpener: _openExtra,
+            guarantorExtraOpener: _openGuarantorExtra,
           ),
         ),
       );
@@ -244,6 +247,38 @@ List<RouteBase> contractCreateRoutes() => <RouteBase>[
 /// Marshrut bilimining yagona joyi: sahifa marshrutni bilmaydi va yangi
 /// ekran qo'shilganda `switch` qamrab olinmagani kompilyatsiyada xato
 /// beradi (O — Open/Closed).
+/// Kafil uchun: anderrayter ekrani yoki instrumentlar oynasi.
+///
+/// Anderrayter ekrani mijoz uchun ham, kafil uchun ham bir xil — faqat
+/// `clientId` va ish joyi toifasi almashadi.
+Future<void> _openGuarantorExtra(
+  BuildContext context,
+  GuarantorExtra extra,
+  ContractGuarantor guarantor,
+  ContractCreateState state,
+) async {
+  final int? contractId = state.contractId;
+  if (contractId == null) return;
+
+  await switch (extra) {
+    GuarantorExtra.underwriter => context.push<bool>(
+      Routes.underwriter.path,
+      extra: (
+        contractId: contractId,
+        clientId: guarantor.participantId,
+        workplaceCategoryId: guarantor.workplaceCategoryId,
+        isFormal: state.form.basis == IncomeBasis.formal,
+        hasCard: state.hasCard,
+      ),
+    ),
+    GuarantorExtra.instruments => showInstrumentsSheet(
+      context: context,
+      contractId: contractId,
+      clientId: guarantor.participantId,
+    ),
+  };
+}
+
 Future<bool?> _openExtra(
   BuildContext context,
   ContractExtra extra,

@@ -37,9 +37,8 @@ enum FileIssue { none, tooMany, tooLarge, wrongType }
 abstract final class UnderwriterFileRule {
   static const int maxCount = 3;
 
-  /// Bayt. Flex 1.9 MB ni chegara qilib olgan — 2 MB dagi serverga tegmasin
-  /// uchun ozgina zaxira qoldirilgan.
-  static const int maxBytes = 1992294;
+  /// Bayt — 5 MB (loyiha egasi, 2026-09-16; ilgari 1.9 MB edi).
+  static const int maxBytes = 5 * 1024 * 1024;
 
   static const Set<String> extensions = <String>{'pdf', 'jpg', 'jpeg', 'png'};
 

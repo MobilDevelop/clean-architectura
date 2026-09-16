@@ -9,7 +9,7 @@ import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/feedback/sms_countdown.dart';
-import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
+import 'package:colloborator_v3/core/widgets/inputs/sms_code_field.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_contract.dart';
 import 'package:colloborator_v3/features/outputs/domain/entities/output_release.dart';
@@ -247,13 +247,12 @@ final class _ReleaseSheetState extends State<ReleaseSheet> {
         ),
 
         Gap(ScreenSize.h12),
-        TextInputWidget(
-          hint: ReleaseText.codeHint,
+        SmsCodeField(
           controller: _code,
+          kind: SmsCodeKind.digits,
+          length: ReleaseDraft.codeLength,
           errorText: ReleaseText.code(state.issue),
           enabled: !state.isSubmitting,
-          keyboardType: TextInputType.text,
-          formatters: <TextInputFormatter>[LengthLimitingTextInputFormatter(ReleaseDraft.codeLength)],
           onChanged: (String value) => bloc.add(CodeChanged(value)),
         ),
 

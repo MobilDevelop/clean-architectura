@@ -36,7 +36,7 @@ ContractDetails _details({
 }) => ContractDetails(
   id: 5,
   statusCode: statusCode,
-  clientName: 'Mijoz',
+  clientName: 'Mijoz', clientPassport: 'AB1234567', clientInps: '31201000560012',
   termMonths: termMonths,
   paymentDay: paymentDay,
   isFormal: isFormal,

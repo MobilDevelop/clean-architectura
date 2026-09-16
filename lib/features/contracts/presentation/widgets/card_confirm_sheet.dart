@@ -10,6 +10,7 @@ import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/feedback/sms_countdown.dart';
+import 'package:colloborator_v3/core/widgets/inputs/sms_code_field.dart';
 import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/card_confirmation.dart';
@@ -30,16 +31,10 @@ import 'package:go_router/go_router.dart';
 /// yubormaydi va server har qanday davom etishni rad etadi, ya'ni yagona yo'l
 /// shartnomani bekor qilish. Bekor qilishning o'zi amallar oynasida —
 /// tasdiq dialogi va xato yuzasi bir joyda tursin.
-Future<void> showCardConfirmSheet({
-  required BuildContext context,
-  required int contractId,
-  required VoidCallback onConfirmed,
-  required VoidCallback onCancelRequested,
-}) => showAppSheet(
+Future<void> showCardConfirmSheet({required BuildContext context,required int contractId,required VoidCallback onConfirmed,required VoidCallback onCancelRequested}) => showAppSheet(
   context: context,
   child: BlocProvider<CardConfirmBloc>(
-    create: (BuildContext context) =>
-        getIt<CardConfirmBloc>(param1: contractId)..add(const CardConfirmRequested()),
+    create: (BuildContext context) => getIt<CardConfirmBloc>(param1: contractId)..add(const CardConfirmRequested()),
     child: CardConfirmSheet(onConfirmed: onConfirmed, onCancelRequested: onCancelRequested),
   ),
 );
@@ -219,12 +214,11 @@ final class _CardConfirmSheetState extends State<CardConfirmSheet> {
         ),
 
         Gap(ScreenSize.h16),
-        TextInputWidget(
-          hint: CardConfirmText.codeHint,
+        SmsCodeField(
           controller: _code,
+          kind: SmsCodeKind.digits,
+          length: CardConfirmParams.codeLength,
           enabled: !state.isSkipCard && !state.isBusy,
-          keyboardType: TextInputType.number,
-          formatters: <TextInputFormatter>[LengthLimitingTextInputFormatter(6)],
           onChanged: (String value) => bloc.add(CodeChanged(value)),
         ),
 
@@ -238,10 +232,7 @@ final class _CardConfirmSheetState extends State<CardConfirmSheet> {
             if (canResend)
               InkWell(
                 onTap: state.isBusy ? null : () => bloc.add(const CodeResendRequested()),
-                child: Text(
-                  CardConfirmText.resend,
-                  style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blue),
-                ),
+                child: Text(CardConfirmText.resend,style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blue)),
               )
             else
               SmsCountdown(
@@ -253,11 +244,7 @@ final class _CardConfirmSheetState extends State<CardConfirmSheet> {
 
         if (data.message.isNotEmpty) ...<Widget>[
           Gap(ScreenSize.h10),
-          Text(
-            data.message,
-            textAlign: TextAlign.center,
-            style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.red),
-          ),
+          Text(data.message,textAlign: TextAlign.center,style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.red)),
         ],
 
         Gap(ScreenSize.h8),
@@ -340,10 +327,7 @@ final class _CardConfirmSheetState extends State<CardConfirmSheet> {
       ),
 
       Expanded(
-        child: Text(
-          CardConfirmText.skipCard,
-          style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.blackSoft),
-        ),
+        child: Text(CardConfirmText.skipCard,style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.blackSoft)),
       ),
     ],
   );

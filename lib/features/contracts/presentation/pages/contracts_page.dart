@@ -226,17 +226,10 @@ final class _ContractsPageState extends State<ContractsPage> {
     _bloc.add(const ContractsGet());
   }
 
-  Widget _content({
-    required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,
-    required double topPadding,
-  }) {
+  Widget _content({required ({bool isLoading, List<ContractInfo> contracts, DateTime? date}) data,required double topPadding}) {
     final EdgeInsets padding = EdgeInsets.only(top: topPadding, bottom: ScreenSize.h30);
 
-    // Skelet faqat birinchi yuklashda. Yangilashda ro'yxat ekranda qoladi,
-    // aks holda tortib yangilash paytida u yo'qolib ketadi.
-    if (data.isLoading && data.contracts.isEmpty) {
-      return ListView(padding: padding, children: const <Widget>[ContractsSkeleton()]);
-    }
+    if (data.isLoading && data.contracts.isEmpty) return ListView(padding: padding, children: const <Widget>[ContractsSkeleton()]);
 
     if (data.contracts.isEmpty) {
       return ListView(
@@ -247,9 +240,7 @@ final class _ContractsPageState extends State<ContractsPage> {
           EmptyPlaceholder(
             icon: AppIcons.contract,
             title: "Shartnoma yo'q",
-            message: data.date == null
-                ? "Bugungi kunda tuzilgan shartnoma topilmadi"
-                : "Tanlangan kunda shartnoma topilmadi. Boshqa sanani tanlab ko'ring",
+            message: data.date == null ? "Bugungi kunda tuzilgan shartnoma topilmadi" : "Tanlangan kunda shartnoma topilmadi. Boshqa sanani tanlab ko'ring",
           ),
         ],
       );

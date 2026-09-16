@@ -62,58 +62,87 @@ CustomerInfo _person() => const CustomerInfo(
   passportType: true,
 );
 
+const Size _screen = Size(393, 852);
+
 void main() {
   testWidgets('karta ro‘yxatning yon paddingi bilan torayib qolmaydi', (WidgetTester tester) async {
-    const Size screen = Size(393, 852);
-
-    tester.view
-      ..physicalSize = screen
-      ..devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-
-    // `ScreenSize` va `AppTheme.data` `.h`/`.sp` ga tayanadi, ular esa
-    // `ScreenUtil` sozlangandan keyin hisoblanadi.
-    await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: screen,
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (BuildContext context, Widget? child) => const SizedBox.shrink(),
-      ),
-    );
-    await AppTheme.init();
-    ScreenSize.setSizes();
-
-    final CustomersBloc bloc = CustomersBloc(customerUsecase: CustomerUsecase(_FakeCustomerRepository()));
-    addTearDown(bloc.close);
-
-    await tester.pumpWidget(
-      ScreenUtilInit(
-        designSize: screen,
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (BuildContext context, Widget? child) => MaterialApp(
-          theme: AppTheme.data,
-          home: BlocProvider<CustomersBloc>.value(
-            value: bloc,
-            child: GuarantorPickerPage(
-              verifyOpener: (_, _) async => null,
-              newClientOpener: (_) async => null,
-              formOpener: (_, _) async => null,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    bloc
-      ..add(const SearchQueryChanged('31201000560012'))
-      ..add(const SearchSubmitted());
-    await tester.pumpAndSettle();
+    await _search(tester, await _pumpPicker(tester));
 
     final Finder card = find.byType(CustomerInfoWidget).first;
 
-    expect(tester.getSize(card).width, screen.width);
+    expect(tester.getSize(card).width, _screen.width);
     expect(tester.getTopLeft(card).dx, 0);
   });
+
+  /// Ro'yxat ichida bo'lsa natijalar soniga qarab siljib, tanlash o'rniga
+  /// bosilardi.
+  testWidgets('«Yangi kafil qo‘shish» ro‘yxat ichida emas, pastda turadi', (WidgetTester tester) async {
+    await _search(tester, await _pumpPicker(tester));
+
+    final Finder button = find.text("Yangi kafil qo'shish");
+    expect(button, findsOneWidget);
+
+    expect(
+      find.descendant(of: find.byType(ListView), matching: button),
+      findsNothing,
+      reason: 'ro‘yxat ichida bo‘lsa natijalar soniga qarab joyi siljiydi',
+    );
+
+    expect(
+      tester.getBottomLeft(button).dy,
+      greaterThan(_screen.height * .85),
+      reason: 'panel ekranning pastida turishi kerak',
+    );
+  });
+}
+
+Future<CustomersBloc> _pumpPicker(WidgetTester tester) async {
+  tester.view
+    ..physicalSize = _screen
+    ..devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+
+  // `ScreenSize` va `AppTheme.data` `.h`/`.sp` ga tayanadi, ular esa
+  // `ScreenUtil` sozlangandan keyin hisoblanadi.
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: _screen,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (BuildContext context, Widget? child) => const SizedBox.shrink(),
+    ),
+  );
+  await AppTheme.init();
+  ScreenSize.setSizes();
+
+  final CustomersBloc bloc = CustomersBloc(customerUsecase: CustomerUsecase(_FakeCustomerRepository()));
+  addTearDown(bloc.close);
+
+  await tester.pumpWidget(
+    ScreenUtilInit(
+      designSize: _screen,
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (BuildContext context, Widget? child) => MaterialApp(
+        theme: AppTheme.data,
+        home: BlocProvider<CustomersBloc>.value(
+          value: bloc,
+          child: GuarantorPickerPage(
+            verifyOpener: (_, _) async => null,
+            newClientOpener: (_) async => null,
+            formOpener: (_, _) async => null,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  return bloc;
+}
+
+Future<void> _search(WidgetTester tester, CustomersBloc bloc) async {
+  bloc
+    ..add(const SearchQueryChanged('31201000560012'))
+    ..add(const SearchSubmitted());
+  await tester.pumpAndSettle();
 }

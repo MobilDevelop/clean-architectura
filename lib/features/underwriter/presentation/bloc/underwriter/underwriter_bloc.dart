@@ -67,7 +67,9 @@ final class UnderwriterBloc extends Bloc<UnderwriterEvent, UnderwriterState> {
   Future<void> _requested(UnderwriterRequested event, Emitter<UnderwriterState> emit) async {
     emit(state.copyWith(isLoading: true, clearFailure: true));
 
-    final Result<UnderwriterData> loaded = await _load(state.args.contractId);
+    final Result<UnderwriterData> loaded = await _load(
+      UnderwriterRef(contractId: state.args.contractId, clientId: state.args.clientId),
+    );
     if (emit.isDone) return;
 
     switch (loaded) {

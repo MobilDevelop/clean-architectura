@@ -104,14 +104,50 @@ final class AppliedTariff extends Equatable {
 
 /// Shartnomadagi kafil. Faqat ko'rsatish uchun kerak bo'lgan maydonlar.
 final class ContractGuarantor extends Equatable {
-  const ContractGuarantor({required this.clientId, required this.fullName, required this.passport});
+  const ContractGuarantor({
+    required this.rowId,
+    required this.participantId,
+    required this.fullName,
+    required this.passport,
+    required this.inps,
+    required this.workplaceCategoryId,
+    required this.underwriterTypes,
+    required this.instrumentTypes,
+  });
 
-  final int clientId;
+  /// `contract_guarantors.id` — o'chirish shu id bilan ishlaydi.
+  final int rowId;
+
+  /// `clients.id` — anderrayter, instrument va yuz tekshiruvi API'lari shuni
+  /// kutadi. Kafil yozuvida u `client_id` da keladi; kelmasa `id` ning o'zi
+  /// mijoz id si bo'ladi.
+  final int participantId;
+
   final String fullName;
   final String passport;
+  final String inps;
+
+  /// Guvohnoma bo'limi ochilishi shu toifaga bog'liq — anderrayter ekraniga
+  /// uzatiladi.
+  final int workplaceCategoryId;
+
+  /// Serverdan kelgan kodlar (`salary`, `pension`, …).
+  final List<String> underwriterTypes;
+
+  /// Serverdan kelgan kodlar (`norasmiy`, `avto`, `p2p`).
+  final List<String> instrumentTypes;
 
   @override
-  List<Object?> get props => [clientId, fullName, passport];
+  List<Object?> get props => [
+    rowId,
+    participantId,
+    fullName,
+    passport,
+    inps,
+    workplaceCategoryId,
+    underwriterTypes,
+    instrumentTypes,
+  ];
 }
 
 /// Filial rahbari bonusi — shartnomaga biriktirilgan limit.
@@ -147,6 +183,8 @@ final class ContractDetails extends Equatable {
     required this.id,
     required this.statusCode,
     required this.clientName,
+    required this.clientPassport,
+    required this.clientInps,
     required this.termMonths,
     required this.paymentDay,
     required this.isFormal,
@@ -168,6 +206,8 @@ final class ContractDetails extends Equatable {
   /// ko'rsatardi.
   final int? statusCode;
   final String clientName;
+  final String clientPassport;
+  final String clientInps;
   final int termMonths;
 
   /// Oyning kuni. Serverdagi ruxsat etilgan kunlar ro'yxatidan tanlanadi.

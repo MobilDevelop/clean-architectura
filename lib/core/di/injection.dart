@@ -44,6 +44,7 @@ import 'package:colloborator_v3/features/contract_create/data/datasources/contra
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_file_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_guarantor_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/contract_income_remote_datasource.dart';
+import 'package:colloborator_v3/features/contract_create/data/datasources/guarantor_instruments_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/katm_skip_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/manager_bonus_remote_datasource.dart';
 import 'package:colloborator_v3/features/contract_create/data/datasources/payment_schedule_remote_datasource.dart';
@@ -52,17 +53,20 @@ import 'package:colloborator_v3/features/contract_create/data/repositories/contr
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_file_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_guarantor_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/contract_income_repository_impl.dart';
+import 'package:colloborator_v3/features/contract_create/data/repositories/guarantor_instruments_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/katm_skip_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/manager_bonus_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/payment_schedule_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/data/repositories/special_tariff_repository_impl.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_form.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/guarantor_instruments.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/payment_schedule.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_create_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_file_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_guarantor_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/contract_income_repository.dart';
+import 'package:colloborator_v3/features/contract_create/domain/repositories/guarantor_instruments_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/katm_skip_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/manager_bonus_repository.dart';
 import 'package:colloborator_v3/features/contract_create/domain/repositories/payment_schedule_repository.dart';
@@ -72,6 +76,7 @@ import 'package:colloborator_v3/features/contract_create/domain/usecase/catalog_
 import 'package:colloborator_v3/features/contract_create/domain/usecase/contract_write_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/download_contract_file_usecase.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/get_contract_details_usecase.dart';
+import 'package:colloborator_v3/features/contract_create/domain/usecase/guarantor_instruments_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/guarantor_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/income_usecases.dart';
 import 'package:colloborator_v3/features/contract_create/domain/usecase/katm_skip_usecases.dart';
@@ -83,6 +88,7 @@ import 'package:colloborator_v3/features/contract_create/presentation/bloc/contr
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_details/contract_details_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_guarantors/contract_guarantors_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_products/contract_products_bloc.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/bloc/guarantor_instruments/guarantor_instruments_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/katm_skip/katm_skip_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/manager_bonus/manager_bonus_bloc.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/payment_schedule/payment_schedule_bloc.dart';
@@ -201,13 +207,15 @@ void setupDependencies(SharedPreferences prefs) {
   _registerChangePassword();
 
   // Parse nosozliklari ham shu kanaldan ketadi.
-  JsonParser.reporter = (issue) => getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
+  JsonParser.reporter = (issue) =>
+      getIt<ErrorReporter>().report(ErrorReport(source: issue.model, message: issue.reason, trace: issue.trace));
 
   // Repository chegarasida `Failure` ga o'girilgan istisnolar ham (5.7).
   // Ular `ErrorReportInterceptor` dan o'tmaydi: interceptor faqat zanjir
   // ichidagi `DioException` ni ko'radi.
-  GuardReport.reporter = (failure, error, trace) =>
-      getIt<ErrorReporter>().report(ErrorReport(source: failure.runtimeType.toString(), message: '$error', trace: trace));
+  GuardReport.reporter = (failure, error, trace) => getIt<ErrorReporter>().report(
+    ErrorReport(source: failure.runtimeType.toString(), message: '$error', trace: trace),
+  );
 }
 
 /// Platformaga va tashqi xizmatlarga ulanish nuqtalari
@@ -224,9 +232,31 @@ void _registerPlatform(SharedPreferences prefs) {
     ..registerLazySingleton(() => PushTokenService(getIt()))
     ..registerLazySingleton<SessionStore>(MemorySessionStore.new)
     ..registerLazySingleton<LocalCache>(() => SharedPrefsCache(prefs: prefs, now: DateTime.now))
-    ..registerLazySingleton(() => SecureTokenStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
-    ..registerLazySingleton(() => SecureUserStorage(const FlutterSecureStorage(aOptions: AndroidOptions(),iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device))))
-    ..registerLazySingleton<ErrorReporter>(() => TelegramErrorReporter(dio: Dio(),token: dotenv.env['BOT_TOKEN'] ?? '',chatId: dotenv.env['BOT_CHAT_ID'] ?? '',environment: AppConstants.isStaging ? 'staging' : 'production', now: DateTime.now))
+    ..registerLazySingleton(
+      () => SecureTokenStorage(
+        const FlutterSecureStorage(
+          aOptions: AndroidOptions(),
+          iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
+        ),
+      ),
+    )
+    ..registerLazySingleton(
+      () => SecureUserStorage(
+        const FlutterSecureStorage(
+          aOptions: AndroidOptions(),
+          iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock_this_device),
+        ),
+      ),
+    )
+    ..registerLazySingleton<ErrorReporter>(
+      () => TelegramErrorReporter(
+        dio: Dio(),
+        token: dotenv.env['BOT_TOKEN'] ?? '',
+        chatId: dotenv.env['BOT_CHAT_ID'] ?? '',
+        environment: AppConstants.isStaging ? 'staging' : 'production',
+        now: DateTime.now,
+      ),
+    )
     ..registerLazySingleton(() => DeviceInfoService(const MethodChannel('colloborator_v3/device')));
 }
 
@@ -248,10 +278,7 @@ void _registerNetwork() {
     // Featurega emas, tarmoqqa tegishli: uni `contract_create` ham, `underwriter` ham ishlatadi.
     ..registerLazySingleton(
       () => createUploadClient(
-        interceptors: [
-          if (AppConstants.isStaging) HttpLogInterceptor(getIt()),
-          ErrorReportInterceptor(getIt()),
-        ],
+        interceptors: [if (AppConstants.isStaging) HttpLogInterceptor(getIt()), ErrorReportInterceptor(getIt())],
       ),
     );
 }
@@ -267,7 +294,7 @@ void _registerApp() {
 /// features/auth/login — data → domain → presentation
 void _registerLogin() {
   getIt
-    ..registerLazySingleton(() => AuthRemoteDataSource(dio: getIt(), deviceInfo: getIt(),push: getIt()))
+    ..registerLazySingleton(() => AuthRemoteDataSource(dio: getIt(), deviceInfo: getIt(), push: getIt()))
     ..registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(getIt(), getIt()))
     ..registerLazySingleton(() => LoginUseCase(getIt()))
     ..registerLazySingleton(() => RestoreSessionUsecase(getIt()))
@@ -325,65 +352,65 @@ void _registerSplash() {
 
 void _registerContracts() {
   getIt
-  ..registerLazySingleton(() => ContractsRemoteDatasource(dio: getIt(),now: DateTime.now))
-  ..registerLazySingleton<ContractRepository>(() => ContractsRepositoryImpl(remote: getIt()))
-  ..registerLazySingleton(() => ContractsUsecase(getIt()))
-  ..registerFactory(() => ContractsBloc(contractsUsecase: getIt(), push: getIt(), changes: getIt()))
-  ..registerLazySingleton(() => CardConfirmRemoteDatasource(dio: getIt()))
-  ..registerLazySingleton<CardConfirmRepository>(() => CardConfirmRepositoryImpl(remote: getIt()))
-  ..registerLazySingleton(() => GetCardConfirmationUsecase(getIt()))
-  ..registerLazySingleton(() => SubmitCardConfirmationUsecase(getIt(), DateTime.now))
-  ..registerFactoryParam<CardConfirmBloc, int, void>(
-    (int contractId, void _) =>
-        CardConfirmBloc(contractId: contractId, get: getIt(), submit: getIt(), changes: getIt()),
-  )
-  ..registerLazySingleton(() => ContractSigningRemoteDatasource(dio: getIt()))
-  ..registerLazySingleton<ContractSigningRepository>(() => ContractSigningRepositoryImpl(remote: getIt()))
-  ..registerLazySingleton(() => GetContractFileUsecase(getIt()))
-  ..registerLazySingleton(() => ConfirmParticipantFaceUsecase(getIt()))
-  ..registerLazySingleton(() => SignContractUsecase(getIt()))
-  ..registerFactoryParam<ContractSigningBloc, ContractSigning, void>(
-    (ContractSigning signing, void _) => ContractSigningBloc(
-      signing: signing,
-      getFile: getIt(),
-      confirmFace: getIt(),
-      sign: getIt(),
-      changes: getIt(),
-    ),
-  )
-  ..registerLazySingleton(() => GetContractScoringUsecase(getIt()))
-  ..registerLazySingleton(() => GetFlexMessagesUsecase(getIt()))
-  ..registerLazySingleton(() => GetParticipantsUsecase(getIt()))
-  ..registerLazySingleton(() => GetMibUsecase(getIt()))
-  ..registerLazySingleton(() => GetKatmUsecase(getIt()))
-  ..registerLazySingleton(() => GetAuthorityUsecase(getIt()))
-  ..registerLazySingleton(() => ConfirmAuthorityUsecase(getIt()))
-  ..registerLazySingleton(() => EscalateAuthorityUsecase(getIt()))
-  ..registerLazySingleton(() => AllowConfirmationUsecase(getIt()))
-  ..registerLazySingleton(() => CancelContractUsecase(getIt()))
-  // Shartnoma amal oynasi ochilganda ma'lum bo'ladi.
-  ..registerFactoryParam<ContractActionBloc, ContractInfo, void>(
-    (ContractInfo contract, void _) => ContractActionBloc(
-      contract: contract,
-      getAuthority: getIt(),
-      confirmAuthority: getIt(),
-      escalateAuthority: getIt(),
-      allowConfirmation: getIt(),
-      cancelContract: getIt(),
-    ),
-  )
-  // Shartnoma va uning turi ekran ochilganda ma'lum bo'ladi.
-  ..registerFactoryParam<ContractResultBloc, int, bool>(
-    (int contractId, bool? isFlex) => ContractResultBloc(
-      contractId: contractId,
-      isFlex: isFlex ?? false,
-      getScoring: getIt(),
-      getFlexMessages: getIt(),
-      getParticipants: getIt(),
-      getMib: getIt(),
-      getKatm: getIt(),
-    ),
-  );
+    ..registerLazySingleton(() => ContractsRemoteDatasource(dio: getIt(), now: DateTime.now))
+    ..registerLazySingleton<ContractRepository>(() => ContractsRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => ContractsUsecase(getIt()))
+    ..registerFactory(() => ContractsBloc(contractsUsecase: getIt(), push: getIt(), changes: getIt()))
+    ..registerLazySingleton(() => CardConfirmRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<CardConfirmRepository>(() => CardConfirmRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetCardConfirmationUsecase(getIt()))
+    ..registerLazySingleton(() => SubmitCardConfirmationUsecase(getIt(), DateTime.now))
+    ..registerFactoryParam<CardConfirmBloc, int, void>(
+      (int contractId, void _) =>
+          CardConfirmBloc(contractId: contractId, get: getIt(), submit: getIt(), changes: getIt()),
+    )
+    ..registerLazySingleton(() => ContractSigningRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton<ContractSigningRepository>(() => ContractSigningRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton(() => GetContractFileUsecase(getIt()))
+    ..registerLazySingleton(() => ConfirmParticipantFaceUsecase(getIt()))
+    ..registerLazySingleton(() => SignContractUsecase(getIt()))
+    ..registerFactoryParam<ContractSigningBloc, ContractSigning, void>(
+      (ContractSigning signing, void _) => ContractSigningBloc(
+        signing: signing,
+        getFile: getIt(),
+        confirmFace: getIt(),
+        sign: getIt(),
+        changes: getIt(),
+      ),
+    )
+    ..registerLazySingleton(() => GetContractScoringUsecase(getIt()))
+    ..registerLazySingleton(() => GetFlexMessagesUsecase(getIt()))
+    ..registerLazySingleton(() => GetParticipantsUsecase(getIt()))
+    ..registerLazySingleton(() => GetMibUsecase(getIt()))
+    ..registerLazySingleton(() => GetKatmUsecase(getIt()))
+    ..registerLazySingleton(() => GetAuthorityUsecase(getIt()))
+    ..registerLazySingleton(() => ConfirmAuthorityUsecase(getIt()))
+    ..registerLazySingleton(() => EscalateAuthorityUsecase(getIt()))
+    ..registerLazySingleton(() => AllowConfirmationUsecase(getIt()))
+    ..registerLazySingleton(() => CancelContractUsecase(getIt()))
+    // Shartnoma amal oynasi ochilganda ma'lum bo'ladi.
+    ..registerFactoryParam<ContractActionBloc, ContractInfo, void>(
+      (ContractInfo contract, void _) => ContractActionBloc(
+        contract: contract,
+        getAuthority: getIt(),
+        confirmAuthority: getIt(),
+        escalateAuthority: getIt(),
+        allowConfirmation: getIt(),
+        cancelContract: getIt(),
+      ),
+    )
+    // Shartnoma va uning turi ekran ochilganda ma'lum bo'ladi.
+    ..registerFactoryParam<ContractResultBloc, int, bool>(
+      (int contractId, bool? isFlex) => ContractResultBloc(
+        contractId: contractId,
+        isFlex: isFlex ?? false,
+        getScoring: getIt(),
+        getFlexMessages: getIt(),
+        getParticipants: getIt(),
+        getMib: getIt(),
+        getKatm: getIt(),
+      ),
+    );
 }
 
 /// Shartnoma tuzish featurei: ko'rish, tovar tanlash va tuzish ekranlari.
@@ -396,19 +423,21 @@ void _registerContractCreate() {
     ..registerLazySingleton(() => PaymentScheduleRemoteDatasource(dio: getIt()))
     ..registerLazySingleton(() => SpecialTariffRemoteDatasource(dio: getIt()))
     ..registerLazySingleton(() => ManagerBonusRemoteDatasource(dio: getIt()))
+    ..registerLazySingleton(() => GuarantorInstrumentsRemoteDatasource(dio: getIt()))
     ..registerLazySingleton(() => KatmSkipRemoteDatasource(dio: getIt()))
     // Repository — shartnoma har bir iste'molchi uchun alohida (ISP).
     ..registerLazySingleton<ContractCreateRepository>(() => ContractCreateRepositoryImpl(remote: getIt()))
     ..registerLazySingleton<ContractIncomeRepository>(() => ContractIncomeRepositoryImpl(remote: getIt()))
-    ..registerLazySingleton<ContractGuarantorRepository>(
-      () => ContractGuarantorRepositoryImpl(remote: getIt()),
-    )
+    ..registerLazySingleton<ContractGuarantorRepository>(() => ContractGuarantorRepositoryImpl(remote: getIt()))
     ..registerLazySingleton<PaymentScheduleRepository>(() => PaymentScheduleRepositoryImpl(remote: getIt()))
     ..registerLazySingleton<SpecialTariffRepository>(() => SpecialTariffRepositoryImpl(remote: getIt()))
     ..registerLazySingleton<ManagerBonusRepository>(() => ManagerBonusRepositoryImpl(remote: getIt()))
+    ..registerLazySingleton<GuarantorInstrumentsRepository>(() => GuarantorInstrumentsRepositoryImpl(remote: getIt()))
     ..registerLazySingleton<KatmSkipRepository>(() => KatmSkipRepositoryImpl(remote: getIt()))
     // Usecase
     ..registerLazySingleton(() => GetContractDetailsUsecase(getIt()))
+    ..registerLazySingleton(() => LoadInstrumentsUsecase(getIt()))
+    ..registerLazySingleton(() => SaveInstrumentsUsecase(getIt()))
     ..registerLazySingleton(() => GetSuppliersUsecase(getIt()))
     ..registerLazySingleton(() => GetCategoriesUsecase(getIt()))
     ..registerLazySingleton(() => GetBrandsUsecase(getIt()))
@@ -505,6 +534,9 @@ void _registerContractCreate() {
         getApplied: getIt(),
       ),
     )
+    ..registerFactoryParam<InstrumentsBloc, GuarantorRef, void>(
+      (GuarantorRef ref, void _) => InstrumentsBloc(ref: ref, load: getIt(), save: getIt()),
+    )
     ..registerFactoryParam<ManagerBonusBloc, ContractBenefit, void>(
       (ContractBenefit benefit, void _) => ManagerBonusBloc(benefit: benefit, send: getIt()),
     )
@@ -560,21 +592,11 @@ void _registerOutputs() {
     ..registerLazySingleton(() => GetIcloudRequirementsUsecase(getIt()))
     ..registerLazySingleton(() => SaveIcloudCredentialUsecase(getIt()))
     ..registerFactory(
-      () => OutputsBloc(
-        getContracts: getIt(),
-        getProducts: getIt(),
-        returnProducts: getIt(),
-        changes: getIt(),
-      ),
+      () => OutputsBloc(getContracts: getIt(), getProducts: getIt(), returnProducts: getIt(), changes: getIt()),
     )
     ..registerFactoryParam<ReleaseBloc, OutputContract, void>(
       (OutputContract contract, _) =>
-          ReleaseBloc(
-            contract: contract,
-            getRequirements: getIt(),
-            confirmRelease: getIt(),
-            changes: getIt(),
-          ),
+          ReleaseBloc(contract: contract, getRequirements: getIt(), confirmRelease: getIt(), changes: getIt()),
     )
     ..registerFactoryParam<RequirementsBloc, int, void>(
       (int contractId, _) => RequirementsBloc(contractId: contractId, getRequirements: getIt()),
@@ -582,12 +604,8 @@ void _registerOutputs() {
     // Forma bitta qurilmaga bog'lanadi: qurilma, mijoz ismi va shartnoma
     // birga keladi.
     ..registerFactoryParam<CredentialBloc, ({int contractId, String clientName, IcloudDevice device}), void>(
-      (({int contractId, String clientName, IcloudDevice device}) args, _) => CredentialBloc(
-        device: args.device,
-        clientName: args.clientName,
-        contractId: args.contractId,
-        save: getIt(),
-      ),
+      (({int contractId, String clientName, IcloudDevice device}) args, _) =>
+          CredentialBloc(device: args.device, clientName: args.clientName, contractId: args.contractId, save: getIt()),
     );
 }
 
@@ -611,12 +629,7 @@ void _registerCustomerAnalysis() {
     ..registerLazySingleton(() => SubmitAnalysisUsecase(getIt()))
     ..registerLazySingleton(() => ConfirmAnalysisSmsUsecase(getIt()))
     ..registerFactory(
-      () => CustomerAnalysisBloc(
-        getAnalyses: getIt(),
-        submit: getIt(),
-        confirmSms: getIt(),
-        now: DateTime.now,
-      ),
+      () => CustomerAnalysisBloc(getAnalyses: getIt(), submit: getIt(), confirmSms: getIt(), now: DateTime.now),
     );
 }
 

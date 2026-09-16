@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:colloborator_v3/core/constants/app_icons.dart';
+import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
@@ -24,7 +26,7 @@ import 'package:go_router/go_router.dart';
 
 /// Kafil sifatida qaytariladigan natija. Faqat oddiy tiplar —
 /// `contract_create` bu featureni import qilmaydi (1.3).
-typedef GuarantorPick = ({int clientId, String fullName, String passport});
+typedef GuarantorPick = ({int clientId, String fullName, String passport, String inps, int workplaceCategoryId});
 
 /// Kafil tanlash: mavjud mijozni qidirish yoki yangisini yaratish.
 ///
@@ -95,6 +97,8 @@ final class _GuarantorPickerPageState extends State<GuarantorPickerPage> {
     clientId: customer.id,
     fullName: customer.fullName,
     passport: customer.passportNumber,
+    inps: customer.inps,
+    workplaceCategoryId: customer.workplace.category.id,
   ));
 
   @override
@@ -150,14 +154,16 @@ final class _GuarantorPickerPageState extends State<GuarantorPickerPage> {
                     ),
 
                     Expanded(child: _list(state)),
+
+                    // Yangi kafil yaratish yo'li har doim ochiq: qidiruvda
+                    // topilmagan odam ham kafil bo'la oladi.
+                    _newPanel(context),
                   ],
                 ),
               ),
             ],
           ),
         ),
-        // Yangi kafil yaratish yo'li har doim ochiq: qidiruvda topilmagan
-        // odam ham kafil bo'la oladi.
       ),
     );
   }
@@ -179,34 +185,47 @@ final class _GuarantorPickerPageState extends State<GuarantorPickerPage> {
         for (final CustomerInfo item in state.customers)
           CustomerInfoWidget(info: item, pressActions: () => unawaited(_pickExisting(item))),
 
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: ScreenSize.h12),
-          child: Column(
-            children: <Widget>[
-              // "Hali qidirilmagan" va "topilmadi" bir xil ko'rinmaydi: birinchisi
-              // nima yozish kerakligini aytadi, ikkinchisi nima qilish kerakligini.
-              if (state.customers.isEmpty) ...<Widget>[
-                state.hasSearched
-                    ? EmptyPlaceholder(
-                        icon: AppIcons.person,
-                        title: "Mijoz topilmadi",
-                        message: "Yangi kafil sifatida qo'shishingiz mumkin",
-                      )
-                    : EmptyPlaceholder(
-                        icon: AppIcons.search,
-                        title: "Kafilni qidiring",
-                        message: "Pasport seriyasi, INPS yoki ism-familiya bo'yicha qidirish mumkin",
-                      ),
-                Gap(ScreenSize.h12),
-              ],
-
-              _newButton(),
-            ],
+        // "Hali qidirilmagan" va "topilmadi" bir xil ko'rinmaydi: birinchisi
+        // nima yozish kerakligini aytadi, ikkinchisi nima qilish kerakligini.
+        if (state.customers.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: ScreenSize.h12),
+            child: state.hasSearched
+                ? EmptyPlaceholder(
+                    icon: AppIcons.person,
+                    title: "Mijoz topilmadi",
+                    message: "Pastdagi tugma bilan yangi kafil qo'shishingiz mumkin",
+                  )
+                : EmptyPlaceholder(
+                    icon: AppIcons.search,
+                    title: "Kafilni qidiring",
+                    message: "Pasport seriyasi, INPS yoki ism-familiya bo'yicha qidirish mumkin",
+                  ),
           ),
-        ),
       ],
     );
   }
+
+  /// Tugma ro'yxatdan tashqarida: ichida bo'lsa natijalar soniga qarab
+  /// siljib, tanlash o'rniga bosilardi.
+  Widget _newPanel(BuildContext context) => ClipRect(
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: AppSurface.blurSigma, sigmaY: AppSurface.blurSigma),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(
+          ScreenSize.h12,
+          ScreenSize.h10,
+          ScreenSize.h12,
+          ScreenSize.h10 + MediaQuery.paddingOf(context).bottom,
+        ),
+        decoration: BoxDecoration(
+          color: AppTheme.colors.backcolor.withValues(alpha: AppSurface.panelAlpha),
+          border: Border(top: BorderSide(color: AppSurface.line(alpha: .6))),
+        ),
+        child: _newButton(),
+      ),
+    ),
+  );
 
   Widget _newButton() => InkWell(
     onTap: () => unawaited(_createNew()),

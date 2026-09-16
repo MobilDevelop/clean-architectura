@@ -18,6 +18,7 @@ ContractInfo _contract({
   clientId: 1,
   clientFio: 'Test',
   passport: '',
+  inps: '',
   birthDay: '',
   clientSignUrl: '',
   engine: engine,

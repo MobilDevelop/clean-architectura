@@ -28,6 +28,7 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
        ) {
     on<GuarantorAdded>(_added, transformer: sequential());
     on<GuarantorRemoved>(_removed, transformer: sequential());
+    on<GuarantorsSynced>(_synced);
     on<FailureHandled>(_failureHandled);
     on<Retried>(_retried, transformer: droppable());
   }
@@ -48,7 +49,9 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
       return;
     }
 
-    if (state.guarantors.any((ContractGuarantor e) => e.clientId == event.clientId)) {
+    // Solishtirish mijoz id si bo'yicha: qator id si bilan solishtirilsa
+    // tekshiruv hech qachon mos kelmaydi va bitta odam ikki marta qo'shiladi.
+    if (state.guarantors.any((ContractGuarantor e) => e.participantId == event.clientId)) {
       emit(state.copyWith(issue: GuarantorIssue.duplicate));
       return;
     }
@@ -65,11 +68,30 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
         revision: state.revision + 1,
         guarantors: <ContractGuarantor>[
           ...state.guarantors,
-          ContractGuarantor(clientId: id, fullName: event.fullName, passport: event.passport),
+          ContractGuarantor(
+            rowId: id,
+            // Serverdan qaytgan id qator id simi yoki mijoz id si — hali
+            // aniqlanmagan. Mijoz id si esa tanlovdan aniq keladi.
+            participantId: event.clientId,
+            fullName: event.fullName,
+            passport: event.passport,
+            inps: event.inps,
+            workplaceCategoryId: event.workplaceCategoryId,
+            underwriterTypes: const <String>[],
+            instrumentTypes: const <String>[],
+          ),
         ],
       ),
       onFailure: (Failure failure) => state.copyWith(isAdding: false, failure: failure),
     );
+  }
+
+  /// Yozuv ketayotganda sinxronlanmaydi: server javobi hali kelmagan va
+  /// eski ro'yxat mahalliy o'zgarishni bekor qilib qo'yardi.
+  void _synced(GuarantorsSynced event, Emitter<ContractGuarantorsState> emit) {
+    if (state.isBusy) return;
+
+    emit(state.copyWith(guarantors: event.guarantors));
   }
 
   Future<void> _removed(GuarantorRemoved event, Emitter<ContractGuarantorsState> emit) => write<void>(
@@ -77,7 +99,7 @@ final class ContractGuarantorsBloc extends Bloc<ContractGuarantorsEvent, Contrac
     emit: emit,
     busy: state.copyWith(busyId: event.rowId, issue: GuarantorIssue.none, clearFailure: true),
     run: () => _removeGuarantor(RemoveGuarantorParams(rowId: event.rowId, contractId: state.contractId)),
-    onOk: (_) => state.copyWith(clearBusyId: true,revision: state.revision + 1,guarantors: state.guarantors.where((ContractGuarantor e) => e.clientId != event.rowId).toList()),
+    onOk: (_) => state.copyWith(clearBusyId: true,revision: state.revision + 1,guarantors: state.guarantors.where((ContractGuarantor e) => e.rowId != event.rowId).toList()),
     onFailure: (Failure failure) => state.copyWith(failure: failure),
   );
 

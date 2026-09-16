@@ -71,7 +71,7 @@ final class DateFilterHeader extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTheme.data.textTheme.displayLarge?.copyWith(color: AppTheme.colors.blackSoft),
+                    style: AppTheme.data.textTheme.displayMedium?.copyWith(color: AppTheme.colors.blackSoft),
                   ),
                 ),
 

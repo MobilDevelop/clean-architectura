@@ -6,7 +6,7 @@ import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter
 
 abstract interface class UnderwriterRepository {
   /// Beshala bo'limning saqlangan holati.
-  Future<Result<UnderwriterData>> load(int contractId);
+  Future<Result<UnderwriterData>> load(UnderwriterRef ref);
 
   Future<Result<List<MilitaryPosition>>> getPositions();
 

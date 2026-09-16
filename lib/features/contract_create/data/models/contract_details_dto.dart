@@ -39,14 +39,29 @@ final class ContractGuarantorDto {
 
   final Map<String, dynamic> _json;
 
-  ContractGuarantor toEntity() => ContractGuarantor(
-    // Imzolash shu id bilan ishlaydi — yo'qolsa boshqa kafilga ishora
+  ContractGuarantor toEntity() {
+    // O'chirish shu id bilan ishlaydi — yo'qolsa boshqa kafilga ishora
     // qilib qo'yishi mumkin (4.6).
-    clientId: JsonValue.requireInt(_json['id'], field: 'guarantor.id'),
-    // Ro'yxat va yuz tekshiruvi ikki xil kalit yuboradi.
-    fullName: _json['fio'] as String? ?? _json['name'] as String? ?? '',
-    passport: _json['passport_series_number'] as String? ?? '',
-  );
+    final int rowId = JsonValue.requireInt(_json['id'], field: 'guarantor.id');
+    final int clientId = _json['client_id'] as int? ?? 0;
+
+    return ContractGuarantor(
+      rowId: rowId,
+      // Anderrayter va instrument API'lari `clients.id` ni kutadi. Kafilda u
+      // `client_id` da keladi; mijozning o'zida `id` ning o'zi shu id bo'ladi.
+      participantId: clientId != 0 ? clientId : rowId,
+      // Ro'yxat va yuz tekshiruvi ikki xil kalit yuboradi.
+      fullName: _json['fio'] as String? ?? _json['name'] as String? ?? '',
+      passport: _json['passport_series_number'] as String? ?? '',
+      inps: _json['inps'] as String? ?? '',
+      workplaceCategoryId: _json['workplace_category_id'] as int? ?? 0,
+      underwriterTypes: _stringList(_json['underwriter_types']),
+      instrumentTypes: _stringList(_json['instrument_types']),
+    );
+  }
+
+  static List<String> _stringList(Object? raw) =>
+      raw is List ? raw.map((Object? e) => e.toString()).toList() : const <String>[];
 }
 
 final class ContractDetailsDto {
@@ -85,6 +100,8 @@ final class ContractDetailsDto {
       // haqiqatan ishga soladi (4.6).
       statusCode: _json['status_id'] as int?,
       clientName: client['fio'] as String? ?? client['name'] as String? ?? '',
+      clientPassport: client['passport_series_number'] as String? ?? '',
+      clientInps: client['inps'] as String? ?? '',
       termMonths: _json['term'] as int? ?? 0,
       paymentDay: _json['payment_day'] as int? ?? 0,
       isFormal: _json['formal'] as bool? ?? false,

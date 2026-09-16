@@ -22,6 +22,7 @@ ContractInfo _contract({
   status: ContractStatus.fromCode(statusCode),
   birthDay: '12.03.1990',
   passport: 'AB1234567',
+  inps: '31201000560012',
   isFormal: true,
   isReturned: false,
   isCard: false,

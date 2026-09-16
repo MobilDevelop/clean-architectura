@@ -19,7 +19,12 @@ void main() {
         'available_amount': '120000',
         'used_amount': '0',
       },
-      'client': <String, dynamic>{'fio': 'ABDULLAYEV BOTIR', 'workplace_category_id': 3},
+      'client': <String, dynamic>{
+        'fio': 'ABDULLAYEV BOTIR',
+        'workplace_category_id': 3,
+        'passport_series_number': 'AB1234567',
+        'inps': '31201000560012',
+      },
       'plastic_card': <String, dynamic>{
         'id': 5,
         'card_number': '8600 **** **** 1234',
@@ -41,7 +46,13 @@ void main() {
         },
       ],
       'guarantors': <dynamic>[
-        <String, dynamic>{'id': 21, 'fio': 'KARIMOV ALI', 'passport_series_number': 'AA1234567'},
+        <String, dynamic>{
+          'id': 21,
+          'client_id': 305,
+          'fio': 'KARIMOV ALI',
+          'passport_series_number': 'AA1234567',
+          'inps': '52909900123456',
+        },
       ],
       'mib_fail_reason': '',
       'katm_fail_reason': 'Qarzdorlik bor',
@@ -59,6 +70,18 @@ void main() {
     expect(details.total, 6000000);
 
     expect(details.guarantors.single.fullName, 'KARIMOV ALI');
+
+    // Ishtirokchilar qismi shu ikki maydonni ko'rsatadi. Kalit adashsa qator
+    // jimgina yo'qoladi, shuning uchun ikkalasi ham qulflanadi.
+    expect(details.clientPassport, 'AB1234567');
+    expect(details.clientInps, '31201000560012');
+    expect(details.guarantors.single.passport, 'AA1234567');
+    expect(details.guarantors.single.inps, '52909900123456');
+
+    // Ikkita id aralashtirilmaydi: o'chirish qator id si bilan, anderrayter
+    // va instrument API'lari esa mijoz id si bilan ishlaydi.
+    expect(details.guarantors.single.rowId, 21);
+    expect(details.guarantors.single.participantId, 305);
     expect(details.card.expiry, '09/28');
     expect(details.tariff.name, 'Aksiya');
     // Bonus obyektida summa uch xil maydonda keladi: talab qilingan,
@@ -137,6 +160,18 @@ void main() {
 
   // Kafilning `id`si imzolashda ishlatiladi (`sign_guarantor_contract`) —
   // yo'qolsa boshqa kafilga ishora qilib qo'yishi mumkin (4.6).
+  /// Flex ham shunday qiladi: mijozning o'zida `id` ning o'zi `clients.id`.
+  test('client_id kelmasa mijoz id si sifatida id ishlatiladi', () {
+    final ContractDetails details = ContractDetailsDto(<String, dynamic>{
+      'guarantors': <dynamic>[
+        <String, dynamic>{'id': 21, 'fio': 'KARIMOV ALI'},
+      ],
+    }).toEntity();
+
+    expect(details.guarantors.single.rowId, 21);
+    expect(details.guarantors.single.participantId, 21);
+  });
+
   test('kafil id siz o‘qib bo‘lmaydi', () {
     expect(
       () => ContractDetailsDto(<String, dynamic>{

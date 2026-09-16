@@ -19,7 +19,7 @@ final class ReleaseDraft extends Equatable {
 
   final String code;
 
-  /// SMS kod uzunligi. Server shuncha belgi yuboradi.
+  /// SMS kod uzunligi. Server shuncha xonali raqam yuboradi.
   static const int codeLength = 5;
 
   ReleaseIssue get issue {

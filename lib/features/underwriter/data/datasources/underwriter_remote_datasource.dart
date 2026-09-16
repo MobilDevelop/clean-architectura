@@ -25,10 +25,14 @@ final class UnderwriterRemoteDatasource {
   final UploadClient _upload;
 
   /// Javob `data` ichida emas, yuqori darajada keladi.
-  Future<UnderwriterDataDto?> load(int contractId) async {
+  Future<UnderwriterDataDto?> load(UnderwriterRef ref) async {
     final Response<dynamic> result = await _dio.get<dynamic>(
       Endpoints.underwriters,
-      queryParameters: <String, dynamic>{'contract_id': contractId},
+      queryParameters: <String, dynamic>{
+        'contract_id': ref.contractId,
+        // Kafilning yozuvlari faqat shu filtr bilan ajratiladi.
+        if (ref.clientId != 0) 'client_id': ref.clientId,
+      },
     );
 
     return UnderwriterDataDto.tryFrom(result.data);

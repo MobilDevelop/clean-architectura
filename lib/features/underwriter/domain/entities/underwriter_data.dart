@@ -7,6 +7,21 @@ import 'package:equatable/equatable.dart';
 ///
 /// Barcha maydonlar oddiy tip: marshrut argumenti orqali keladi va shu sababli
 /// bu feature `contract_create` ni ham, `contracts` ni ham import qilmaydi (1.3).
+/// Kimning hujjatlari o'qilishi.
+///
+/// `clientId` siz so'rov shartnomaning **barcha** ishtirokchisi yozuvlarini
+/// qaytaradi: mijoz bilan ishlaganda bu sezilmasdi, kafilda esa mijozning
+/// yozuvlari ko'rinib, kafilning kiritgani yo'qolgandek bo'lardi.
+final class UnderwriterRef extends Equatable {
+  const UnderwriterRef({required this.contractId, required this.clientId});
+
+  final int contractId;
+  final int clientId;
+
+  @override
+  List<Object?> get props => <Object?>[contractId, clientId];
+}
+
 final class UnderwriterArgs extends Equatable {
   const UnderwriterArgs({
     required this.contractId,

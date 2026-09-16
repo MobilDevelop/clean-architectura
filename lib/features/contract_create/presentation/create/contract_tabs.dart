@@ -25,12 +25,14 @@ final class ContractTabs extends StatelessWidget {
     required this.productPicker,
     required this.guarantorPicker,
     required this.extraPressed,
+    required this.guarantorExtraOpener,
   });
 
   final ContractCreateState state;
   final Future<ProductDraft?> Function(BuildContext context) productPicker;
   final Future<GuarantorPickResult?> Function(BuildContext context) guarantorPicker;
   final void Function(ContractExtra extra) extraPressed;
+  final GuarantorExtraOpener guarantorExtraOpener;
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +82,23 @@ final class ContractTabs extends StatelessWidget {
         ),
       ),
     ],
-    child: BlocListener<ContractGuarantorsBloc, ContractGuarantorsState>(
-      listenWhen: (ContractGuarantorsState previous, ContractGuarantorsState current) => current.revision != previous.revision,
-      listener: (BuildContext context, ContractGuarantorsState guarantors) => context.read<ContractCreateBloc>().add(const ContractRequested()),
+    child: MultiBlocListener(
+      listeners: <BlocListener<dynamic, dynamic>>[
+        BlocListener<ContractGuarantorsBloc, ContractGuarantorsState>(
+          listenWhen: (ContractGuarantorsState previous, ContractGuarantorsState current) => current.revision != previous.revision,
+          listener: (BuildContext context, ContractGuarantorsState guarantors) => context.read<ContractCreateBloc>().add(const ContractRequested()),
+        ),
+
+        // Kafilning anderrayteri yoki instrumenti saqlangach shartnoma qayta
+        // o'qiladi — yangi ro'yxat kafillar blociga ham yetib borishi kerak.
+        BlocListener<ContractCreateBloc, ContractCreateState>(
+          listenWhen: (ContractCreateState previous, ContractCreateState current) =>
+              current.details?.guarantors != previous.details?.guarantors,
+          listener: (BuildContext context, ContractCreateState create) => context
+              .read<ContractGuarantorsBloc>()
+              .add(GuarantorsSynced(create.details?.guarantors ?? const <ContractGuarantor>[])),
+        ),
+      ],
       child: _tabs(context),
     ),
   );
@@ -91,7 +107,9 @@ final class ContractTabs extends StatelessWidget {
     children: <Widget>[
       ContractTermsTab(state: state, extraPressed: extraPressed),
       ProductsTab(productPicker: productPicker),
-      state.hasContract ? GuarantorsTab(guarantorPicker: guarantorPicker) : const GuarantorsPlaceholder(),
+      state.hasContract
+          ? GuarantorsTab(guarantorPicker: guarantorPicker, extraOpener: guarantorExtraOpener)
+          : const GuarantorsPlaceholder(),
     ],
   );
 }

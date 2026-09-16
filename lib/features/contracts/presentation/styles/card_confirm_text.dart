@@ -6,7 +6,6 @@ abstract final class CardConfirmText {
   static const String loadFailed = "Ma'lumotni yuklab bo'lmadi";
   static const String retry = "Qayta urinish";
 
-  static const String codeHint = "SMS kod";
   static const String waiting = "Sms kutish vaqti:";
   static const String resend = "Kodni qayta yuborish";
   static const String skipCard = "Plastik karta tekshirilmasin";

@@ -6,6 +6,7 @@ import 'package:colloborator_v3/core/widgets/backgrounds/background_wash.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_view.dart';
 import 'package:colloborator_v3/core/widgets/headers/page_header.dart';
+import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_extras.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/product_draft.dart';
 import 'package:colloborator_v3/features/contract_create/presentation/bloc/contract_create/contract_create_bloc.dart';
@@ -21,6 +22,17 @@ import 'package:go_router/go_router.dart';
 typedef ExtraOpener =
     Future<bool?> Function(BuildContext context, ContractExtra extra, ContractCreateState state);
 
+/// Kafilning anderrayteri va instrumentlari uchun — shartnoma holati ham
+/// kerak, chunki anderrayter ekrani `isFormal` va `hasCard` ga qarab
+/// bo'limlarini tanlaydi.
+typedef GuarantorExtraRouter =
+    Future<void> Function(
+      BuildContext context,
+      GuarantorExtra extra,
+      ContractGuarantor guarantor,
+      ContractCreateState state,
+    );
+
 /// Shartnoma tuzish — uch tab: shartnoma, tovarlar, kafillar.
 ///
 /// Nega tab: eng ko'p ishlatiladigan uchta narsa bitta ekranda turadi va
@@ -34,11 +46,13 @@ final class ContractCreatePage extends StatelessWidget {
     required this.productPicker,
     required this.guarantorPicker,
     required this.extraOpener,
+    required this.guarantorExtraOpener,
   });
 
   final Future<ProductDraft?> Function(BuildContext context) productPicker;
   final Future<GuarantorPickResult?> Function(BuildContext context) guarantorPicker;
   final ExtraOpener extraOpener;
+  final GuarantorExtraRouter guarantorExtraOpener;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +121,8 @@ final class ContractCreatePage extends StatelessWidget {
             productPicker: productPicker,
             guarantorPicker: guarantorPicker,
             extraPressed: (ContractExtra extra) => _openExtra(context, extra, state),
+            guarantorExtraOpener: (BuildContext context, GuarantorExtra extra, ContractGuarantor guarantor) =>
+                _openGuarantorExtra(context, extra, guarantor, state),
           ),
         ),
       ],
@@ -127,9 +143,28 @@ final class ContractCreatePage extends StatelessWidget {
 
   Future<void> _openExtra(BuildContext context, ContractExtra extra, ContractCreateState state) async {
     final ContractCreateBloc bloc = context.read<ContractCreateBloc>();
-    final bool? changed = await extraOpener(context, extra, state);
+    await extraOpener(context, extra, state);
 
-    // Serverda o'zgarish bo'lgan bo'lsa shartnoma qayta o'qiladi.
-    if (changed ?? false) bloc.add(const ContractRequested());
+    // Shartnoma har qaytishda qayta o'qiladi. Ekranning `pop` natijasiga
+    // tayanib bo'lmaydi: tizim orqaga tugmasi (Android) yoki chetdan surish
+    // (iOS) bilan chiqilganda u `null` bo'lib keladi va o'zgarish ekranda
+    // ko'rinmay qolardi. Ortiqcha bitta `GET` — jimgina eskirgan ma'lumotdan
+    // arzon (5.8).
+    bloc.add(const ContractRequested());
+  }
+
+  /// Kafilning hujjatlari yoki instrumentlari o'zgarsa, kafillar ro'yxati
+  /// shartnoma javobidan keladi — shuning uchun u ham qayta o'qiladi.
+  Future<void> _openGuarantorExtra(
+    BuildContext context,
+    GuarantorExtra extra,
+    ContractGuarantor guarantor,
+    ContractCreateState state,
+  ) async {
+    final ContractCreateBloc bloc = context.read<ContractCreateBloc>();
+
+    await guarantorExtraOpener(context, extra, guarantor, state);
+
+    bloc.add(const ContractRequested());
   }
 }

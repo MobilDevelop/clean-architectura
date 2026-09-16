@@ -2,6 +2,7 @@ import 'package:colloborator_v3/core/constants/app_icons.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/utils/client_identity.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
 import 'package:flutter/material.dart';
@@ -71,9 +72,11 @@ final class ContractSection extends StatelessWidget {
 
 /// Shartnoma kimga tegishli ekani.
 final class ContractClientCard extends StatelessWidget {
-  const ContractClientCard({super.key, required this.name});
+  const ContractClientCard({super.key, required this.name, required this.passport, required this.inps});
 
   final String name;
+  final String passport;
+  final String inps;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +101,12 @@ final class ContractClientCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.blackSoft),
           ),
+
+          if (ClientIdentity.line(passport: passport, inps: inps) case final String identity
+              when identity.isNotEmpty) ...<Widget>[
+            Gap(ScreenSize.h2),
+            Text(identity, style: AppTheme.data.textTheme.bodySmall),
+          ],
         ],
       ),
     );
@@ -126,8 +135,9 @@ final class ContractGuarantorRow extends StatelessWidget {
                   style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft),
                 ),
 
-                if (guarantor.passport.isNotEmpty)
-                  Text(guarantor.passport, style: AppTheme.data.textTheme.bodySmall),
+                if (ClientIdentity.line(passport: guarantor.passport, inps: guarantor.inps)
+                    case final String identity when identity.isNotEmpty)
+                  Text(identity, style: AppTheme.data.textTheme.bodySmall),
               ],
             ),
           ),

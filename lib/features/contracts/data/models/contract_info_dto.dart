@@ -14,6 +14,7 @@ final class ContractInfoDto {
     required this.createdAt,
     required this.birthDay, 
     required this.passport,
+    required this.inps,
     required this.isFormal,
     required this.isReturned,
     required this.isCard,
@@ -40,6 +41,7 @@ final class ContractInfoDto {
   final int statusId;
   final String createdAt;
   final String passport;
+  final String inps;
   final String birthDay;
   final String clientSignUrl;
   final String scoringTime;
@@ -66,6 +68,7 @@ final class ContractInfoDto {
     clientFio: clientFio, 
     birthDay: birthDay, 
     passport: passport, 
+    inps: inps,
     isFormal: isFormal, 
     isReturned: isReturned,
     createdAt: createdAt,
@@ -93,6 +96,7 @@ final class ContractInfoDto {
     id: json['id'] as int? ?? -1, 
     clientId: json['client_id'] as int? ?? -1,
     passport: json['passport_series_number'] as String? ?? "",
+    inps: json['client_inps'] as String? ?? "",
     birthDay: json['birth_date'] as String? ?? "",
     statusId: json['status_id'] as int? ?? -1, 
     clientFio: json['client_fio']as String? ?? "",

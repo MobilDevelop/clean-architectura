@@ -350,7 +350,7 @@ Tovarlar shartnoma bo'yicha saqlanadi — qator ikkinchi marta ochilganda so'rov
 - **`icloud_phone` qaysi shaklda kutiladi?** Flex maskaning o'zini yuboradi (`(90) 123-45-67`), bu yerda esa ilovaning qolgan qismi bilan bir xil — faqat raqamlar (`998901234567`). Server matnni saqlasa ikkalasi ham ishlaydi; formatni tekshirsa aniqlashtirish kerak.
 - **`apple_id_login` / `apple_id_password` dagi `OZINIKI` va `Личный` nimani anglatadi?** Ikkalasi ham «o'ziniki» degan ma'noni beradi, faqat ikki xil tilda. Ro'yxat flex'dan o'zgarmasdan ko'chirildi.
 - **Qisman qaytarishda shartnoma bekor bo'ladimi?** `PUT product_returned` faqat `product_ids` ni oladi; flex'ning (ishlatilmaydigan) dialogi «Shartnomani bekor qilish» deb yozilgan. Tasdiq matni shuning uchun faqat tovarlar haqida gapiradi.
-- **`sms_confirm` kodi harf bo'lishi mumkinmi?** Flex `Pinput` ni `TextInputType.text` bilan ochadi, shuning uchun maydon raqam bilan cheklanmadi — uzunligi 5 ta belgi.
+- ~~**`sms_confirm` kodi harf bo'lishi mumkinmi?**~~ **Javob olindi (2026-09-16): kod 5 xonali, faqat raqam.** Flex `Pinput` ni `TextInputType.text` bilan ochgani uchun maydon raqam bilan cheklanmagan edi — bu flexning e'tiborsizligi, talab emas. `SmsCodeField` da `SmsCodeKind.digits` qo'yildi.
 
 **Anderrayter — alohida feature.** `lib/features/underwriter/` (19 fayl). Beshta bo'lim: ish haqi (oxirgi 6 oy), pensiya, guvohnoma, talaba, avtomobil. Har biri **o'z server yozuvi** va o'z `editId` si — shuning uchun saqlash bo'lim bo'yicha ketadi.
 
@@ -725,6 +725,498 @@ Tuzatish tartibi: bundle ID ni hal qilish → `flutterfire configure` ni qayta i
 **Ochiq, tuzatilmagan:**
 
 - **`showAppSheet` klaviaturani hisobga olmaydi.** `card_confirm_sheet` balandligi qat'iy (`.75`) va kod maydoni ochilganda «Tasdiqlash» tugmasi klaviatura ostida qoladi. `release_sheet` da bu mahalliy hal qilindi (`MediaQuery.viewInsetsOf(context).bottom`); `SheetSurface` ga qo'shish qat'iy balandlikdagi oynani siqib qo'yishi mumkin, shuning uchun tegilmadi.
+
+## SMS kod maydoni — uchta ekran bittasiga keltirildi (2026-09-16)
+
+Chiqim, karta tasdiqlash va mijoz tahlili — uchalasida SMS kod kiritilardi va
+uchalasi boshqa-boshqa ishlardi:
+
+| Joy | Ilgari | Endi |
+|---|---|---|
+| chiqim | 5, `text` klaviatura, kataksiz | 5 xonali, raqam, kataklar |
+| karta tasdiqlash | 6, raqam, sehrli `6` | `CardConfirmParams.codeLength`, kataklar |
+| mijoz tahlili | **uzunlik cheklanmagan, klaviatura belgilanmagan** | raqam klaviatura va cheklovchi, kataksiz |
+
+Uchinchisi eng yomon holatda edi: hint «6 xonali kod» deydi, lekin xodim 20 ta
+harf yozib yuborishi mumkin edi. Sababi — uzunlik, klaviatura va cheklovchi uch
+joyda alohida yozilgani: biri o'zgartirilganda qolgani ortda qolardi.
+
+`core/widgets/inputs/sms_code_field.dart` — `kind` parametri **ham** klaviaturani,
+**ham** cheklovchini beradi, ya'ni ular endi ajralishi mumkin emas.
+`sms_code_field_test.dart` shuni qulflaydi.
+
+**Kataklar bitta ko'rinmas maydon ustiga chizilgan**, har katakka bittadan maydon
+qo'yilgan emas: ko'p maydonli yechimda fokusni ko'chirish, o'chirishda orqaga
+qaytish va qo'yilgan kodni bo'lish qo'lda yoziladi va har biri alohida nosozlik
+manbai bo'ladi.
+
+**Avto-o'qish qilinmaydi — printsipial.** SMS xodimning telefoniga emas,
+**mijozning** telefoniga keladi (ilova shartnomani boshqa shaxsga tuzadi).
+Shuning uchun SMS Retriever, SMS User Consent va iOS `oneTimeCode` autofill —
+uchalasi ham ishlamaydi: hammasi kod **shu qurilmaga** kelishini nazarda tutadi.
+Bu qayta ko'rilmaydi.
+
+Shu sababli ajratilgan kataklarning foydasi boshqa: xodim mijoz aytib turgan
+kodni yozadi va nechta belgi kiritganini sanamaydi.
+
+**Ochiq qolgani:**
+
+- **Mijoz tahlili kodining uzunligi noma'lum** — shuning uchun u yerda kataklar
+  yo'q (uzunlikni bilmay turib ularni chizish yolg'on bo'lardi). Backenddan
+  aniqlangach `length` beriladi va u ham kataklarga o'tadi.
+- **Chiqim SMS'ini qayta yuborish yo'q.** Endpointda faqat `contract/sms_confirm`
+  (tasdiqlash) bor; kodni server shartnoma holati o'zgarganda o'zi yuboradi.
+  Kartani tasdiqlashda qayta yuborish bor. Kod boshqa odamning telefoniga
+  borishini hisobga olsak, «SMS kelmadi» eng ko'p uchraydigan holat bo'ladi va
+  hozirgi javob — «adminga murojaat qiling» — yechim emas. **Backenddan qayta
+  yuborish chaqiruvi so'raladi.**
+
+## Kafil tanlash — «Yangi kafil qo'shish» pastga ko'chirildi (2026-09-16)
+
+Tugma ro'yxatning **oxirgi elementi** edi. Natija bitta yoki umuman bo'lmaganda
+u ekranning o'rtasiga chiqib qolardi — aynan barmoq tushadigan joyga. Xodimlar
+mijozni tanlash o'rniga yangi kafil yaratishni boshlab yuborishardi, va bu yo'l
+qimmat: pasport → oferta → yuz tekshiruvi → to'ldirish formasi. Ortga qaytish
+oson emas.
+
+Endi tugma ro'yxatdan chiqarilib, `PageHeader` bilan bir uslubdagi pastdagi
+panelga o'tdi (blur + `panelAlpha` + yuqori chegara chizig'i). Joyi natijalar
+soniga bog'liq emas.
+
+Klaviatura ochilganda `Scaffold` tanani siqadi va panel klaviaturaning ustiga
+chiqadi — `MediaQuery.paddingOf(context).bottom` esa o'sha paytda nolga tushadi,
+shuning uchun qo'shimcha bo'shliq qolmaydi.
+
+«Mijoz topilmadi» matni ham yangilandi: ilgari «Yangi kafil sifatida
+qo'shishingiz mumkin» deb turgan, endi tugmaning qayerda ekanini aytadi.
+
+`guarantor_picker_layout_test.dart` ga ikkinchi test qo'shildi: tugma `ListView`
+ichida **bo'lmasligi** va ekranning pastki qismida turishi. Ro'yxat ichiga
+qaytarilsa test yiqiladi.
+
+**Hozircha qilinmagan:** tugma ko'rinishi o'zgarmadi — to'liq kenglikda,
+asosiy rangda. Agar tasodifan bosish davom etsa, keyingi qadam uni oddiy matn
+tugmasiga aylantirish (kamroq e'tibor tortadi), lekin bu «topilmadi» holatida
+uni ko'rinmas qilib qo'yish xavfi bilan keladi.
+
+## IMEI kartada nomlandi (2026-09-16)
+
+Shartnoma tuzishdagi tovar kartasida IMEI raqamlari **yalang'och** turgan edi:
+kulrang chip ichida 15 xonali son, hech qanday yorliqsiz. Xodim uni tovar kodi
+yoki seriya raqami deb o'ylashi mumkin edi. Tanlash ekrani (`imei_scanner.dart`)
+esa buni allaqachon «IMEI» deb atardi — ya'ni bitta narsa ikki ekranda ikki xil
+taqdim etilardi.
+
+`presentation/shared/imei_list.dart` — «IMEI» yorlig'i (tanlash ekranidagi bilan
+bir xil uslub) va uning ostidagi chiplar. Ikkala karta ham shunga o'tdi:
+tahrirlanadigan (`editable_product_card`) va ko'rish (`contract_product_card`).
+Chip foni parametr bo'lib qoldi — kartalarning foni boshqacha.
+
+`imei_list_test.dart` yorliqni va bo'sh ro'yxatda hech nima chizilmasligini
+qulflaydi.
+
+### Yo'l-yo'lakay tuzatilgan nosozlik
+
+`imei_scanner.dart` **«${imeis.length} ta nusxa»** deb yozardi. IMEI soni dona
+soni **emas**: ikki SIM'li telefonda bitta qurilmaga ikkita IMEI to'g'ri keladi
+va `product_draft.dart` dagi `effectiveCount` aynan shuni aytadi —
+«`imeis.length` qurilmalar soni emas». Ya'ni yorliq hujjatlashtirilgan domen
+qoidasiga zid edi va ikki SIM'li telefonni «2 ta nusxa» qilib ko'rsatardi.
+
+Endi «N ta raqam o'qildi» — o'qilgan raqamlar haqida gapiradi, dona haqida emas.
+Kartada esa hech qanday hisob ko'rsatilmaydi.
+
+### Aniqlangan qoida
+
+**IMEI kamida 1 ta, ko'pi bilan 2 ta bo'ladi** (loyiha egasi, 2026-09-16).
+
+Hozir bu tekshirilmaydi: skanerdan nechta raqam kelsa, shuncha ko'rsatiladi.
+§4.7.4 bo'yicha repository ma'lumot domen kutgan shartga mos ekanini tekshirishi
+kerak, ya'ni 2 dan ortiq raqam — shartnoma buzilishi. **Lekin bu qaror talab
+qiladi:** 3 ta raqam kelganda chiqimni butunlay to'sib qo'yish xodimni ishdan
+to'xtatadi. Qaror: to'sib qo'yilsinmi yoki botga xabar qilib, birinchi ikkitasi
+olinsinmi.
+
+## Shartnoma kartasiga pasport va INPS (2026-09-16)
+
+Ro'yxatda mijozni aniqlash uchun pasport va INPS kerak bo'ldi, lekin karta
+uzayib ketmasligi shart — ro'yxatda bir ekranga sig'adigan shartnomalar soni
+kamaymasin.
+
+**Ma'lumot:** `passport` `ContractInfo` da allaqachon bor edi
+(`passport_series_number`). INPS yo'q edi — `client_inps` kaliti qo'shildi
+(kafillar obyektidagi bilan bir xil kalit, loyiha egasi tasdiqlagan). Flex ham
+shartnomalar ro'yxatida INPS o'qimagan, ya'ni bu butunlay yangi maydon.
+
+**Joylashuv:** `LabeledRow` bilan qo'shilsa ikkita yangi qator har biri
+ajratuvchi chiziq bilan kelib kartani ~90px uzaytirardi. Shuning uchun ular
+avatar yonidagi blokka, ism ostiga ikkinchi darajali qator bo'lib tushdi.
+«Mijozning F.I.O si:» yozuvi olib tashlandi — avatar va joylashuvi buni
+allaqachon aytib turadi, bo'shagan qator esa identifikatorlarga berildi.
+
+**Qatorlar juftlashtirildi.** `LabeledRow` ning har biri o'z ajratuvchi
+chizig'i bilan keladi — to'rtta maydon to'rtta chiziq degani. `LabeledCellRow`
+ikkita yacheykani yonma-yon qo'yadi (yorliq ustida, qiymat ostida), ya'ni
+chiziqlar soni ikki baravar kamayadi. «Shartnoma kodi | Sanasi» bir qatorda.
+
+**Kafillar soni ro'yxatdan olib tashlandi** (loyiha egasi, 2026-09-16): u UI ni
+buzardi. Kafil bilan ishlash uchun alohida topshiriq bo'ladi. Shundan keyin
+«Turi | Flex» yacheykasi o'z qatorida yolg'iz qoldi va u faqat Flex
+shartnomalarda chiqadi (o'lchangan: o'sha qator kartaga ~72px qo'shadi).
+
+Status `LabeledRow` da qoldi: uning qiymati eng uzun matn («Shartnoma
+tasdiqlangan») va yarim enda u ikki-uch qatorga bo'linib ketardi.
+
+`spaceBetween` o'rniga `Expanded` ishlatilgan: bo'sh joy qolmagani uchun uzun
+qiymat o'z yarmida o'raladi va chetdan toshib ketmaydi. Ko'rinishi bir xil —
+chapdagi chapga, o'ngdagi o'ngga tortilgan.
+
+**O'lchangan** (`ContractCard`, 393px @1.0×, fit test harness):
+
+| Variant | Balandlik |
+|---|---|
+| pasport va INPS'siz, `LabeledRow` (eski) | 398px |
+| pasport va INPS bilan, `LabeledRow` | 396px |
+| pasport va INPS bilan, juftlangan (tanlangan) | **371px** |
+
+Ya'ni ikkita yangi maydon qo'shilgan holda karta **27px qisqardi**.
+
+Kafil va Flex bo'lgan shartnomada farq kattaroq: 590px → 568px (balandroq
+harnessda o'lchangan, shuning uchun raqamlar yuqoridagilardan katta —
+`ScreenSize.h*` ekran balandligiga bog'liq, o'lchovlarni faqat bir xil
+harness ichida solishtirish mumkin).
+
+«Pasport» so'zi qatorni 393px ekranda **ham** ikkiga bo'lib yuboradi, shuning
+uchun u olib tashlandi: pasport o'z shakli (`AB1234567`) bilan o'zini tanitadi.
+INPS esa yorliq bilan qoldi — yalang'och 14 xonali son nima ekani ko'rinmaydi
+(IMEI bilan bir xil sabab).
+
+`contract_card_fit_test.dart` ga ikkinchi test qo'shildi: karta balandligi
+393px @1.0 da **380px dan oshmasligi**. Yiqilsa — demak kartaga yana bir qator
+qo'shilgan va qo'shishdan oldin nimanidir olib tashlash kerak.
+
+**Diqqat:** kartaning izohida qatorli tuzilish ataylab tanlangani yozilgan edi
+(«ixcham joylashtirilganda qaysi raqam nima ekanini bilish uchun kartani o'qib
+chiqish kerak bo'lardi»). Juftlash o'sha qarordan qisman chekinish: endi ko'z
+bitta ustundan emas, ikkita ustundan yuguradi. Evaziga har yacheykada yorliq
+qiymatning **ustida** turadi, ya'ni qaysi raqam nima ekani baribir yozilgan.
+
+## `LabeledRow` regressiyasi tuzatildi (2026-09-16)
+
+`labeled_row.dart` da `Wrap` `Row` ga qaytarilib qolgan edi, izoh esa hali ham
+`Wrap` xatti-harakatini tasvirlardi (§11.5 buzilishi). Shu sababli
+`contract_card_fit_test` va `invoice_card_fit_test` yiqilib turgan edi:
+«A RenderFlex overflowed by 25/86 pixels on the right».
+
+`Wrap` qaytarildi va `Column` ga `crossAxisAlignment: stretch` qo'shildi — buni
+o'tgan safar qo'yishni unutgan bo'lishi mumkin: `Wrap` o'z eniga yig'iladi va
+cho'zilmasa `WrapAlignment.spaceBetween` umuman ishlamaydi, yorliq bilan qiymat
+o'rtada yopishib qoladi.
+
+Shundan keyin butun to'plam yashil: **456 test**.
+
+## Ramka rangiga izoh, «Turi: Flex» olib tashlandi (2026-09-16)
+
+Kartaning chegara rangi holatni bildirardi — sariq = KATM/MIB tekshiruvidan
+o'tmagan (`elma_katm_check_failed`), yashil = imtiyoz (`has_benefit`) — lekin
+**rangning o'zi hech nima aytmaydi**. Xodim ikkala rangning ma'nosini yodlab
+olishi kerak edi, yangi xodim esa umuman bilmasdi.
+
+Endi kartaning tepasida rangli nuqta va matn turadi:
+
+- sariq → «KATM/MIB tekshiruvidan o'tmadi»
+- yashil → «Imtiyozli shartnoma»
+
+Nuqta ataylab ramka bilan bir rangda — ko'z ularni darhol bog'laydi. Ikkala
+bayroq birga bo'lsa ikkita yozuv chiqadi: ramka faqat bitta rangda bo'la
+oladi (sariq ustun), shuning uchun tafsilotni yozuvlar tashiydi.
+
+**«Turi: Flex» qatori olib tashlandi** (loyiha egasi, 2026-09-16) — Flex uchun
+boshqa joy bo'ladi. `contract.flex` maydoni entityda qoldi, faqat karta uni
+ko'rsatmaydi. Qator ~72px olardi.
+
+**Tasdiqlanishi kerak:** «Imtiyozli shartnoma» matni taxminiy. `has_benefit`
+kodda faqat karta chegarasi uchun ishlatiladi, boshqa joyda ishlatilmaydi —
+u imtiyoz **qo'llanilganini** bildiradimi yoki **so'ralganini**, aniq emas.
+Yaqin oqim — «Filial rahbari bonusi» (`contract/benefit`). Ma'nosi
+aniqlangach matn to'g'rilanadi.
+
+## Batafsil oynasi — ishtirokchilarga pasport va INPS (2026-09-16)
+
+«Mijoz» kartasida faqat F.I.O turgan, kafillar qatorida esa F.I.O va pasport.
+Endi ikkalasida ham pasport va INPS chiqadi.
+
+**Kalitlar** (flex'ning `CustomerInfo.fromJson` shakli bilan bir xil, tekshirib
+olindi): `loans/{id}` javobida `client` va `guarantors[]` obyektlari ikkalasi
+ham `passport_series_number` va **`inps`** yuboradi. Diqqat: shartnomalar
+*ro'yxatida* mijoz INPS'i `client_inps` deb keladi — ikki endpointda kalit
+boshqacha.
+
+**INPS kafil qo'shish zanjiriga ulandi.** Ilgari u yo'lda yo'qolardi: tanlov
+natijasi (`GuarantorPick`) faqat id, F.I.O va pasportni tashirdi, holbuki
+mijoz yozuvida INPS bor edi. Endi `GuarantorPick` → `GuarantorPickResult` →
+`GuarantorAdded` → `ContractGuarantor` — to'rttasiga ham qo'shildi, ya'ni yangi
+qo'shilgan kafil serverdan qayta o'qilishini kutmasdan INPS bilan ko'rinadi.
+
+**`core/utils/client_identity.dart`** — pasport va INPS qatorini yasaydigan
+yagona joy. Shartnoma kartasi ham shunga o'tdi: ilgari qator ikki joyda
+alohida yig'ilardi va ular vaqt o'tib bir-biridan uzoqlashishi aniq edi
+(SMS maydonlarida aynan shunday bo'lgan).
+
+Qulflandi: `client_identity_test.dart` (qator shakli) va
+`contract_details_dto_test.dart` (ikkala kalit ham o'qilishi — kalit adashsa
+qator jimgina yo'qoladi).
+
+**Ochiq kuzatuv:** `ContractGuarantorRow` da kafil ismi `maxLines: 1` va uch
+nuqta bilan kesiladi. Shartnoma kartasida bu ataylab olib tashlangan edi —
+«kesilgan ism mijozni tanishga xalaqit beradi». Uzun familiyali kafil shu
+yerda baribir kesiladi. So'ralmagani uchun tegilmadi.
+
+## Kafil uchun anderrayter va instrumentlar (2026-09-16, flex DEV-4764)
+
+Flex'da qo'shilgan funksiya v3 ga ko'chirildi: shartnoma tuzishda kafilga ham
+daromad hujjatlari (anderrayter) va to'lov instrumentlari biriktiriladi.
+
+**Anderrayter — mavjud ekran qayta ishlatildi.** `Routes.underwriter` argumenti
+allaqachon ixtiyoriy `clientId` oladi, shuning uchun yangi ekran kerak
+bo'lmadi: kafilning `clientId` si va ish joyi toifasi uzatiladi, `isFormal` va
+`hasCard` esa shartnomadan keladi (anderrayter o'z bo'limlarini shularga qarab
+tanlaydi).
+
+**Instrumentlar — butunlay yangi.** `contracts/{contractId}/guarantors/{clientId}/instruments`
+— `GET` o'qiydi, `PUT` saqlaydi. Diqqat: `clientId` — kafilning `clients.id` si,
+`contract_guarantors.id` **emas** (flex'da ham shu izoh bor).
+
+Uch tur: `norasmiy`, `avto`, `p2p`. Bir nechtasi birga bo'lishi mumkin. Taqiqni
+**server aytadi** (`rules.mutually_exclusive`) — ilovaga qattiq yozilmadi,
+backend o'zgartirsa o'zi kelib turadi. Hozir yagona taqiq: `norasmiy` + `p2p`.
+
+`p2p` yoqilganda karta so'raladi. Serverda karta allaqachon bo'lsa niqobi
+ko'rsatiladi va maydonlarga tegilmasa qayta yuborilmaydi — backend eskisini
+saqlab qoladi.
+
+### `PUT` to'liq almashtirishidan chiqadigan xavf
+
+`PUT` ro'yxatda yo'q instrumentni **o'chiradi**. Ilova tanimaydigan tur
+(masalan backend `ipoteka` qo'shsa) enum'ga tushmaydi — agar u shunchaki
+tashlab yuborilsa, xodim instrumentlarni saqlagan paytda o'sha tur jimgina
+o'chib ketardi.
+
+Shuning uchun tanilmagan kodlar `GuarantorInstruments.unknown` da saqlanadi va
+`PUT` da o'zgarmasdan qaytariladi. Kartada ular kodi bilan ko'rinadi (yashirish
+xodimga «instrument yo'q» degan yolg'on ko'rsatardi). Buni
+`guarantor_instruments_dto_test.dart` va bloc testi qulflaydi.
+
+### Tuzatilgan xato: kafilda ikkita id bor
+
+Birinchi urinishda anderrayter ham, instrument ham «bu mijoz shartnomada emas»
+deb rad etdi. Sabab: `ContractGuarantor.clientId` maydoni **aslida
+`contract_guarantors.id`** ni saqlardi (`_json['id']`), nomi esa mijoz id sidek
+turardi — va API'ga o'sha yuborilgan.
+
+Flex'da bu izoh bilan ajratilgan:
+
+```dart
+/// Anderrayter va instrument API'lariga yuboriladigan id. Kafilda `client_id`,
+/// mijozda esa `id` ning o'zi `clients.id` bo'lgani uchun u ishlatiladi
+int get participantId => clientId != 0 ? clientId : id;
+```
+
+Endi `ContractGuarantor` da ikkita maydon:
+
+| Maydon | Nima | Qayerda ishlatiladi |
+|---|---|---|
+| `rowId` | `contract_guarantors.id` | o'chirish, `busyId` |
+| `participantId` | `clients.id` (`client_id`, kelmasa `id`) | anderrayter, instrument |
+
+**Shu yerda ikkinchi, yashirin xato ham chiqdi:** takroriy kafil tekshiruvi
+`e.clientId == event.clientId` deb yozilgan edi, ya'ni **qator id si mijoz id si
+bilan** solishtirilardi. U hech qachon mos kelmaydi — demak bitta odamni ikki
+marta kafil qilib qo'shish mumkin edi. Flex'da bu to'g'ri yozilgan va izohi ham
+bor. Endi solishtirish `participantId` bo'yicha.
+
+Ikkalasini `contract_details_dto_test.dart` (qaysi kalit qaysi maydonga) va
+yangi `contract_guarantors_bloc_test.dart` (takror, o'chirish, yangi kafildagi
+ikkita id) qulflaydi.
+
+**Yangi qo'shilgan kafilda** `participantId` tanlov natijasidan olinadi:
+serverdan qaytgan id qator id simi yoki mijoz id si — bu hali backenddan
+so'ralgan ochiq savol, tanlovdagi mijoz id si esa aniq.
+
+### Tuzatilgan xato: kafilda ikkita id bor
+
+Birinchi urinishda anderrayter ham, instrument ham «bu mijoz shartnomada emas»
+deb rad etdi. Sabab: `ContractGuarantor.clientId` maydoni aslida
+`contract_guarantors.id` ni saqlardi (`_json['id']`), nomi esa mijoz id sidek
+turardi — va API'ga o'sha yuborilgan.
+
+Flex'da bu izoh bilan ajratilgan: `participantId => clientId != 0 ? clientId : id`
+— «kafilda `client_id`, mijozda esa `id` ning o'zi `clients.id`».
+
+Endi `ContractGuarantor` da ikkita maydon:
+
+| Maydon | Nima | Qayerda ishlatiladi |
+|---|---|---|
+| `rowId` | `contract_guarantors.id` | o'chirish, `busyId` |
+| `participantId` | `clients.id` (`client_id`, kelmasa `id`) | anderrayter, instrument |
+
+**Shu yerda ikkinchi, yashirin xato ham chiqdi:** takroriy kafil tekshiruvi
+`e.clientId == event.clientId` deb yozilgan edi, ya'ni qator id si mijoz id si
+bilan solishtirilardi. U hech qachon mos kelmaydi — demak bitta odamni ikki
+marta kafil qilib qo'shish mumkin edi. Flex'da bu to'g'ri yozilgan. Endi
+solishtirish `participantId` bo'yicha.
+
+Ikkalasini `contract_details_dto_test.dart` (qaysi kalit qaysi maydonga) va
+yangi `contract_guarantors_bloc_test.dart` (takror, o'chirish, yangi kafildagi
+ikkita id) qulflaydi.
+
+**Yangi qo'shilgan kafilda** `participantId` tanlov natijasidan olinadi:
+serverdan qaytgan id qator id simi yoki mijoz id si — bu hali backenddan
+so'ralgan ochiq savol, tanlovdagi mijoz id si esa aniq.
+
+### Flex'dan farqi
+
+- Ziddiyat va karta xatolari flex'da **toast** bilan chiqardi; bu yerda ular
+  holatda va tegishli joyda ko'rinadi (§6.2, §7.5).
+- Karta tekshiruvi domainda (`InstrumentCardDraft.issueAt`), mavjud
+  `CardExpiry` va `UzPhone` qoidalari qayta ishlatildi.
+
+### Yo'l-yo'lakay
+
+- `GuarantorPick` zanjiriga `workplaceCategoryId` qo'shildi — anderrayter
+  ekraniga kerak, va u tanlangan mijoz yozuvida allaqachon bor edi.
+- `ContractGuarantor` ga `underwriterTypes`, `instrumentTypes`,
+  `workplaceCategoryId` qo'shildi (`underwriter_types`, `instrument_types`,
+  `workplace_category_id`).
+- Anderrayter turlari nomi `core/contract/underwriter_type_text.dart` ga
+  chiqarildi: ularni endi ikkita feature ko'rsatadi (§1.2). Anderrayter
+  ekrani ham shu yordamchidan oladi, ya'ni nomlar bir joyda.
+
+**Eslatma:** suratlarda belgi ikonkalari kvadrat bo'lib ko'rinadi — bu
+`flutter test` muhitida Material ikonka shrifti yuklanmasligidan, qurilmada
+normal chiziladi.
+
+## Tovar kartasiga toifa va ta'minotchi (2026-09-16)
+
+Shartnoma tuzishdagi tovar kartasida faqat tovar nomi va brend turgan edi.
+Flex'da esa toifa sarlavha bo'lib turadi va ta'minotchi alohida qatorda
+ko'rinadi (`product_view.dart`).
+
+Endi:
+
+- ikkinchi qator `toifa · brend` (ilgari faqat brend edi);
+- ta'minotchi alohida qatorda, nomi bo'lganda chiqadi.
+
+Sarlavha o'zgarmadi: tovarning o'z nomi (`variant`), u bo'lmasa toifa. Shu
+sababli toifa ikkinchi qatorda faqat `variant` bor bo'lganda takrorlanmaydi.
+
+**Atama birxillashtirildi:** ko'rish kartasida «Yetkazib beruvchi» turgan edi,
+tuzish kartasida esa yangi qator qo'shilardi — bitta narsa ikki nom bilan
+atalmasligi uchun ikkalasi ham **«Ta'minotchi»** bo'ldi (loyiha egasining
+atamasi, flex ham shunday ataydi).
+
+## Kafil qo'shimchalaridagi ikki xato (2026-09-16, qurilmada topildi)
+
+### 1. Instrument saqlangach karta yangilanmasdi
+
+`ContractGuarantorsBloc` `contract_tabs.dart` da **bir marta** yaratiladi
+(`ValueKey(contractId)`) va kafillar ro'yxatining o'z nusxasini oladi. Keyin u
+faqat o'zining qo'shish/o'chirishidan o'zgarardi. Instrument saqlangach
+shartnoma qayta o'qilardi — `ContractCreateBloc.state.details` yangilanardi,
+lekin kafillar bloci eski nusxani ushlab turardi. Shu sababli o'zgarish faqat
+shartnomadan chiqib qayta kirganda ko'rinardi.
+
+Endi `GuarantorsSynced` eventi bor: shartnoma javobidagi ro'yxat o'zgarganda
+`contract_tabs` uni blocga uzatadi. Yozuv ketayotganda (`isBusy`)
+sinxronlanmaydi — aks holda server javobi kelmasdan eski ro'yxat mahalliy
+o'zgarishni bekor qilib qo'yardi.
+
+Flex bu muammoni boshqacha hal qilgan: bloc ichida `state.instruments` xaritasi
+turadi va karta avval shundan o'qiydi («shartnoma esa hali eskisini bilib
+turadi»). Bizda esa manba bitta — shartnoma javobi.
+
+### 2. Anderrayterda kiritilgan ma'lumot va fayl ko'rinmasdi
+
+`UnderwriterRemoteDatasource.load()` faqat `contract_id` bo'yicha o'qirdi.
+Mijoz bilan ishlaganda bu sezilmasdi, kafilda esa javobda **ikkala
+ishtirokchining** yozuvlari kelardi va ekran kafilning kiritganini
+ko'rsatmasdi — saqlangan fayl ham yo'qolgandek bo'lardi.
+
+Flex'da bu to'g'ri yozilgan va izohi ham bor: *«Kafil uchun uning `clients.id`
+si beriladi»*:
+
+```dart
+queryParameters: {"contract_id": id, if (clientId != 0) "client_id": clientId}
+```
+
+Endi v3 da ham shunday: `load` `UnderwriterRef(contractId, clientId)` oladi va
+`client_id` ni so'rovga qo'shadi. Saqlashdan keyingi qayta o'qish ham shu
+ma'lumot bilan ketadi.
+
+Ikkalasini `contract_guarantors_bloc_test.dart` (sinxronlash va yozuv
+ketayotganda sinxronlanmaslik) va `underwriter_bloc_test.dart` («hujjatlar
+aynan shu ishtirokchi uchun o'qiladi») qulflaydi.
+
+### 3. Anderrayter kiritilgach karta faqat qo'lda yangilaganda ko'rinardi
+
+Sinxronlash ulangandan keyin ham anderrayter holati darhol ko'rinmadi. Sabab:
+qayta o'qish ekranning `pop` natijasiga bog'langan edi —
+
+```dart
+final bool? changed = await extraOpener(...);
+if (changed ?? false) bloc.add(const ContractRequested());
+```
+
+Anderrayter sahifasi esa natijani **faqat sarlavhadagi orqaga tugmasi** bosilganda
+qaytaradi (`context.pop(state.savedCount > 0)`). Tizim orqaga tugmasi (Android)
+yoki chetdan surish (iOS) bilan chiqilganda `pop` natijasi `null` bo'lib keladi
+va shartnoma qayta o'qilmasdi.
+
+Endi shartnoma **har qaytishda** qayta o'qiladi — mijozning qo'shimcha
+ekranlarida ham (`_openExtra`), kafilning ekranlarida ham. Ortiqcha bitta `GET`
+jimgina eskirgan ma'lumotdan arzon (§5.8).
+
+Shu bilan `GuarantorExtraOpener` qaytaradigan `bool` o'lik qoldi va olib
+tashlandi — endi u `Future<void>`.
+
+## Anderrayter fayl chegarasi 5 MB (2026-09-16)
+
+Ilgari 1.9 MB edi — flex shu qiymatni olgan, sababi serverdagi 2 MB ga tegib
+ketmasin uchun zaxira qoldirilgani. Loyiha egasi chegarani **5 MB** qilishni
+aytdi.
+
+`UnderwriterFileRule.maxBytes = 5 * 1024 * 1024`. Sehrli son yozilmadi —
+hisob ko'rinib turadi.
+
+Foydalanuvchi matni ham qoidadan hisoblanadi: ilgari «2 MB» qo'lda yozilgan
+edi va chegara o'zgarganda orqada qolardi. Endi
+`UnderwriterFileRule.maxBytes` dan olinadi, ya'ni ikkisi ajralmaydi.
+
+Test ham aniq songa emas, qoidaning o'ziga tayanadi: chegaradan bitta bayt
+katta fayl rad etiladi, chegaraning o'zi o'tadi.
+
+**Tekshirilishi kerak:** server tomonidagi chegara ham 5 MB dan kam emasmi.
+Ilgarigi 1.9 MB ataylab serverdan past olingan edi — ilova o'zi to'sib,
+foydalanuvchiga tushunarli sabab aytishi uchun. Agar server hali 2 MB da
+qolgan bo'lsa, katta fayl ilovadan o'tib, serverdan xato bilan qaytadi.
+
+## Mijozga karta biriktirish oynasi (2026-09-16)
+
+Oyna ekranni to'liq egallardi. Sabab `showAppSheet` da emas —
+`CardFormSection._form()` oddiy `Column` qaytaradi va uning
+`mainAxisSize` i sukut bo'yicha `max`. `isScrollControlled: true` bilan
+ochilgan modal oynada bunday bola bor joyni to'liq oladi.
+
+Endi `_CardSheet` dagi forma `SingleChildScrollView` ichida: oyna
+faqat formaga kerakli balandlikni oladi, joy qolmaganda esa aylanadi.
+Klaviatura uchun `MediaQuery.viewInsetsOf` allaqachon bor edi va endi u
+haqiqatan ishlaydi — ilgari oyna baribir to'liq balandlikda edi.
+
+O'lchandi (393×852): klaviaturasiz oyna ekranning ~45% ini oladi;
+336px klaviatura insetida esa forma to'liq uning ustida qoladi,
+«Kartani biriktirish» tugmasi ko'rinib turadi.
+
+Instrumentlar oynasi (kafil) shu qolipda yozilgan edi — endi ikkalasi bir xil.
 
 *D — hali boshlanmagan*
 

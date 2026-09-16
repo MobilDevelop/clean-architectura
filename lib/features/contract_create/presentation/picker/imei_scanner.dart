@@ -57,7 +57,7 @@ final class ImeiScanner extends StatelessWidget {
             const Spacer(),
             if (imeis.isNotEmpty)
               Text(
-                "${imeis.length} ta nusxa",
+                "${imeis.length} ta raqam o'qildi",
                 style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.blue),
               ),
           ],

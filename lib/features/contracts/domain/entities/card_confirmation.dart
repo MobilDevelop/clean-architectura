@@ -150,6 +150,9 @@ final class CardConfirmParams extends Equatable {
     this.entry = const CardEntry.empty(),
   });
 
+  /// OTP kod uzunligi. ELMA shuncha xona yuboradi.
+  static const int codeLength = 6;
+
   final CardConfirmation confirmation;
   final CardConfirmAction action;
 

@@ -6,6 +6,8 @@ import 'package:colloborator_v3/core/theme/app_shadow.dart';
 import 'package:colloborator_v3/core/theme/app_surface.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
+import 'package:colloborator_v3/core/utils/client_identity.dart';
+import 'package:colloborator_v3/core/widgets/cards/labeled_cell_row.dart';
 import 'package:colloborator_v3/core/widgets/cards/labeled_row.dart';
 import 'package:colloborator_v3/features/contracts/domain/entities/contract_info.dart';
 import 'package:colloborator_v3/features/contracts/presentation/widgets/contract_approval_note.dart';
@@ -13,14 +15,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 
-/// Shartnoma kartasi.
+/// Shartnoma kartasi. Balandligi o'lchangan va testda qulflangan
+/// (`contract_card_fit_test.dart`) — yangi qator qo'shishdan oldin shu test
+/// ko'riladi.
 ///
-/// Tuzilishi Figma maketidan: yuqorida mijoz, ostida chiziq bilan ajratilgan
-/// «yorliq — qiymat» qatorlari. Ilgari ma'lumot ixcham joylashtirilgan edi va
-/// qaysi raqam nima ekanini bilish uchun kartani o'qib chiqish kerak bo'lardi;
-/// qatorlarda esa ko'z bitta ustundan pastga yuguradi.
-///
-/// Bosilganda nima bo'lishini tashqaridan oladi (6.7).
+/// Status `LabeledRow` da: uning qiymati eng uzun matn va yarim enda
+/// bo'linib ketardi.
 final class ContractCard extends StatelessWidget {
   const ContractCard({super.key, required this.contract, required this.pressActions});
 
@@ -58,22 +58,15 @@ final class ContractCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            _flags(),
             _client(),
 
-            LabeledRow(label: "Shartnoma kodi", value: Text("№ ${contract.id}",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
-
-            LabeledRow(label: "Sanasi", value: Text(
-              contract.createdAt,
-              style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
-            )),
-
-            // Qo'shimcha qatorlar faqat ma'lumot bo'lganda chiqadi: bo'sh
-            // «0 kafil» qatori kartani uzaytirib, hech nima aytmasdi.
-            if (contract.guarantors.isNotEmpty)
-              LabeledRow(label: "Kafillar", value: Text("${contract.guarantors.length} ta",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
-
-            if (contract.flex)
-              LabeledRow(label: "Turi", value: Text("Flex",style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black))),
+            LabeledCellRow(
+              cells: <LabeledCell>[
+                LabeledCell(label: "Shartnoma kodi", value: _value("№ ${contract.id}")),
+                LabeledCell(label: "Sanasi", value: _value(contract.createdAt)),
+              ],
+            ),
 
             LabeledRow(
               label: "Status",
@@ -90,6 +83,29 @@ final class ContractCard extends StatelessWidget {
       ),
     );
   }
+
+  /// Ramka rangining ma'nosi. Ikkalasi birga bo'lsa ikkita yozuv chiqadi —
+  /// ramka esa faqat bitta rangda bo'la oladi.
+  Widget _flags() {
+    final List<Widget> flags = <Widget>[
+      if (contract.showButtonKATM)
+        _Flag(color: AppTheme.colors.yellow, label: "KATM/MIB tekshiruvidan o'tmadi"),
+
+      if (contract.hasBenefit) _Flag(color: AppTheme.colors.primary, label: "Imtiyozli shartnoma"),
+    ];
+
+    if (flags.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: ScreenSize.h10),
+      child: Wrap(spacing: ScreenSize.w6, runSpacing: ScreenSize.h6, children: flags),
+    );
+  }
+
+  Widget _value(String text) => Text(
+    text,
+    style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black),
+  );
 
   // `start`: ism uzun bo'lib bir necha qatorga chiqqanda avatar va menyu
   // butun blok balandligining o'rtasiga emas, yorliq bilan bir qatorga
@@ -117,16 +133,54 @@ final class ContractCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text("Mijozning F.I.O si:",style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.grey)),
-
             // Ism kesilmaydi: uzun familiya uch qatorga chiqsa ham to'liq
             // ko'rinadi. Kesilgan ism xodimga mijozni tanishga xalaqit beradi.
             Text(contract.clientFio,style: AppTheme.data.textTheme.titleLarge?.copyWith(color: AppTheme.colors.black,letterSpacing: -0.2)),
+
+            if (_identity.isNotEmpty) ...<Widget>[
+              Gap(ScreenSize.h2),
+              Text(_identity, style: AppTheme.data.textTheme.bodySmall?.copyWith(color: AppTheme.colors.grey)),
+            ],
           ],
         ),
       ),
     ],
   );
+
+  String get _identity => ClientIdentity.line(passport: contract.passport, inps: contract.inps);
+}
+
+/// Nuqta ramka bilan bir rangda — ko'z ularni bog'laydi.
+final class _Flag extends StatelessWidget {
+  const _Flag({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: ScreenSize.h10, vertical: ScreenSize.h4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .1),
+        borderRadius: BorderRadius.circular(ScreenSize.r10),
+        border: Border.all(color: color.withValues(alpha: .3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            width: ScreenSize.h6,
+            height: ScreenSize.h6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+
+          Gap(ScreenSize.w6),
+          Text(label, style: AppTheme.data.textTheme.bodySmall?.copyWith(color: color)),
+        ],
+      ),
+    );
+  }
 }
 
 final class _StatusChip extends StatelessWidget {

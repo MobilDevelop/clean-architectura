@@ -12,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 ContractInfo _c(int status, {List<GuarantorInfo> g = const <GuarantorInfo>[], bool flex = false}) => ContractInfo(
   id: 36555548, clientId: 1, clientFio: 'Abdurahmonov Abdulaziz Abdurahmonovich',
-  status: ContractStatus.fromCode(status), birthDay: '', passport: '',
+  status: ContractStatus.fromCode(status), birthDay: '', passport: 'AB1234567', inps: '31201000560012',
   isFormal: true, isReturned: false, isCard: false, flex: flex,
   createdAt: '11.09.2025', guarantors: g, clientSignUrl: '', isClientFace: false,
   higherPositionConfirmationRequired: false, isSentForApproval: false,
@@ -48,6 +48,16 @@ void main() {
     for (final (double w, double sc) in <(double, double)>[(393, 1.0), (360, 1.0), (393, 1.3), (360, 1.3)]) {
       await _one(tester, w, sc);
     }
+  });
+
+  /// Chegara o'lchangan (393px, 1.0×): pasport va INPS'dan oldin 398px edi,
+  /// qatorlar juftlashtirilgandan keyin 371px. Yiqilsa — kartaga yana bir
+  /// qator qo'shilgan.
+  testWidgets('karta o‘lchangan balandlikdan oshmaydi', (WidgetTester tester) async {
+    addTearDown(tester.view.reset);
+    await _one(tester, 393, 1.0);
+
+    expect(tester.getSize(find.byType(ContractCard).first).height, lessThan(380));
   });
 }
 

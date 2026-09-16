@@ -14,8 +14,8 @@ final class UnderwriterRepositoryImpl implements UnderwriterRepository {
   final UnderwriterRemoteDatasource _remote;
 
   @override
-  Future<Result<UnderwriterData>> load(int contractId) => guard(() async {
-    final UnderwriterDataDto? dto = await _remote.load(contractId);
+  Future<Result<UnderwriterData>> load(UnderwriterRef ref) => guard(() async {
+    final UnderwriterDataDto? dto = await _remote.load(ref);
 
     // `null` — server hali hech nima saqlanmaganini aytdi (`UnderwriterDataDto.tryFrom`).
     // Bu xato emas, lekin `id` lar nolda qolishi kerak: aks holda mavjud yozuv

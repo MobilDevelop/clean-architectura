@@ -36,6 +36,20 @@ void main() {
 
   setUp(() => repo = FakeUnderwriterRepository());
 
+  /// `client_id` siz so'rov shartnomaning barcha ishtirokchisi yozuvlarini
+  /// qaytaradi: kafil ekranida mijozning hujjatlari ko'rinib, kafil kiritgani
+  /// yo'qolgandek bo'lardi.
+  test('hujjatlar aynan shu ishtirokchi uchun o‘qiladi', () async {
+    final UnderwriterBloc bloc = build();
+    addTearDown(bloc.close);
+
+    bloc.add(const UnderwriterRequested());
+    await _settle();
+
+    expect(repo.loadedRef?.contractId, 5);
+    expect(repo.loadedRef?.clientId, 42);
+  });
+
   test('yuklashda yiqilgan hujjat ro‘yxatda qoladi', () async {
     repo
       ..loadResult = Ok<UnderwriterData>(

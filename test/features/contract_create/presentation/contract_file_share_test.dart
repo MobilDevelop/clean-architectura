@@ -34,7 +34,7 @@ final class _FakeFileRepository implements ContractFileRepository {
 ContractDetails _details({String fileUrl = 'https://s3/shartnoma_55.pdf?sig=1'}) => ContractDetails(
   id: 55,
   statusCode: 11,
-  clientName: 'Aliyev Vali',
+  clientName: 'Aliyev Vali', clientPassport: 'AB1234567', clientInps: '31201000560012',
   termMonths: 12,
   paymentDay: 15,
   isFormal: true,

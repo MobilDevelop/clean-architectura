@@ -4,7 +4,7 @@ import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/formatter/phone_formatter.dart';
 import 'package:colloborator_v3/core/widgets/buttons/main_button.dart';
 import 'package:colloborator_v3/core/widgets/feedback/failure_text.dart';
-import 'package:colloborator_v3/core/widgets/inputs/text_input.dart';
+import 'package:colloborator_v3/core/widgets/inputs/sms_code_field.dart';
 import 'package:colloborator_v3/core/widgets/sheets/sheet_surface.dart';
 import 'package:colloborator_v3/features/customer_analysis/domain/entities/customer_analysis.dart';
 import 'package:colloborator_v3/features/customer_analysis/presentation/bloc/customer_analysis_bloc.dart';
@@ -82,9 +82,10 @@ final class _AnalysisSmsSheetState extends State<_AnalysisSmsSheet> {
               ],
 
               Gap(ScreenSize.h16),
-              TextInputWidget(
-                hint: AnalysisText.smsHint,
+              SmsCodeField(
                 controller: _code,
+                kind: SmsCodeKind.digits,
+                hint: AnalysisText.smsHint,
                 enabled: !isBusy,
                 autoFocus: true,
               ),

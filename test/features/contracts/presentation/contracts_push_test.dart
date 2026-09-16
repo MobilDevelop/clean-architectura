@@ -67,6 +67,7 @@ ContractInfo _contract(int id) => ContractInfo(
   status: ContractStatus.created,
   birthDay: '',
   passport: '',
+  inps: '',
   isFormal: true,
   isReturned: false,
   isCard: false,

@@ -27,13 +27,18 @@ final class FakeUnderwriterRepository implements UnderwriterRepository {
   Result<void> saveResult = const Ok<void>(null);
 
   int loadCalls = 0;
+
+  /// Oxirgi o'qishda qaysi ishtirokchi so'ralgani — kafil filtri shu bilan
+  /// tekshiriladi.
+  UnderwriterRef? loadedRef;
   int brandCalls = 0;
   int uploadCalls = 0;
   int saveCalls = 0;
 
   @override
-  Future<Result<UnderwriterData>> load(int contractId) async {
+  Future<Result<UnderwriterData>> load(UnderwriterRef ref) async {
     loadCalls++;
+    loadedRef = ref;
 
     return loadResult;
   }

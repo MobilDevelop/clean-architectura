@@ -83,8 +83,7 @@ final class _CardSectionState extends State<CardSection> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ContractCardBloc, ContractCardState>(
-      listenWhen: (ContractCardState previous, ContractCardState current) =>
-          current.revision != previous.revision,
+      listenWhen: (ContractCardState previous, ContractCardState current) => current.revision != previous.revision,
       listener: (BuildContext context, ContractCardState state) {
         _phone.clear();
         _number.clear();
@@ -124,8 +123,7 @@ final class _CardSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ContractCardBloc, ContractCardState>(
-      listenWhen: (ContractCardState previous, ContractCardState current) =>
-          current.revision != previous.revision,
+      listenWhen: (ContractCardState previous, ContractCardState current) => current.revision != previous.revision,
       listener: (BuildContext context, ContractCardState state) => Navigator.of(context).pop(),
       builder: (BuildContext context, ContractCardState state) {
         final ContractCardBloc bloc = context.read<ContractCardBloc>();
@@ -136,21 +134,28 @@ final class _CardSheet extends StatelessWidget {
             right: ScreenSize.h16,
             bottom: MediaQuery.viewInsetsOf(context).bottom + ScreenSize.h16,
           ),
-          child: CardFormSection(
-            card: state.card,
-            issue: state.issue,
-            isBusy: state.isBusy,
-            isEnabled: true,
-            disabledReason: '',
-            phoneController: phone,
-            numberController: number,
-            expiryController: expiry,
-            phoneFocus: phoneFocus,
-            numberFocus: numberFocus,
-            expiryFocus: expiryFocus,
-            fieldChanged: ({String? phone, String? number, String? expiry}) => bloc.add(CardFieldChanged(phone: phone, number: number, expiry: expiry)),
-            submitPress: () => bloc.add(const CardSubmitted()),
-            removePress: () => bloc.add(const CardRemoved()),
+          // Oyna faqat formaga kerakli balandlikni oladi: `CardFormSection`
+          // ning ustuni bo'sh joyni to'liq egallardi va oyna ekranga
+          // cho'zilib ketardi. Aylantirish klaviatura ochilib joy qolmagan
+          // holat uchun.
+          child: SingleChildScrollView(
+            child: CardFormSection(
+              card: state.card,
+              issue: state.issue,
+              isBusy: state.isBusy,
+              isEnabled: true,
+              disabledReason: '',
+              phoneController: phone,
+              numberController: number,
+              expiryController: expiry,
+              phoneFocus: phoneFocus,
+              numberFocus: numberFocus,
+              expiryFocus: expiryFocus,
+              fieldChanged: ({String? phone, String? number, String? expiry}) =>
+                  bloc.add(CardFieldChanged(phone: phone, number: number, expiry: expiry)),
+              submitPress: () => bloc.add(const CardSubmitted()),
+              removePress: () => bloc.add(const CardRemoved()),
+            ),
           ),
         );
       },
@@ -180,8 +185,7 @@ final class CardRow extends StatelessWidget {
   final VoidCallback removePress;
 
   /// `8600123412341234` → `•••• 1234`.
-  String get _masked =>
-      card.number.length < 4 ? card.number : "•••• ${card.number.substring(card.number.length - 4)}";
+  String get _masked => card.number.length < 4 ? card.number : "•••• ${card.number.substring(card.number.length - 4)}";
 
   @override
   Widget build(BuildContext context) {
@@ -258,10 +262,7 @@ final class CardPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: EdgeInsets.fromLTRB(ScreenSize.h14, ScreenSize.h4, ScreenSize.h14, ScreenSize.h8),
-    child: Text(
-      "Karta birinchi tovar qo'shilgandan keyin biriktiriladi",
-      style: AppTheme.data.textTheme.bodySmall,
-    ),
+    child: Text("Karta birinchi tovar qo'shilgandan keyin biriktiriladi", style: AppTheme.data.textTheme.bodySmall),
   );
 }
 

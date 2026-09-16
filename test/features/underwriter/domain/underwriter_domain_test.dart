@@ -121,10 +121,16 @@ void main() {
       );
     });
 
-    test('2 MB dan katta va notanish tur rad etiladi', () {
+    test('chegaradan katta va notanish tur rad etiladi', () {
       expect(
-        UnderwriterFileRule.check(count: 0, bytes: 3000000, extension: 'pdf'),
+        UnderwriterFileRule.check(count: 0, bytes: UnderwriterFileRule.maxBytes + 1, extension: 'pdf'),
         FileIssue.tooLarge,
+      );
+
+      // Chegaraning o'zi o'tadi.
+      expect(
+        UnderwriterFileRule.check(count: 0, bytes: UnderwriterFileRule.maxBytes, extension: 'pdf'),
+        FileIssue.none,
       );
       expect(
         UnderwriterFileRule.check(count: 0, bytes: 100, extension: 'docx'),

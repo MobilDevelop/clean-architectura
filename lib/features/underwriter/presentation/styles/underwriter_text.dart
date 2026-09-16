@@ -1,3 +1,4 @@
+import 'package:colloborator_v3/core/contract/underwriter_type_text.dart';
 import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/features/underwriter/domain/entities/underwriter_kind.dart';
 import 'package:flutter/material.dart';
@@ -15,13 +16,7 @@ abstract final class UnderwriterText {
   /// Brend tanlangan, lekin unga marka biriktirilmagan — bu qonuniy holat.
   static const String modelsEmpty = "Bu brend uchun marka topilmadi";
 
-  static String title(UnderwriterKind kind) => switch (kind) {
-    UnderwriterKind.salary => "Ish haqi",
-    UnderwriterKind.pension => "Pensiya",
-    UnderwriterKind.military => "Guvohnoma",
-    UnderwriterKind.student => "Talaba",
-    UnderwriterKind.car => "Avtomobil",
-  };
+  static String title(UnderwriterKind kind) => UnderwriterTypeText.of(kind.code);
 
   static String documentTitle(UnderwriterKind kind) => switch (kind) {
     UnderwriterKind.salary => "Ish haqi ma'lumoti",
@@ -62,7 +57,7 @@ abstract final class UnderwriterText {
   static String? file(FileIssue issue) => switch (issue) {
     FileIssue.none => null,
     FileIssue.tooMany => "Ko'pi bilan ${UnderwriterFileRule.maxCount} ta hujjat yuklanadi",
-    FileIssue.tooLarge => "Fayl hajmi 2 MB dan kichik bo'lishi kerak",
+    FileIssue.tooLarge => "Fayl hajmi ${UnderwriterFileRule.maxBytes ~/ (1024 * 1024)} MB dan kichik bo'lishi kerak",
     FileIssue.wrongType => "Faqat PDF, JPG va PNG qabul qilinadi",
   };
 

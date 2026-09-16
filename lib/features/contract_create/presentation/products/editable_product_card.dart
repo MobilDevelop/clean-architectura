@@ -3,6 +3,7 @@ import 'package:colloborator_v3/core/theme/app_theme.dart';
 import 'package:colloborator_v3/core/theme/screen_size.dart';
 import 'package:colloborator_v3/core/utils/money.dart';
 import 'package:colloborator_v3/features/contract_create/domain/entities/contract_details.dart';
+import 'package:colloborator_v3/features/contract_create/presentation/shared/imei_list.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -10,7 +11,6 @@ import 'package:gap/gap.dart';
 ///
 /// Ko'rish ekranidagi `ContractProductCard` dan alohida — u amalsiz va shu
 /// sababli shartsiz. Ikkalasini bitta widgetga qo'shish qaror qabul qiladigan
-/// widget yaratadi (6.7).
 final class EditableProductCard extends StatelessWidget {
   const EditableProductCard({
     super.key,
@@ -27,6 +27,13 @@ final class EditableProductCard extends StatelessWidget {
 
   final VoidCallback editPress;
   final VoidCallback removePress;
+
+  /// Sarlavhada tovarning o'z nomi turadi, bu qatorda esa u qanday tovar
+  /// ekani: toifa va brend.
+  String get _kind => <String>[
+    if (!product.variant.isEmpty) product.category.name,
+    product.brand.name,
+  ].where((String e) => e.isNotEmpty).join(' · ');
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +80,10 @@ final class EditableProductCard extends StatelessWidget {
                       style: AppTheme.data.textTheme.titleMedium?.copyWith(color: AppTheme.colors.blackSoft),
                     ),
 
-                    if (product.brand.name.isNotEmpty) ...<Widget>[
+                    if (_kind.isNotEmpty) ...<Widget>[
                       Gap(ScreenSize.h2),
                       Text(
-                        product.brand.name,
+                        _kind,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTheme.data.textTheme.bodySmall,
@@ -106,6 +113,28 @@ final class EditableProductCard extends StatelessWidget {
               ],
             ],
           ),
+
+          Gap(ScreenSize.h10),
+          Divider(height: ScreenSize.h1, thickness: ScreenSize.h1, color: AppSurface.line()),
+
+          if (product.supplier.name.isNotEmpty) ...<Widget>[
+            Gap(ScreenSize.h8),
+            Row(
+              children: <Widget>[
+                Text("Ta'minotchi", style: AppTheme.data.textTheme.bodySmall),
+
+                Gap(ScreenSize.w10),
+                Expanded(
+                  child: Text(
+                    product.supplier.name,
+                    maxLines: 2,
+                    textAlign: TextAlign.end,
+                    style: AppTheme.data.textTheme.titleSmall?.copyWith(color: AppTheme.colors.blackSoft),
+                  ),
+                ),
+              ],
+            ),
+          ],
 
           Gap(ScreenSize.h10),
           Row(
@@ -138,11 +167,7 @@ final class EditableProductCard extends StatelessWidget {
 
           if (product.imeis.isNotEmpty) ...<Widget>[
             Gap(ScreenSize.h8),
-            Wrap(
-              spacing: ScreenSize.w6,
-              runSpacing: ScreenSize.h4,
-              children: product.imeis.map(_imei).toList(),
-            ),
+            ImeiList(values: product.imeis, chipColor: AppTheme.colors.backcolor),
           ],
         ],
       ),
@@ -163,13 +188,4 @@ final class EditableProductCard extends StatelessWidget {
     ),
   );
 
-  Widget _imei(String value) => Container(
-    padding: EdgeInsets.symmetric(horizontal: ScreenSize.h8, vertical: ScreenSize.h2),
-    decoration: BoxDecoration(
-      color: AppTheme.colors.backcolor,
-      borderRadius: BorderRadius.circular(ScreenSize.r8),
-      border: AppSurface.border(alpha: .5),
-    ),
-    child: Text(value, style: AppTheme.data.textTheme.bodySmall),
-  );
 }

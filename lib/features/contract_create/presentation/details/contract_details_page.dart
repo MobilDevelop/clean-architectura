@@ -115,7 +115,12 @@ final class ContractDetailsPage extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          if (details.clientName.isNotEmpty) ContractClientCard(name: details.clientName),
+          if (details.clientName.isNotEmpty)
+            ContractClientCard(
+              name: details.clientName,
+              passport: details.clientPassport,
+              inps: details.clientInps,
+            ),
 
           ContractTermsCard(details: details),
 

@@ -65,7 +65,7 @@ ContractProduct _product(int id) => ContractProduct(
 ContractDetails _fullDetails() => ContractDetails(
   id: 12345,
   statusCode: 5,
-  clientName: 'Abdurahmonov Abdulaziz Abdurahmonovich',
+  clientName: 'Abdurahmonov Abdulaziz Abdurahmonovich', clientPassport: 'AB1234567', clientInps: '31201000560012',
   termMonths: 12,
   paymentDay: 15,
   isFormal: true,
@@ -91,7 +91,7 @@ ContractDetails _fullDetails() => ContractDetails(
 ContractDetails _leanDetails() => ContractDetails(
   id: 12345,
   statusCode: 1,
-  clientName: 'Aliyev Vali',
+  clientName: 'Aliyev Vali', clientPassport: 'AB1234567', clientInps: '31201000560012',
   termMonths: 12,
   paymentDay: 15,
   isFormal: true,

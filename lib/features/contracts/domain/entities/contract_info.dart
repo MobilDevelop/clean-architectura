@@ -11,6 +11,7 @@ final class ContractInfo extends Equatable {
     required this.status,
     required this.birthDay,
     required this.passport,
+    required this.inps,
     required this.isFormal,
     required this.isReturned,
     required this.isCard,
@@ -38,6 +39,10 @@ final class ContractInfo extends Equatable {
 
   final String clientFio;
   final String passport;
+
+  /// Mijozning INPS raqami. Backend `client_inps` bilan yuboradi.
+  final String inps;
+
   final String birthDay;
   final String clientSignUrl;
   /// Amallarni kim hal qiladi. Backend `authority_engine` matni bilan yuboradi.
@@ -81,6 +86,7 @@ final class ContractInfo extends Equatable {
     createdAt,
     birthDay,
     passport,
+    inps,
     isFormal,
     isReturned,
     isCard,
